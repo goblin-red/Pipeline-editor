@@ -158,7 +158,7 @@ ready-made schemes, voice input, English and Russian interface.
 
 ```bash
 brew install php                 # macOS has no PHP of its own
-git clone https://github.com/goblin-red/Pipeline-editor.git goblin
+git clone https://github.com/goblin-red/workflow.git goblin
 cd goblin
 php bin/server.php install       # a few questions: database, admin password, AI keys (optional)
 php bin/server.php serve         # → http://localhost:8080
@@ -192,7 +192,7 @@ AI keys are yours: DeepSeek, OpenRouter, OpenAI (voice), Jev — none are includ
 
 ```bash
 brew install php                 # своего PHP в macOS нет
-git clone https://github.com/goblin-red/Pipeline-editor.git goblin
+git clone https://github.com/goblin-red/workflow.git goblin
 cd goblin
 php bin/server.php install       # несколько вопросов: база, пароль админки, ключи ИИ (по желанию)
 php bin/server.php serve         # → http://localhost:8080
