@@ -1,9 +1,9 @@
-# Настройки и ключи установки — у каждого свои (их пишет установщик)
+# Settings and keys of each installation (written by the installer)
 secrets.php
 config_admin.php
 config_web.php
 
-# Данные: база SQLite, материалы, рабочие папки, отметка установки
+# Data: SQLite database, uploaded files, run folders, install mark
 data/*
 !data/files/
 data/files/*
@@ -15,7 +15,7 @@ workspace/*
 public/workfiles/*
 !public/workfiles/.htaccess
 
-# Служебное
+# Service
 backup/
 archive/
 _up/

@@ -1,67 +1,123 @@
-# Goblin — flowchart canvas for AI agents
+# Goblin — flowchart workflows run by AI agents
 
-**beta v0.95** · [Русский ниже](#гоблин--холст-блок-схем-для-ии-агентов)
+**beta v0.95** · MIT license
 
-Draw a process as a flowchart — AI agents (Claude Code, Codex and others) walk through it step by step:
-the server hands out tasks, checks results and keeps the run on track. Built-in AI assistant, a catalog of
-ready-made schemes, voice input, English and Russian interface.
+Goblin is a visual workflow editor where you **draw a process as a flowchart** and **AI coding agents run it
+step by step**. You describe what each block should do; the Goblin server turns the scheme into tasks, hands
+them to an agent (Claude Code, Codex, Gemini CLI, Cursor and others), checks every result and moves the run
+along the arrows — branches, loops and parallel paths included. You watch the run live on the canvas.
+
+No framework, no build step: plain PHP on the server and ES modules in the browser. Runs on your own computer
+or on ordinary shared hosting.
+
+## Features
+
+**Canvas editor**
+- Blocks, decisions (yes/no), gateways, groups, areas (swimlanes), notes, tables and links — numbered hotkeys 1–8
+- Arrows with labels, colors, nested folders (each folder is its own canvas), drag-and-drop between folders
+- Several looks (Working, Classic, Studio, Design, Minimal and more) and a mobile layout
+- English and Russian interface; instructions for agents in the project language
+
+**Runs with AI agents**
+- One link starts a run: the agent reads the server instructions and follows the scheme
+- Two roles: a *lead* agent that drives the run and *workers* that do the tasks; or one agent doing everything
+- Every block gets a clear task; results are checked (files present, formats, conditions) before the next step
+- Decisions are answered by the agent, by a person or by the optional Jev signal model (TypeSafe)
+- Live highlighting, a run log and a timeline; safe stop, retry and restart
+
+**Built-in AI assistant** (bring your own key)
+- Chat that edits the scheme for you: add steps, rearrange, explain
+- Scheme builder: describe a goal, answer a few questions, get a ready flowchart
+- Any OpenAI-compatible API: DeepSeek, OpenRouter (Qwen, DeepSeek and many more) or your own endpoint
+- Voice input and reading answers aloud — with the browser speech engine (free) or OpenAI
+
+**Ready-made catalog** — 26 working schemes in 10 sections: sites and landing pages, photo, video, texts,
+social media, documents, data and APIs, audio, code, Goblin basics.
+
+**Admin panel** — settings, AI connections and balances, people, projects, runs, tokens, backups and migrations.
+
+## How a run works
+
+1. Draw the process: a start node, blocks with descriptions, decisions and arrows.
+2. Press **Start a run** and copy the run link.
+3. Give the link to your agent in the terminal (Claude Code, Codex…). It reads the instructions and asks the
+   server what to do next.
+4. The server issues one task at a time, checks the answer and the files, follows the arrows and highlights
+   progress on the canvas until the run is complete.
 
 ## Requirements
 
-- PHP 8.1+ with `pdo_sqlite` or `pdo_mysql`, `curl`, `mbstring`, `zip`
-- Database: **SQLite** (one file, nothing to set up) or **MySQL / MariaDB**
+- PHP **8.1+** with `pdo_sqlite` or `pdo_mysql`, `curl`, `mbstring`, `zip`
+- Database: **SQLite** (a single file — nothing to set up) or **MySQL 5.7+ / MariaDB 10.3+**
+- Any web server: PHP built-in server, Apache (XAMPP, MAMP, shared hosting)
 
-## Install on your computer (macOS)
+## Installation
+
+### On your computer (macOS, PHP built-in server)
 
 ```bash
-brew install php                 # macOS has no PHP of its own
+brew install php                       # macOS does not ship PHP
 git clone https://github.com/goblin-red/workflow.git goblin
 cd goblin
-php bin/server.php install       # a few questions: database, admin password, AI keys (optional)
-php bin/server.php serve         # → http://localhost:8080
+php bin/server.php install             # database, admin password, optional AI keys
+php bin/server.php serve               # → http://localhost:8080
 ```
 
-With XAMPP or MAMP: put the `goblin` folder into `htdocs` and open `http://localhost/goblin/` — the installer starts by itself.
+SQLite is suggested by default — the database is one file in `data/`.
 
-## Install on a website (hosting)
+### With XAMPP or MAMP
 
-1. Upload the files into the `goblin` folder of your site (or the site root).
+Put the `goblin` folder into `htdocs` and open `http://localhost/goblin/` — the installer page opens by itself.
+
+### On a website (shared hosting)
+
+1. Upload the files into a `goblin` folder of your site (or into the site root).
 2. Open `https://your-site/goblin/` — the installer page opens.
-3. Choose the database (MySQL is recommended for a website), set the admin password, optionally your AI keys.
+3. Choose the database (MySQL is recommended for a website), set the admin password, optionally add AI keys.
 
-After installation the installer is closed. Settings, AI keys and people — in `admin.php`.
-AI keys are yours: DeepSeek, OpenRouter, OpenAI (voice), Jev — none are included.
+The installer checks the server, creates the tables, loads the catalog of ready-made schemes and then
+closes itself.
 
----
+## Configuration
 
-# Гоблин — холст блок-схем для ИИ-агентов
+Everything is set in the admin panel — `admin.php`:
 
-Рисуете процесс блок-схемой — ИИ-агенты (Claude Code, Codex и другие) проходят его шаг за шагом:
-сервер выдаёт задания, проверяет результаты и ведёт прогон. Встроенный ИИ-помощник, каталог готовых схем,
-голосовой ввод, русский и английский интерфейс.
+| What | Where |
+|---|---|
+| AI assistant (DeepSeek, OpenRouter, your own OpenAI-compatible API) | Settings → Built-in AI — model connections |
+| Voice: browser (free) or OpenAI | Settings → Voice |
+| Jev signal model for decisions | Settings → Jev |
+| Database, paths, guests, file limits | Settings |
 
-## Что нужно
+**API keys are not included.** Bring your own:
+[DeepSeek](https://platform.deepseek.com) · [OpenRouter](https://openrouter.ai) ·
+[OpenAI](https://platform.openai.com) (voice, optional) · [TypeSafe Jev](https://typesafe.ai) (optional).
+Without keys the editor and runs with your own agents work; only the built-in assistant is off.
+Each person can also use their own keys in their account.
 
-- PHP 8.1+ с `pdo_sqlite` или `pdo_mysql`, `curl`, `mbstring`, `zip`
-- База: **SQLite** (один файл, настраивать нечего) или **MySQL / MariaDB**
+Keys and passwords are stored in `secrets.php`, settings in `config_admin.php` — both are created by the
+installer and never committed (see `.gitignore`, sample: `secrets.example.php`).
 
-## Установка на свой компьютер (macOS)
+## Updating
 
 ```bash
-brew install php                 # своего PHP в macOS нет
-git clone https://github.com/goblin-red/workflow.git goblin
-cd goblin
-php bin/server.php install       # несколько вопросов: база, пароль админки, ключи ИИ (по желанию)
-php bin/server.php serve         # → http://localhost:8080
+git pull
+php bin/server.php migrate --apply     # or: admin → System → Apply migrations
 ```
 
-С XAMPP или MAMP: папку `goblin` — в `htdocs`, открыть `http://localhost/goblin/` — установщик откроется сам.
+## Project layout
 
-## Установка на сайт (хостинг)
+```
+public/        web root: editor, admin, installer, API entry (api.php), browser code in public/src/
+lib/           server: API, run engine, AI, admin, database layer (MySQL and SQLite)
+views/         page templates
+instructions/  instructions for lead and worker agents and the built-in AI (en, ru)
+lang/          interface texts (en, ru)
+sql/           schema for MySQL and SQLite, migrations, catalog of ready-made schemes
+bin/server.php command line: install, serve, migrate, backup, release
+md_backend/    developer documentation
+```
 
-1. Залить файлы в папку `goblin` сайта (или в корень).
-2. Открыть `https://ваш-сайт/goblin/` — откроется страница установки.
-3. Выбрать базу (для сайта лучше MySQL), задать пароль админки, по желанию — свои ключи ИИ.
+## License
 
-После установки установщик закрыт. Настройки, ключи ИИ и люди — в `admin.php`.
-Ключи ИИ — свои: DeepSeek, OpenRouter, OpenAI (голос), Jev — в комплекте их нет.
+MIT — see [LICENSE](LICENSE).
