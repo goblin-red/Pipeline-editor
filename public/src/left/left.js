@@ -180,8 +180,9 @@ function initTabs() {
 
 /* ── Сворачивание разделов ────────────────────────────────── */
 
-/* Выбор человека важнее вида: свернул сам — так и останется. Пока он
-   ничего не трогал, «Дизайнер» прячет инструменты и цвет. */
+/* Выбор человека важнее вида: свернул сам — так и останется. Пока он ничего не трогал:
+   «Дизайнер» прячет инструменты и цвет, остальные виды — проекты с папками и настройки
+   (слева сразу «Чем рисовать» и «Цвет»; начать помогает окно приветствия). */
 function savedFolds() {
   try {
     const saved = JSON.parse(localStorage.getItem(FOLDED) || 'null');
@@ -190,7 +191,7 @@ function savedFolds() {
   return null;
 }
 
-const lookFolds = () => (currentLook() === 'design' ? { tools: true, colors: true } : {});
+const lookFolds = () => (currentLook() === 'design' ? { tools: true, colors: true } : { folders: true, settings: true });
 
 function initFolding() {
   // Один объект правим на месте: подписка одна на всю жизнь страницы.

@@ -112,7 +112,7 @@
 ## Этап 4. Папка релиза (дистрибутив для GitHub) — сделан 02.10.2026
 
 Итог: `php bin/server.php release` → `htdocs/goblin-release` (471 файл, 16 МБ); пробы — `htdocs/goblin-local-test`
-(Homebrew PHP 8.5, SQLite, :8090) и https://www.goblin.red/goblin/ (PHP 8.3, MySQL 5.7, база сайта).
+(Homebrew PHP 8.5, SQLite, :8090) и https://www.goblin.red/test1/ (PHP 8.3, MySQL 5.7, база сайта).
 
 - Папка рядом с рабочей: `htdocs/goblin-release/`. Рабочий Гоблин не трогается.
   Проверка установщика локально — встроенным сервером на своём порту (`php bin/goblin serve --port 8090`),
