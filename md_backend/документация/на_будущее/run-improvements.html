@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прогон: что улучшить</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --card: #ffffff;
+    --ink: #1d1d1b;
+    --muted: #6b6a64;
+    --line: #e2e0d8;
+    --now: #f1efe8;
+    --now-ink: #4a4944;
+    --new: #eaf5ee;
+    --new-line: #b9dcc5;
+    --new-ink: #1f5a36;
+    --accent: #2f7a4b;
+    --warn: #b4531f;
+    --warn-bg: #fbeee4;
+    --ask: #5a4bb0;
+    --ask-bg: #eeebfa;
+    --fast: #2f7a4b;
+    --fast-bg: #e3f3e8;
+    --code-bg: #efeee8;
+    --bar-agent: #c9c6ba;
+    --bar-jev: #e08a4f;
+    --bar-server: #2f7a4b;
+    --del: #c62828;
+    --ins: #1b7f3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --del: #ff7a7a; --ins: #7ee2a0;
+      --bg: #17171a; --card: #1f1f23; --ink: #ecebe6; --muted: #9c9b95; --line: #33333a;
+      --now: #26262b; --now-ink: #cfcdc6; --new: #1b2a21; --new-line: #2f5a3e; --new-ink: #a8dcb8;
+      --accent: #6fc38f; --warn: #f0a070; --warn-bg: #3a261b; --ask: #b3a8f0; --ask-bg: #29243f;
+      --fast: #6fc38f; --fast-bg: #1d3325; --code-bg: #2a2a30;
+      --bar-agent: #55544e; --bar-jev: #d07a40; --bar-server: #6fc38f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --del: #ff7a7a; --ins: #7ee2a0;
+    --bg: #17171a; --card: #1f1f23; --ink: #ecebe6; --muted: #9c9b95; --line: #33333a;
+    --now: #26262b; --now-ink: #cfcdc6; --new: #1b2a21; --new-line: #2f5a3e; --new-ink: #a8dcb8;
+    --accent: #6fc38f; --warn: #f0a070; --warn-bg: #3a261b; --ask: #b3a8f0; --ask-bg: #29243f;
+    --fast: #6fc38f; --fast-bg: #1d3325; --code-bg: #2a2a30;
+    --bar-agent: #55544e; --bar-jev: #d07a40; --bar-server: #6fc38f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 22px; margin: 48px 0 14px; }
+  h3 { font-size: 18px; margin: 0; }
+  p { margin: 0 0 10px; }
+  .lead { color: var(--muted); max-width: 760px; }
+  code {
+    font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+  .chip {
+    font-size: 13px; padding: 3px 10px; border-radius: 999px;
+    background: var(--card); border: 1px solid var(--line); color: var(--muted);
+  }
+
+  /* Сводка */
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 24px; }
+  .sum {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+  }
+  .sum b { display: block; font-size: 15px; margin-bottom: 4px; }
+  .sum span { color: var(--muted); font-size: 14px; }
+
+  /* Замер r13 */
+  .measure { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .bar { display: flex; height: 34px; border-radius: 8px; overflow: hidden; margin: 12px 0 10px; }
+  .bar div { display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; white-space: nowrap; }
+  .bar .agent { background: var(--bar-agent); color: var(--ink); }
+  .bar .jev { background: var(--bar-jev); }
+  .bar .server { background: var(--bar-server); min-width: 6px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 16px; }
+  .fact { border-top: 1px solid var(--line); padding-top: 10px; font-size: 14px; }
+  .fact b { display: block; font-size: 20px; }
+
+  /* Сравнение */
+  .stage { margin-top: 44px; }
+  .stage-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .stage-head p { color: var(--muted); margin: 0; }
+  .cols-head {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    margin: 18px 0 8px; padding: 0 2px;
+  }
+  .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; margin-bottom: 14px;
+  }
+  .item-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .num {
+    font: 600 13px/1 ui-monospace, Menlo, monospace; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px;
+  }
+  .badge { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+  .badge.fast { background: var(--fast-bg); color: var(--fast); }
+  .badge.clean { background: var(--warn-bg); color: var(--warn); }
+  .badge.ask { background: var(--ask-bg); color: var(--ask); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .now, .new { border-radius: 10px; padding: 14px; font-size: 15px; }
+  .now { background: var(--now); color: var(--now-ink); }
+  .new { background: var(--new); border: 1px solid var(--new-line); color: var(--ink); }
+  .now .tag, .new .tag { display: none; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .now .tag { color: var(--muted); }
+  .new .tag { color: var(--new-ink); }
+  .now p:last-child, .new p:last-child { margin-bottom: 0; }
+  ul.tight { margin: 6px 0 0; padding-left: 20px; }
+  ul.tight li { margin-bottom: 4px; }
+  .gain {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;
+    margin-top: 12px; font-size: 14px;
+  }
+  .gain div { border-top: 1px solid var(--line); padding-top: 8px; }
+  .gain b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 2px; }
+  details { margin-top: 10px; font-size: 14px; color: var(--muted); }
+  summary { cursor: pointer; }
+  details ul { margin: 6px 0 0; padding-left: 20px; }
+
+  /* Списки внизу */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .box h3 { margin-bottom: 8px; }
+  .box ul { margin: 0; padding-left: 20px; }
+  .box li { margin-bottom: 6px; }
+  ol.plan { padding-left: 22px; }
+  ol.plan li { margin-bottom: 10px; }
+  .foot { margin-top: 40px; color: var(--muted); font-size: 13px; }
+
+  /* Правка после замечаний: снятое — красным и зачёркнуто, новое — зелёным */
+  del { color: var(--del); text-decoration: line-through; text-decoration-color: var(--del); }
+  del code { color: var(--del); }
+  ins { color: var(--ins); text-decoration: none; }
+  ins code { color: var(--ins); }
+  .revision {
+    margin-top: 18px; padding: 12px 14px; border-radius: 10px;
+    background: var(--card); border: 1px dashed var(--line); font-size: 14px;
+  }
+
+  @media (max-width: 760px) {
+    h1 { font-size: 24px; }
+    .pair, .two, .cols-head { grid-template-columns: 1fr; }
+    .cols-head { display: none; }
+    .now .tag, .new .tag { display: block; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Прогон Гоблина: как сейчас и что предлагаю</h1>
+  <p class="lead">
+    Мой взгляд на устройство прогона. Слева — как работает сейчас, справа — что я предлагаю.
+    Основа: код прогона (<code>lib/api/simple.php</code>, <code>lib/engine/</code>, <code>lib/cli/</code>),
+    документация <code>documentation.php</code>, раздел «Прогон», и прогон r13 схемы «Claude_count»,
+    который я сам провёл за leader и worker.
+  </p>
+  <div class="meta">
+    <span class="chip">23.09.2026</span>
+    <span class="chip">Ничего не изменено — только предложение</span>
+    <span class="chip">12 пунктов, 3 этапа</span>
+  </div>
+  <div class="revision">
+    <b>Правка 23.09.2026 после замечаний второго агента.</b>
+    <del>Красным и зачёркнуто</del> — что я снимаю. <ins>Зелёным</ins> — что дописываю.
+    <ins>Коротко: этап 1 остаётся и дополняется (П8 и починка ошибок полного API переходят в него); большую чистку этапа 2 откладываю —
+    из неё сейчас берём только запись в документации и мелкие переносы; в этапе 3 добавлены недостающие правила.</ins>
+  </div>
+
+  <div class="summary">
+    <div class="sum"><b>Прогон работает</b><span>r13 прошёл чисто: 7 блоков, 4 ромба, итог «кругов 4, сумма 14» — как задумано. Ломать нечего, есть что упростить.</span></div>
+    <div class="sum"><b>Ромб с числами решает ИИ</b><span>Условие <code>a &gt; 13</code> считал Jev, хотя в схеме есть и формула, и образец ответа. Это против правила «арифметику считает код».</span></div>
+    <div class="sum"><b>leader ходит вдвое чаще нужного</b><span>На каждый блок — два запроса: «готово» и «дай задание». Хватит одного.</span></div>
+    <div class="sum"><b>Три дороги к одному движку</b><span>Простой путь, полный API и утилита. Работает только первая, но код и документация держат все три.</span></div>
+  </div>
+
+  <!-- ───────────────────────── Замер ───────────────────────── -->
+  <h2>Что показал прогон r13</h2>
+  <div class="measure">
+    <p>Весь прогон — <b>46 секунд</b>. Куда ушло время:</p>
+    <div class="bar" aria-label="Распределение времени прогона">
+      <div class="agent" style="width:93.7%">ходы агентов · 43,3 с</div>
+      <div class="jev" style="width:5.7%">Jev</div>
+      <div class="server" style="width:0.6%"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--bar-agent)"></i>leader и worker думают и пересылают — 43,3 с</span>
+      <span><i style="background:var(--bar-jev)"></i>Jev решает ромб — 2,7 с (4 раза по 0,5–0,8 с)</span>
+      <span><i style="background:var(--bar-server)"></i>сервер — около 0,3 с (10–20 мс на команду)</span>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>16</b>запросов leader к серверу на 7 блоков: <code>begin</code>, <code>invite</code>, 7× <code>task</code>, 7× <code>done</code></div>
+      <div class="fact"><b>4</b>обращения к Jev, чтобы сравнить число с 13</div>
+      <div class="fact"><b>~300</b>строк инструкций прочитал leader до первого действия: ссылка 🔗, <code>leader.md</code>, файл среды — с повторами</div>
+      <div class="fact"><b>0</b>сбоев: адрес задания, подсветка, журнал, ловля ответа — всё сработало</div>
+    </div>
+    <p style="margin-top:14px;color:var(--muted);font-size:14px">
+      Вывод: сервер быстрый, ускорять его незачем. Время уходит на ходы агентов — значит, выигрыш в том,
+      чтобы агентам приходилось делать меньше ходов и читать меньше повторов.
+    </p>
+  </div>
+
+  <!-- ───────────────────────── Этап 1 ───────────────────────── -->
+  <section class="stage">
+    <div class="stage-head">
+      <h2 style="margin:0">Этап 1 — быстрые правки</h2>
+      <p>Правила не меняются, leader и worker работают как раньше. Около дня работы.</p>
+    </div>
+    <div class="cols-head"><div>Сейчас</div><div>Предлагаю</div></div>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П1</span><h3>Ромб с числами считает код, а не ИИ</h3><span class="badge fast">Быстро · важно</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>В прогоне leader движок нарочно не считает формулу ромба: любое условие, даже <code>a &gt; 13</code>, уходит к Jev.
+          Причина в коде — «ответ worker бывает свободным текстом, формула ошибётся молча».</p>
+          <p>Итог: ИИ сравнивает числа, на это тратятся время и деньги, есть риск ошибки. А при выключенном Jev каждый ромб ждёт leader.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Порядок решения ромба:</p>
+          <ul class="tight">
+            <li>ответ worker <b>совпал с образцом</b> блока (<code>a=&lt;число&gt; b=&lt;число&gt;</code>) — числа берутся строго по образцу, формулу считает код, мгновенно и всегда одинаково;</li>
+            <li>не совпал или условие словами («текст про кошек?») — спрашиваем Jev, как сейчас;</li>
+            <li>Jev не уверен или выключен — решает leader, как сейчас.</li>
+          </ul>
+          <p>Образец ответа уже есть у блоков — это готовый договор, по нему «свободный текст» не собьёт счёт.</p>
+          <p><ins><b>Когда код не считает</b> — ромб сразу идёт к Jev, а потом к leader, ничего не угадывая:</ins></p>
+          <ul class="tight">
+            <li><ins>ответ не совпал с образцом (другие слова, лишний текст, нет адреса);</ins></li>
+            <li><ins>в ответе нет переменной, которая есть в условии (<code>a</code> есть, <code>b</code> нет);</ins></li>
+            <li><ins>два входа ромба дали разные значения одной переменной;</ins></li>
+            <li><ins>число записано не числом («двенадцать», «12–13»).</ins></li>
+          </ul>
+          <p><ins>Образец ответа — не полная схема данных: код берёт только то, что разобрано однозначно. Отсутствие числа никогда не превращается в «нет».</ins></p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Ромбы с числами — без ИИ <del>и без ошибок</del><ins>и без ошибок счёта</ins>. Выполняется правило 9 из <code>progon.md</code>. Прогон работает и при выключенном Jev<ins> — для ромбов с числами</ins>.</div>
+        <div><b>Цена</b>Разбор ответа по образцу — одна небольшая функция. Вычислитель формул <code>condEval</code> в движке уже есть.</div>
+      </div>
+      <details><summary>Где в коде</summary><ul>
+        <li><code>lib/engine/advance.php:383</code> — для прогона leader формула пропускается</li>
+        <li><code>lib/api/simple.php:837</code> — числа из ответов в прогоне leader не разбираются</li>
+        <li>схема 10631: у ромба 37 <code>cond = a &gt; 13</code>, у блока 36 <code>answer = a=&lt;число&gt; b=&lt;число&gt;</code></li>
+      </ul></details>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П2</span><h3>«Готово» сразу отдаёт следующее задание</h3><span class="badge fast">Быстро · важно</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>Круг leader на каждый блок — два запроса:</p>
+          <ul class="tight">
+            <li><code>done</code> — сервер отвечает «СЛЕДУЮЩИЙ: блок 36, возьми <code>op=task&amp;block=36</code>»;</li>
+            <li><code>task</code> — сервер отвечает «задание в файле …».</li>
+          </ul>
+          <p>Отсюда отдельное правило в инструкции: «не склеивай команды». В r13 — 16 запросов на 7 блоков.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Если после <code>done</code> (и после <code>begin</code>) выдан следующий блок, сервер сразу пишет его задание в файл и отвечает:</p>
+          <p><code>ok: блок 35 принят</code><br><code>задание в файле …/36.1.txt</code></p>
+          <p>leader пересылает эту строку worker — и всё. <code>task</code> остаётся для повторного получения и параллельных веток.</p>
+          <p><ins>Открылось сразу несколько блоков (параллельные ветки) — в ответе по строке «задание в файле …» на каждый. Повторный <code>task</code> отдаёт тот же файл, ничего не выдавая заново.</ins></p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Вдвое меньше ходов leader: в r13 было бы 9 запросов вместо 16. Правило «не склеивай» больше не нужно.
+          <ins>Весь прогон быстрее не вдвое: время worker и доставки сообщений не меняется — сокращаются только ходы leader.</ins></div>
+        <div><b>Цена</b>Небольшая правка <code>goDone</code>/<code>goBegin</code> плюс строчки в <code>leader.md</code>.</div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П3</span><h3>Сторож только смотрит</h3><span class="badge fast">Быстро</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>Сторож раз в 30 секунд спрашивает <code>op=where&amp;short=1</code>. Но <code>where</code> не просто читает — он двигает прогон:
+          выдаёт готовые блоки и может позвать Jev. Выходит, фоновый сторож тихо делает ходы за leader,
+          хотя в его описании написано «ничего не пишет в прогон».</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Короткий статус (<code>where&amp;short=1</code>) — <b>только чтение</b>. Двигают прогон лишь команды leader:
+          <code>begin</code>, <code>done</code>, <code>fail</code>, <code>again</code> и полный <code>where</code>.</p>
+          <p>Простое правило: «спросил — ничего не изменилось; приказал — изменилось».</p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Никаких ходов «из-за спины»: всё, что случилось в прогоне, видно в переписке leader.</div>
+        <div><b>Цена</b>Одно условие в <code>goWhere</code> (<code>lib/api/simple.php:1161</code>).</div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П4</span><h3>Старт с выбранного блока и уборка мелочей</h3><span class="badge fast">Быстро</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <ul class="tight">
+            <li><code>begin</code> отказывает схеме с двумя входами: «простой путь ведёт схемы с одним входом».</li>
+            <li>В полном API выбор входа (<code>from</code>) проверяется, но никуда не сохраняется — выдаются все входы сразу.</li>
+            <li>Команда <code>work</code> дублирует <code>task</code>: блок и так загорается «в работе», когда берут задание.</li>
+            <li>В пакете полного API папка результатов — <code>out/</code>, а у прогона — <code>out/rN/</code>.</li>
+          </ul>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <ul class="tight">
+            <li><code>begin&amp;from=N</code> — начать с нужного входа; без него при одном входе — как сейчас.</li>
+            <li><ins>Выбранный вход проверяет предпроверка: если с него схема упрётся в слияние, которое ждёт ветку от другого входа, —
+              <code>begin</code> отказывает и называет это слияние. Иначе прогон встал бы тупиком на середине.</ins></li>
+            <li><code>work</code> убрать из списка команд (оставить тихим синонимом, чтобы старые leader не падали).</li>
+            <li><del>Ошибки полного API с <code>from</code> и <code>out/</code> снимаются сами на этапе 2 (П5).</del></li>
+            <li><ins>Ошибки полного API с <code>from</code> и <code>out/</code> починить сразу: архивация их не исправила бы, а большую чистку П5 откладываем.
+              <code>run.start</code> сохраняет выбранный вход и выдаёт только его; пакет задания называет папку <code>out/rN/</code>.</ins></li>
+          </ul>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Схемы с несколькими входами можно гонять простым путём. На одну лишнюю команду меньше.<ins> Полный API перестаёт выдавать лишние входы и путать папку результатов.</ins></div>
+        <div><b>Цена</b><del>Несколько строк в <code>goStartRun</code>.</del><ins>Больше, чем казалось: <code>goStartRun</code>, проверка входа в предпроверке, починка <code>run.start</code> (<code>lib/engine/runs.php:89</code>) и <code>stepPackage</code> (<code>lib/engine/package.php:32</code>), проверка на схеме с двумя входами и слиянием.</ins></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ───────────────────────── Этап 2 ───────────────────────── -->
+  <section class="stage">
+    <div class="stage-head">
+      <h2 style="margin:0">Этап 2 — чистка: у каждого правила одно место</h2>
+      <p><del>Для агентов и человека ничего не меняется, зато код и документация становятся вдвое проще.</del>
+        <ins>Большую перестройку сейчас не делаем: цена высокая, выгода не срочная. Берём только маленькие части П5–П7, а П8 переходит в этап 1.</ins></p>
+    </div>
+    <div class="cols-head"><div>Сейчас</div><div>Предлагаю</div></div>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П5</span><h3>Одна дорога к движку вместо трёх</h3><span class="badge clean"><del>Чистота · главное</del></span><span class="badge clean"><ins>Отложено · сейчас только документация</ins></span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>К одному движку ведут три дороги:</p>
+          <ul class="tight">
+            <li><b>простой путь</b> — 11 команд, по нему идут все настоящие прогоны;</li>
+            <li><b>полный API</b> — 35 команд <code>run.*</code>/<code>step.*</code>; браузеру из них нужны 7, остальные 28 — только утилите и проверкам;</li>
+            <li><b>утилита <code>goblin</code></b> — около 45 команд и 3 659 строк; отложена, в прогонах не участвует.</li>
+          </ul>
+          <p>У каждой дороги свой запуск прогона, своя сборка задания, свои режимы. Документация описывает все три — агенту легко пойти не туда.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <ul class="tight">
+            <li><b>Простой путь — единственный путь для агентов.</b></li>
+            <li><b>Браузеру</b> — только чтение: состояние, подсветка, журнал, лента, плюс «подготовить» и «остановить» (как сейчас).</li>
+            <li><del><b>Остальные 28 команд и утилита — в архив</b> (папка <code>archive/</code>, ничего не удаляется). Старый движок engine 1 не трогаем — он доживает по правилу 5.</del></li>
+            <li><del>Проверки движка (<code>check-engine</code> и ещё 8) переписать на простой путь.</del></li>
+            <li><ins><b>Сейчас — только запись в документации и инструкциях:</b> «агенты ведут прогон только простым путём; полный API заморожен —
+              работает как есть, новых возможностей не получает; утилита — в запасе».</ins></li>
+            <li><ins>Код, 28 команд и 9 проверок не трогаем. Архив и перенос проверок — позже, если заморозка начнёт мешать.</ins></li>
+          </ul>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b><del>Одна правда о прогоне. Из ~12,9 тыс. строк кода прогона в архив уходит около 4 тысяч (одна утилита — 3 659). В документации пропадают разделы «какой путь выбрать».</del>
+          <ins>Агент сразу знает, какой дорогой идти, и не забредает в полный API. Работающие проверки движка остаются как есть.</ins></div>
+        <div><b>Цена</b><del>Самое дорогое — переписать 9 проверок, которые ходят через полный API. Утилита остаётся в архиве про запас, как и решено.</del>
+          <ins>Только правка документации. Минус: лишний код остаётся, и его по-прежнему надо не сломать при правках движка.</ins></div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П6</span><h3>Логика — в движке, а не в «простом пути»</h3><span class="badge clean">Чистота</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p><code>simple.php</code> — это 1 286 строк, и это не «разбор запроса и печать ответа». В нём живут свои правила:
+          сборка задания и входа, поиск причины застоя, решение, что показать leader, ловля файлов из ответа,
+          заведение прогона. Параллельно в движке лежит вторая сборка задания (<code>stepPackage</code>) с другими полями.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Разнести по местам:</p>
+          <ul class="tight">
+            <li><code>lib/engine/</code> — все правила: задание, вход, «почему стоит», ловля файлов, заведение прогона;</li>
+            <li><code>lib/api/simple.php</code> — только «прочитать запрос → позвать движок → напечатать текст».</li>
+          </ul>
+          <p>Сборка задания — одна, её текст видит worker.</p>
+          <p><ins><b>Не одним большим переносом, а по кусочку:</b> правим место для конкретной задачи (например, П1 — разбор ответа по образцу, П2 — выдача задания в <code>done</code>) — его логику сразу кладём в <code>lib/engine/</code>. Остальное ждёт своей задачи.</ins></p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Выполняется правило «правило прогона пишется один раз — в <code>lib/engine/</code>». Новые возможности добавляются в одно место.</div>
+        <div><b>Цена</b><del>Перенос кода без изменения поведения; <code>check-simple.mjs</code> подтверждает, что ответы остались теми же.</del>
+          <ins>Почти ничего сверх самих задач; после каждого кусочка <code>check-simple.mjs</code> подтверждает, что ответы остались теми же.</ins></div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П7</span><h3>Без таблицы режимов «водитель × судья × Jev»</h3><span class="badge clean">Чистота</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>У прогона три настройки: кто ведёт (<code>manual</code> / <code>utility</code> / <code>lead</code>), кто принимает (<code>human</code> / <code>formal</code>),
+          как участвует Jev (<code>off</code> / <code>advisor</code> / <code>judge</code>) — 18 сочетаний.</p>
+          <p>Простой путь всегда ставит одно: <code>lead + human + judge</code>. Причём «принимает человек» здесь неправда — принимает leader.
+          Код сверяется с режимом в 36 местах.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p><del>Один способ прогона — leader. Остаётся одна настоящая настройка у папки:</del></p>
+          <p><ins>Режимы полного API не трогаем: формальная проверка сдачи (<code>formal</code>) может понадобиться будущему ревизору результатов.
+            Меняем только прогон leader:</ins></p>
+          <ul class="tight">
+            <li><ins>он честно записывает «принимает leader», а не «человек»;</ins></li>
+            <li><ins>у папки появляется галочка:</ins></li>
+          </ul>
+          <p><b>«Словесные ромбы решает Jev»</b> — вкл/выкл (по умолчанию вкл). Выключено — такие ромбы решает leader.</p>
+          <p>Остальное поведение задают свойства блоков (образец ответа, лимит кругов, платные вызовы) — как сейчас.</p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b><del>Нет сочетаний, которые никто не проверял.</del> Правило «при выключенном Jev прогон полностью рабочий» соблюдается явно.<ins> Журнал прогона правдиво говорит, кто принял работу.</ins></div>
+        <div><b>Цена</b>Старые прогоны в базе не трогаем — их поля просто читаются как история.<ins> Таблица из 18 сочетаний остаётся — упрощать её будем, только если дойдём до П5.</ins></div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П8</span><h3>Инструкции без повторов</h3><span class="badge clean">Чистота</span><span class="badge fast"><ins>Переходит в этап 1</ins></span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>leader читает три текста, и они пересказывают друг друга:</p>
+          <ul class="tight">
+            <li>ссылка 🔗 (<code>docs.run</code>) — факты прогона, свой «Порядок» и свои «Чего не делать»;</li>
+            <li><code>leader.md</code> — свой «Порядок», правила, таблицы ответов;</li>
+            <li>файл среды — как слать сообщения.</li>
+          </ul>
+          <p>Правку приходится вносить в два места; забыли одно — агент получает два разных совета.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>У каждого текста своя роль:</p>
+          <ul class="tight">
+            <li><b>ссылка 🔗</b> — только факты этого прогона: проект, папка, рабочая папка, среда, итог предпроверки и «прочитай <code>leader.md</code>, затем начни с <code>begin</code>»;</li>
+            <li><b><code>leader.md</code></b> — все правила и порядок, одни на все схемы;</li>
+            <li><b>файл среды</b> — только связь.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Короче чтение до старта, нет расхождений между текстами.</div>
+        <div><b>Цена</b>Правка <code>docsRunText()</code> и <code>leader.md</code>. После неё нужен пробный прогон агентом «с чистого листа».</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ───────────────────────── Этап 3 ───────────────────────── -->
+  <section class="stage">
+    <div class="stage-head">
+      <h2 style="margin:0">Этап 3 — гибкость: на твоё решение</h2>
+      <p>Меняют принятые правила или открывают новые возможности, поэтому — только после твоего «да».</p>
+    </div>
+    <div class="cols-head"><div>Сейчас</div><div>Предлагаю</div></div>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П9</span><h3>Среда прогона — один файл</h3><span class="badge ask">Гибкость</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>Три среды: Орка, SendMessage, субагенты. Для каждой есть файл <code>связь-….md</code>, но текст вводной worker —
+          «как мне отвечать» — зашит в PHP (<code>goInvite</code>, выбор по названию среды). Чтобы добавить среду, нужно править и код, и документы.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Среда — <b>один файл</b> <code>instructions/связь-X.md</code> с тремя разделами: «leader», «worker» и «Вводная» (готовый шаблон строки для <code>invite</code>).
+          Код только подставляет номер прогона и адрес ответа.</p>
+          <p>Новая среда — Codex, Grok, свой скрипт — это новый файл и одна строка в списке сред.</p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Прогон не привязан к конкретным инструментам: <del>подключить нового исполнителя можно без программиста.</del>
+          <ins>описать новую среду можно без правки кода. Саму связь — как агенты шлют друг другу сообщения — даёт инструмент агента; файл её не создаёт, а только объясняет.</ins></div>
+        <div><b>Цена</b>Небольшая: перенести три текста из PHP в файлы.</div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П10</span><h3>Шлюз — вызов другой схемы</h3><span class="badge ask">Гибкость · меняет правило 7</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>Шлюз только отмечает переход: leader пишет <code>done</code>, и всё. Схему из другой папки нельзя использовать как готовый кусок —
+          её приходится копировать. Правило 7 в <code>progon.md</code>: «шлюз не запускает дочерний прогон».</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Шлюз ведёт в папку-подсхему: прогон <b>заходит в неё</b>, проходит её блоки тем же leader и worker и <b>возвращается</b> к стрелке после шлюза.
+          Ответ последнего блока подсхемы становится ответом шлюза.</p>
+          <p>Номера блоков уникальны в проекте, так что адрес задания <code>N.K</code> работает без изменений. Подсветка загорается в обеих папках.</p>
+          <p><ins><b>Отдельный большой проект со своим планом.</b> До кода нужны правила: как подсхема возвращается при ошибке внутри неё;
+            что будет, если её вызывают второй раз (в цикле или из двух шлюзов); как остановить прогон, когда он внутри подсхемы; где хранятся её результаты и файлы.</ins></p>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Схемы собираются из готовых кусков: «обработать фото», «проверить текст» рисуются один раз и вызываются из многих мест.</div>
+        <div><b>Цена</b>Самая большая доработка движка из всех пунктов. Делать только после этапов 1–2.</div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П11</span><h3>Одно главное задание у блока</h3><span class="badge ask">Меняет твоё решение</span><span class="badge ask"><ins>Пока оставляем как есть</ins></span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>worker получает и описание блока, и ТЗ, с пометкой «описание важнее ТЗ; расходятся — делай по описанию».
+          В r13 у блока 36 одно и то же сказано дважды: «a = a + 1; b=b+1;» в описании и то же самое в ТЗ.
+          Когда они расходятся, worker должен угадать, где ошибка.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>worker — одно задание:</p>
+          <ul class="tight">
+            <li>ТЗ есть — отдаём ТЗ, описание остаётся подписью на карточке;</li>
+            <li>ТЗ нет — заданием становится описание;</li>
+            <li>предпроверка перед <code>begin</code> предупреждает, если описание и ТЗ явно противоречат друг другу.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Нет двух правд в одном задании. Задание короче.</div>
+        <div><b>Цена</b>Правило «описание важнее» было твоим решением: оно защищает от устаревшего ТЗ. Если оно важно — оставляем как есть.
+          <ins>Решено: не трогаем, пока ты отдельно не скажешь иначе.</ins></div>
+      </div>
+    </article>
+
+    <article class="item">
+      <div class="item-head"><span class="num">П12</span><h3>Несколько worker — по карточке блока в любой среде</h3><span class="badge ask">Гибкость</span></div>
+      <div class="pair">
+        <div class="now"><div class="tag">Сейчас</div>
+          <p>Карточка агента на блоке что-то значит только в Орке. В SendMessage и у субагентов работает один worker, которого нашёл leader,
+          а имя с карточки даже убрано из подсказки, потому что сбивало.</p>
+        </div>
+        <div class="new"><div class="tag">Предлагаю</div>
+          <p>Строка задания для leader говорит, <b>кому</b> его отдать, если у блока назначен исполнитель: <code>задание в файле … · исполнитель: «Дизайнер»</code>.
+          leader сопоставляет имя с сессией или субагентом своей среды. Не назначен — отдаёт своему worker, как сейчас.</p>
+          <ul class="tight">
+            <li><ins>Связь имени с исполнителем должна быть однозначной: у карточки агента — точное имя сессии или терминала для каждой среды, а не «похожее».</ins></li>
+            <li><ins>Назначенный исполнитель не найден, найдено несколько или он молчит — leader зовёт человека и ждёт. Отдавать задание другому worker «вместо» нельзя.</ins></li>
+          </ul>
+        </div>
+      </div>
+      <div class="gain">
+        <div><b>Что даст</b>Разные блоки делают разные специалисты (картинки, тексты, код) в любой среде.</div>
+        <div><b>Цена</b>Строчка в ответе сервера и абзац в файлах сред. Нужен пробный прогон с двумя worker.</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ───────────────────────── Что не трогаем ───────────────────────── -->
+  <h2>Что оставить как есть</h2>
+  <div class="two">
+    <div class="box">
+      <h3>Работает хорошо — не трогаю</h3>
+      <ul>
+        <li>Адрес задания <code>N.K</code> и отказ на ответ со старого круга — главная защита счёта циклов.</li>
+        <li>Задание файлом: leader не видит ТЗ и не может его пересказать.</li>
+        <li>«ОПИСАНИЕ ПРОГОНА» из стартера и «СХЕМА КРАТКО» при <code>begin</code>.</li>
+        <li>Подсветку ставит сервер по командам leader; браузер только красит.</li>
+        <li>Лента переписки leader с сервером в журнале прогона.</li>
+        <li>Ловля файлов из ответа worker на карточку блока.</li>
+        <li>Предпроверка схемы перед стартом.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Сознательно не предлагаю</h3>
+      <ul>
+        <li>Пускать worker в сервер — worker говорит только с leader.</li>
+        <li>Проверять работу worker — остаётся «честное слово».</li>
+        <li>Возвращать утилиту <code>goblin</code> в прогоны — она в архиве про запас.</li>
+        <li>Фоновый демон — прогон двигают только команды leader.</li>
+        <li>Команды прогона из браузера — браузер только смотрит.</li>
+        <li>Ускорять сервер — он и так тратит миллисекунды.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── Порядок ───────────────────────── -->
+  <h2>Порядок и как проверим</h2>
+  <div class="box">
+    <ol class="plan">
+      <li><b>Этап 1 (П1–П4<ins>, П8 и починка <code>from</code> и <code>out/</code> в полном API</ins>).</b> Проверка: <code>check-simple.mjs</code> зелёный; повторный прогон «Claude_count» даёт тот же итог «кругов 4, сумма 14»,
+        при этом <b>0 обращений к Jev</b> и <b>9 запросов leader</b> вместо 16.
+        <ins>Плюс отдельные проверки: ответ не по образцу уходит к Jev, а не считается; старт со входа, упирающегося в слияние, отклоняется;
+        <code>run.start</code> с выбранным входом выдаёт только его; пробный прогон агентом «с чистого листа» по новой ссылке 🔗 (П8).</ins></li>
+      <li><del><b>Этап 2 (П5–П8).</b> Сначала переписать 9 проверок на простой путь, потом перенести код и архивировать лишнее.
+        Проверка: все проверки прогона зелёные, ответы сервера совпадают с прежними слово в слово, пробный прогон агентом «с чистого листа» по новой ссылке 🔗.</del></li>
+      <li><ins><b>Этап 2 (урезан).</b> П5 — только запись «агентам — простой путь, полный API заморожен» в документации и инструкциях.
+        П6 — по кусочку внутри задач этапа 1. П7 — честная запись «принимает leader» и галочка Jev у папки.
+        Архив, переписывание 9 проверок и отказ от режимов — не сейчас.</ins></li>
+      <li><b>Этап 3 (П9–П12)</b> — по одному пункту и только после твоего решения по каждому. П10 (подсхемы) — отдельной задачей со своим планом.</li>
+    </ol>
+    <p style="color:var(--muted);font-size:14px;margin:0">Перед <del>этапом 2</del><ins>этапом 1</ins> нужен снимок (<code>bin/server.php backup</code>) — только по твоему распоряжению.</p>
+  </div>
+
+  <p class="foot">
+    Подготовлено 23.09.2026 по коду прогона, документации «Прогон» и журналу прогона r13 (папка 10631, проект g9x9jenvvr).
+    Файл ничего не меняет в Гоблине.
+  </p>
+</div>
+</body>
+</html>

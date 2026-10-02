@@ -1,0 +1,509 @@
+/* Элементы схемы. Разметка та же, что была в прежнем Гоблине:
+   node → node-card → node-inner. Здесь общий слой, одинаковый для всех видов;
+   что показывать — решает вид (css/looks.css, css/classic.css). */
+
+.node{position:absolute;transform-origin:0 0;cursor:grab;user-select:none}
+/* Запас вокруг карточки: и наведение, и щелчок ловятся чуть мимо края.
+   Ширина взята по портам — они торчат на четырнадцать точек, и раньше, пока
+   курсор шёл к точке, карточка успевала «потерять» наведение и порт исчезал.
+   Рамки и области запаса не получают: у них края и так огромные, зато
+   вплотную стоящие соседи начали бы спорить за курсор. */
+.node:not(.group):not(.area)::before{content:"";position:absolute;inset:-14px;
+  border-radius:calc(var(--r-md) + 14px)}
+/* Пока тянут — ни доводчика, ни теней-задержек: карточка идёт за пальцем.
+   Слой не поднимаем: он говорит, кто внутри кого, и подмена слоя на время
+   переноса перевернула бы рамку с содержимым. */
+.node.dragging{cursor:grabbing;transition:none}
+.node.dragging .node-card{box-shadow:var(--shadow-2)}
+/* Отпустили — короткий доводчик до ближайших точек сетки. */
+.node.settling{transition:left 160ms cubic-bezier(.2,.8,.3,1),top 160ms cubic-bezier(.2,.8,.3,1)}
+
+.node-card{position:absolute;inset:0;display:flex;flex-direction:column;
+  border:2px solid var(--card-edge,var(--line));border-radius:var(--r-md);
+  background:var(--card-fill,var(--surface));box-shadow:var(--shadow-1);overflow:hidden;
+  transition:border-color var(--fast),box-shadow var(--fast)}
+.node:hover .node-card{border-color:var(--ink-faint)}
+
+/* Состояние сильнее скина и цвета: поэтому класс удвоен, как и раньше. */
+.node.node.selected .node-card{border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent),var(--shadow-1)}
+
+.node-inner{position:relative;flex:1 1 auto;display:flex;flex-direction:column;gap:4px;
+  padding:10px 12px;overflow:hidden;border-radius:6px;min-height:0}
+
+.node-title{color:var(--card-ink,var(--ink));flex:0 0 auto;font-weight:600;font-size:var(--f-md);line-height:1.3;overflow:hidden}
+.node-desc{flex:0 1 auto;font-size:var(--f-sm);color:var(--card-ink-dim,var(--ink-dim));overflow:hidden;min-height:0}
+
+.node-image-section{display:block;flex:1 1 auto;width:calc(100% + 24px);margin:4px -12px;
+  height:140px;max-height:45%;min-height:0;object-fit:cover;
+  background:repeating-conic-gradient(var(--surface-2) 0% 25%,var(--surface) 0% 50%) 0 0/16px 16px}
+.node-image-section[hidden]{display:none}
+
+/* Картинка карточки — фон, а не строка в столбце: она занимает всю карточку,
+   а название и описание ложатся на неё полосами. Иначе «прозрачность» полосы
+   показывать было нечего: под ней был не снимок, а подложка карточки. */
+.node.has-image .node-image-section{position:absolute;inset:0;z-index:0;
+  width:100%;height:100%;max-height:none;margin:0;object-fit:cover}
+.node.has-image .node-inner{position:relative;z-index:1;justify-content:flex-start;gap:0}
+/* Описание прижато к низу карточки: пустого зазора под ним быть не должно.
+   Прижим только у него — иначе значки и плашка делят свободное место с ним,
+   и описание зависало посередине. */
+.node.has-image .node-desc{margin-top:auto}
+.node.has-image :is(.node-badges,.node-data,.node-brick){margin-top:0}
+/* Пустые строки значков не занимают места: из-за их отступов под описанием
+   оставался зазор в палец шириной. */
+:is(.node-badges,.node-data):empty{display:none}
+/* Всё, что лежит на картинке, должно быть позиционировано: иначе абсолютная
+   картинка закрывает собой обычный текст, даже с меньшим z-index. */
+.node.has-image .node-inner > *:not(.node-image-section){position:relative;z-index:1}
+
+/* Поверх картинки текст читается на тёмной полосе. Полоса идёт во всю ширину
+   карточки и без скруглений: скруглённые плашки смотрелись наклейками. */
+.node.has-image .node-inner :is(.node-title,.node-desc,.node-result){
+  color:#fff;border-radius:0;text-shadow:0 1px 2px #000}
+/* Заголовок читают всегда — под ним полоса сплошная; описание прозрачнее,
+   чтобы картинка за ним оставалась видна. */
+.node.has-image .node-inner .node-title{background:rgb(38,41,48)}
+.node.has-image .node-inner :is(.node-desc,.node-result){background:rgba(38,41,48,.7)}
+.node.has-image .node-inner :is(.node-title,.node-desc,.node-result):not(:empty){padding:6px 12px}
+
+/* Плашка агента — в самом низу карточки: она говорит, кто делает, а не что. */
+/* Плашка исполнителя: значок того же набора, что и всюду, а цвет плашки —
+   цвет его инструмента (config.txt). */
+.node-brick{--cli:var(--line);display:inline-flex;align-items:center;gap:5px;align-self:flex-start;
+  margin-top:auto;font-size:var(--f-xs);border-radius:999px;padding:2px 9px;
+  border:1px solid color-mix(in srgb,var(--cli) 45%,var(--line));
+  background:color-mix(in srgb,var(--cli) 14%,var(--surface-2));
+  color:color-mix(in srgb,var(--cli) 45%,var(--ink-dim))}
+.node-brick .brick-icon{width:13px;height:13px;flex:0 0 13px}
+/* Исполнитель за работой: плашка светится его цветом, пока шаг не закрыт. */
+.node-brick.busy{border-color:var(--cli);color:color-mix(in srgb,var(--cli) 70%,var(--ink));
+  background:color-mix(in srgb,var(--cli) 26%,var(--surface-2));
+  animation:brickPulse 1.8s ease-in-out infinite}
+@keyframes brickPulse{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--cli) 55%,transparent)}
+  50%{box-shadow:0 0 12px 5px color-mix(in srgb,var(--cli) 0%,transparent)}
+}
+/* Крестик снимает исполнителя. Тусклый, пока карточку не тронули: плашка
+   должна читаться как имя, а не как кнопка. */
+.node-brick-x{margin:0 -3px 0 1px;padding:0 3px;border:0;background:none;cursor:pointer;
+  color:inherit;font-size:11px;line-height:1;opacity:.45;transition:opacity var(--fast)}
+.node:hover .node-brick-x{opacity:.8}
+.node-brick-x:hover{opacity:1;color:var(--c-red)}
+
+.node-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto}
+.node-badges span{padding:1px 6px;border:1px solid var(--line);border-radius:3px;
+  color:var(--ink-dim);font:normal 10px/1.5 var(--mono)}
+
+.node-data{display:flex;flex-wrap:wrap;gap:4px}
+.node-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;
+  padding:1px 7px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);
+  color:var(--ink-dim);font:11px/1.5 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.node-result{flex:0 0 auto;align-self:flex-start;max-width:100%;margin-top:4px;padding:2px 7px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border:1px solid color-mix(in srgb,var(--ok) 40%,var(--line));border-radius:3px;
+  background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);
+  font:600 11px/1.4 var(--mono)}
+
+/* Значки стоят столбиком у правого края: скрытые просто выпадают из ряда,
+   и между оставшимися не остаётся дыр. */
+/* Под столбик значков оставлено место: название и описание под него не лезут.
+   У области и ромба своя раскладка текста, их это не касается. */
+.node:not(.area):not(.decision):not(.gateway) :is(.node-title,.node-desc){padding-right:30px}
+
+/* Номер живёт отдельно от столбика: у ромба он уходит в левый угол, а прочие
+   значки остаются справа. Столбик начинается под номером, а если номера нет —
+   с самого верха. */
+.node-seq-badge{position:absolute;right:-9px;top:10px;z-index:12}
+.node-marks{position:absolute;right:-9px;top:38px;z-index:12;display:flex;flex-direction:column;
+  align-items:flex-end;gap:6px;pointer-events:none}
+.node:has(.node-seq-badge[hidden]) .node-marks{top:10px}
+.node-marks > *{pointer-events:auto}
+.node-seq-badge,.node-md-badge,.node-step,.node-clip,.node-agent{min-width:30px;height:22px;
+  padding:0 6px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink-dim);
+  box-shadow:var(--shadow-1);font:700 10px/1 var(--mono);letter-spacing:.06em}
+.node-md-badge{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line));cursor:pointer}
+/* Скрепка с числом материалов — тот же столбик значков. */
+.node-clip{cursor:pointer}
+.node-clip:hover{border-color:var(--accent);color:var(--accent)}
+/* Состояние шага — третий значок того же столбика, сразу под MD: одна галочка
+   без слов, чтобы плашка не лезла на схему. Цвет берётся от состояния. */
+/* Исполнитель значком — когда плашке мешает картинка. */
+.node-agent{--cli:var(--line);
+  border-color:color-mix(in srgb,var(--cli) 45%,var(--line));
+  color:color-mix(in srgb,var(--cli) 55%,var(--ink-dim))}
+.node-agent svg{width:14px;height:14px}
+.node-step{font-size:12px;letter-spacing:0}
+/* Повторная попытка: значок с числом круга — «◉ 3». */
+.node-step.many{font-weight:700;gap:3px;color:var(--ink)}
+
+/* Правка текста прямо в карточке: двойной щелчок в «Классике». */
+.node.editing{cursor:text}
+.node.editing .node-card{border-color:var(--accent)}
+.node .node-grid [contenteditable]{cursor:text;outline:none;user-select:text;-webkit-user-select:text;
+  background:color-mix(in srgb,var(--accent) 16%,transparent);
+  box-shadow:inset 0 0 0 1px var(--accent);white-space:pre-wrap}
+.node.table .node-grid th,.node.table .node-grid td{cursor:text}
+.node .node-title[contenteditable],.node .node-desc[contenteditable]{
+  cursor:text;outline:none;white-space:pre-wrap;
+  /* Подсвечиваем только цветом и внутренней рамкой. Ни padding, ни margin,
+     ни шрифт не меняем: иначе в «Классике» шапка ужимается, а текст прыгает
+     под курсором прямо в момент щелчка. */
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent);
+  background-image:linear-gradient(color-mix(in srgb,var(--accent) 12%,transparent),
+                                   color-mix(in srgb,var(--accent) 12%,transparent));
+  /* у карточки выделение текста выключено — здесь его надо вернуть,
+     иначе каретку некуда поставить и ввод не идёт */
+  user-select:text;-webkit-user-select:text;overflow:visible;min-height:1.2em}
+/* Заголовок при правке не растёт: браузер держит в редактируемом поле пустую
+   строку про запас, и с видимым переполнением шапка прибавляла строку. */
+.node .node-title[contenteditable]{overflow:hidden;min-height:0}
+.node.editing .node-desc{display:block}
+
+/* ── Контейнеры ──────────────────────────────────────────────────
+   Рамку берут за любое пустое место внутри неё. Если под курсором объект —
+   едет объект: он лежит выше рамки по слоям, и мышь достаётся ему. */
+.node:is(.group,.area) .node-title{max-width:calc(100% - 150px)}
+.node.group .node-title{position:relative;max-width:calc(100% - 170px)}
+
+/* Стрелка находится внутри заголовка, счётчик — справа от его плашки. */
+.node-fold{position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:9;width:28px;height:22px;
+  display:inline-flex;align-items:center;justify-content:center;padding:0;
+  border:1px solid var(--card-edge,var(--line));border-radius:5px;background:var(--surface);
+  color:var(--ink);cursor:pointer;font:700 13px/1 var(--sans);box-shadow:var(--shadow-1)}
+.node-fold:hover{border-color:var(--accent);color:var(--accent);background:var(--surface-2)}
+.node-count{position:absolute;right:32px;top:11px;z-index:9;padding:2px 8px;
+  border:1px solid var(--line);border-radius:999px;background:var(--surface);
+  color:var(--ink-dim);font:10px/1.4 var(--mono);white-space:nowrap}
+.node.group.collapsed .node-card{background:var(--card-fill,var(--surface));
+  border-style:solid;box-shadow:var(--shadow-2)}
+.node.group.collapsed .node-title{font-size:var(--f-md);text-transform:none;color:var(--card-ink,var(--ink))}
+
+/* Пока тянут стрелку, видно, куда её можно привести: рамки и пометки гаснут,
+   потому что концами стрелки бывают только блок, ромб и шлюз. */
+body.linking .node:is(.group,.area,.note){opacity:.35}
+body.linking .node:is(.block,.decision,.gateway) .node-card{border-color:var(--info)}
+
+/* Уголок размера — как был: правый нижний угол, видно при наведении
+   и у выбранного. Зона захвата шире рисунка, чтобы попадать мышью. */
+.node-grip{position:absolute;right:-9px;bottom:-9px;width:30px;height:30px;z-index:9;
+  cursor:nwse-resize;opacity:0;border-radius:6px;transition:opacity var(--fast)}
+.node-grip::after{content:"";position:absolute;right:6px;bottom:6px;width:16px;height:16px;
+  border-right:3px solid var(--ink-faint);border-bottom:3px solid var(--ink-faint);
+  border-radius:0 0 4px 0;
+  background:repeating-linear-gradient(135deg,transparent 0 4px,var(--ink-faint) 4px 5px,transparent 5px 9px);
+  clip-path:polygon(100% 0,100% 100%,0 100%)}
+.node:hover .node-grip,.node.selected .node-grip{opacity:1}
+.node-grip:hover::after{border-color:var(--accent);
+  background:repeating-linear-gradient(135deg,transparent 0 4px,var(--accent) 4px 5px,transparent 5px 9px)}
+.node.resizing .node-grip{opacity:1}
+.node.resizing .node-card{border-color:var(--accent);box-shadow:var(--shadow-2)}
+body.iso .node-grip{display:none}
+
+/* Подсказка при перетаскивании: зелёным — что прибавится в контейнер,
+   красным — что из него уйдёт. Как было в прежнем Гоблине. */
+/* Класс удвоен: подсказка сильнее выделения, как и состояние шага. */
+.node.node.drop-add .node-card{border-color:var(--ok);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 32%,transparent),var(--shadow-1)}
+.node.node.drop-remove .node-card{border-color:var(--bad);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 30%,transparent),var(--shadow-1)}
+.node.area.drop-add .node-card,.node.group.drop-add .node-card{
+  background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.node.area.drop-remove .node-card,.node.group.drop-remove .node-card{
+  background:color-mix(in srgb,var(--bad) 10%,transparent)}
+
+/* Порты: за них тянут стрелку. Точка маленькая, а хватать её приходится мышью,
+   поэтому зона захвата вчетверо больше самой точки и прозрачна. Пока порт не
+   виден, он и не ловит мышь — иначе край карточки нельзя было бы взять. */
+.port{position:absolute;width:28px;height:28px;border-radius:50%;background:none;border:none;
+  opacity:0;pointer-events:none;cursor:crosshair;transition:opacity var(--fast);z-index:9}
+.port::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:11px;
+  margin:-6.5px 0 0 -6.5px;border-radius:50%;background:var(--surface);
+  border:1.5px solid var(--ink-faint);transition:background var(--fast),border-color var(--fast)}
+.node:hover .port,.node.selected .port{opacity:1;pointer-events:auto}
+.port:hover::after{border-color:var(--accent);background:var(--accent)}
+.port-top{top:-14px;left:calc(50% - 14px)} .port-bottom{bottom:-14px;left:calc(50% - 14px)}
+.port-left{left:-14px;top:calc(50% - 14px)} .port-right{right:-14px;top:calc(50% - 14px)}
+
+/* Типы: форма говорит, что это, без чтения подписи. */
+/* Ромб: углы скошены, но умеренно — фигура остаётся широкой, и текст в ней
+   помещается. Прямоугольной рамки нет: форму держит clip-path, а обводка —
+   подложка карточки, из-под которой на два пикселя выглядывает заливка. */
+.node.decision .node-card{--cut:26px;border:none;border-radius:0;box-shadow:none;overflow:visible;
+  background:var(--card-edge,var(--line));
+  clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% 50%,
+    calc(100% - var(--cut)) 100%,var(--cut) 100%,0 50%)}
+.node.decision .node-inner{margin:2px;background:var(--card-fill,var(--surface));
+  clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% 50%,
+    calc(100% - var(--cut)) 100%,var(--cut) 100%,0 50%)}
+.node.decision:hover .node-card{background:var(--ink-faint)}
+/* Статус шага у ромба — по его контуру (css/run.css): полосы слева у ромба нет,
+   форму держит clip-path, поэтому цветом статуса красится сама обводка. */
+.node.node.decision.selected .node-card{background:var(--accent);box-shadow:none}
+/* Текст ромба — по центру и по вертикали, и по горизонтали; поля по краям
+   оставлены под боковые ярлыки «да» и «нет». */
+.node.decision .node-inner{align-items:center;justify-content:center;text-align:center;
+  padding-left:44px;padding-right:44px}
+/* У ромба заголовок без плашки: полоса поперёк развилки выглядела чужой
+   прямоугольной вставкой. Сам заголовок прижат к верху и вынут из потока,
+   поэтому описание стоит ровно посередине фигуры, а не под ним. */
+.node.decision .node-title,.node.decision .node-desc{text-align:center;width:100%;
+  background:none;border:none;padding:0}
+/* Заголовок ромба центрируется и как текст, и как строка-флекс: в «Классике»
+   шапка выложена флексом, и одного text-align мало — буквы прижимались к краю
+   и уезжали под скошенный угол. */
+.node.decision .node-title{position:absolute;left:0;right:0;top:10px;z-index:2;
+  justify-content:center;padding-left:34px;padding-right:34px}
+/* У ромба значки разведены по верхним углам: номер слева, остальные справа.
+   На своём обычном месте они попадали ровно на боковой ярлык «да». */
+.node.decision .node-seq-badge{left:-9px;right:auto}
+/* Значки — зеркально номеру, на правом верхнем крае: внутри фигуры значок
+   состояния с кругом («✓ ↻2») ложился на название ромба. Боковой ярлык
+   «НЕТ» стоит посередине высоты — с ним они не встречаются. */
+.node.decision .node-marks{top:10px;right:-9px}
+/* Ответ исполнителя у ромба — внизу по центру: в общем потоке плашка
+   ложилась ровно поверх описания. */
+.node.decision .node-result{position:absolute;left:52px;right:52px;bottom:12px;
+  align-self:auto;margin:0;text-align:center;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+/* Описание держим ровно в центре фигуры: в общем потоке его сдвигали вверх
+   значки и плашка агента, у которых свои прижимы к низу. */
+.node.decision .node-desc{position:absolute;left:52px;right:52px;width:auto;top:50%;
+  transform:translateY(-50%);margin:0;max-height:56%;overflow:hidden;text-align:center}
+/* Развилка подписана с боков: направо «да», налево «нет» — так её читают
+   на бумаге, и стрелки ветвей уже не надо разглядывать. */
+.node-yes,.node-no{position:absolute;top:50%;transform:translateY(-50%);z-index:11;
+  padding:2px 5px;border-radius:4px;border:1px solid var(--line);background:var(--surface);
+  font:700 9px/1 var(--mono);letter-spacing:.08em}
+/* ДА слева, НЕТ справа — как уходят и сами ветки (canvas/geometry.js). */
+.node-yes{left:9px;color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.node-no{right:9px;color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+
+/* Шлюз — не блок, а портал в другую папку: кольцо со свечением внутри,
+   название по центру и строка «⇢ куда» под ним. */
+.node.gateway .node-card{border-radius:999px;border-style:solid;border-width:2px;
+  border-color:color-mix(in srgb,var(--info) 55%,var(--line));
+  background:radial-gradient(120% 120% at 50% 50%,
+      color-mix(in srgb,var(--info) 26%,transparent) 0%, transparent 72%),
+    var(--card-fill,var(--surface));
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--info) 12%,transparent),var(--shadow-1)}
+.node.gateway .node-inner{align-items:center;justify-content:center;text-align:center;padding:12px 22px}
+.node.gateway .node-title::before{content:"⇢ ";color:var(--info)}
+.node.gateway .node-badges{justify-content:center;color:var(--info)}
+/* Шлюз — всё по центру: содержимое собрано к середине, строка результата не прижата влево,
+   номер — на верхнем крае кольца посередине, отметки — на нижнем (у блока они в правом углу
+   рамки, а у шлюза там скругление). На самом крае они не ложатся на название и ответ. */
+.node.gateway .node-result{align-self:center}
+.node.gateway .node-badges{margin-top:0}
+.node.gateway .node-seq-badge{right:50%;top:-11px;transform:translateX(50%)}
+.node.gateway .node-marks{right:50%;top:auto;bottom:-11px;transform:translateX(50%);flex-direction:row}
+.node.note .node-card{border-style:dotted;background:transparent;box-shadow:none}
+.node.group .node-card{background:color-mix(in srgb,var(--card-fill,var(--surface)) 45%,transparent);border-radius:var(--r-lg)}
+.node.group .node-title{font-size:var(--f-sm);color:var(--ink-dim);
+  text-transform:uppercase;letter-spacing:.04em}
+/* У раскрытой группы описание на карточке не показываем: внутри рамки лежат
+   объекты, и текст поверх них только мешает. У схлопнутой он остаётся —
+   там табличка стоит вместо содержимого. */
+.node.group:not(.collapsed) .node-desc{display:none}
+
+/* Область — не карточка, а подложка: сплошная заливка градиентом, пунктирная
+   рамка и надпись без плашки. */
+.node.area .node-card{
+  /* Два слоя, а не один: снизу сама заливка (цвет области или её узор),
+     сверху затемнение: серая градация занимает первую четверть ширины,
+     дальше ровный тёмно-серый — не в чёрный фон холста, а на тон выше. Так область непрозрачна всегда —
+     точки холста сквозь неё не видны. Вкладывать --card-fill внутрь
+     градиента нельзя: у узорных заливок это ломает всё правило, и карточка
+     становилась прозрачной. */
+  --area-grad:90deg;
+  --area-dark:color-mix(in srgb,var(--surface) 30%,var(--bg));
+  background:
+    linear-gradient(var(--area-grad), transparent 0%, var(--area-dark) 25%, var(--area-dark) 100%),
+    var(--card-fill,var(--surface-2));
+  border:1px dashed var(--card-edge,var(--line));box-shadow:none}
+.node.area[data-align="right"] .node-card{--area-grad:270deg}
+/* Подпись области — не шапка, а надпись поверх всей рамки: крупно, посередине
+   по высоте, приглушённым цветом и с той стороны, которую выбрали в её виде
+   (по умолчанию слева). Область подписывают, а читают то, что на ней лежит. */
+.node.area .node-title{position:absolute;inset:0 auto 0 0;width:35%;max-width:none;
+  display:flex;align-items:center;justify-content:flex-start;
+  padding:0 18px;background:none;border:none;overflow:hidden;
+  font:400 34px/1.1 var(--sans);letter-spacing:.08em;text-transform:uppercase;
+  white-space:normal;overflow-wrap:anywhere;
+  text-align:left;color:color-mix(in srgb,var(--card-ink,var(--ink-dim)) 26%,transparent)}
+.node.area[data-align="right"] .node-title{inset:0 0 0 auto;
+  justify-content:flex-end;text-align:right}
+/* Подпись по высоте — сверху, посередине (по умолчанию) или снизу: второй переключатель в её виде. */
+.node.area[data-valign="top"] .node-title{align-items:flex-start;padding-top:18px}
+.node.area[data-valign="bottom"] .node-title{align-items:flex-end;padding-bottom:18px}
+
+/* Виды карточки из прежнего Гоблина. */
+.node.view-title .node-inner{justify-content:flex-start;text-align:center}
+.node.view-title .node-desc{display:none}
+.node.view-table .node-title{font-size:15px}
+.node.view-table .node-desc{display:none}
+.node.view-service .node-card{box-shadow:var(--shadow-2)}
+
+/* Состояние шага прогона — одна таблица на все скины: css/run.css. */
+
+/* Стрелки */
+/* Подложка подписи: подпись лежит прямо на линии, подложка цвета холста прячет
+   линию под текстом (размер ставит refreshArrowLabelPlates). */
+.arrow-label-plate{pointer-events:none;fill:var(--bg);stroke:none}
+body.no-labels .arrow-label-plate{display:none}
+.arrow{fill:none;stroke:currentColor;stroke-width:2;marker-end:url(#arrow-end)}
+.arrow.sel{stroke:var(--accent)}
+.arrow.yes{stroke:var(--ok)} .arrow.no{stroke:var(--bad)} .arrow.back{stroke-dasharray:6 5}
+/* Прогон на стрелке — бежит, пройдена, жетон ждёт: css/run.css. */
+/* Конец спрятан в схлопнутой группе: стрелка идёт внутрь рамки, а не к ней самой. */
+.arrow.folded{stroke-dasharray:2 5;opacity:.55;marker-end:none}
+g.folded .arrow-label{fill:var(--ink-faint);font-style:italic}
+/* Подпись стрелки одного размера на экране при любом масштабе: размер и ореол
+   приходят из canvas/view.js вместе с камерой (см. applyCamera). */
+/* Мельче 30 % подписи стрелок не читаются — холст чище без них. */
+body.no-labels .arrow-label{display:none}
+.arrow-label{fill:var(--ink-dim);paint-order:stroke;stroke:var(--bg);stroke-linejoin:round;
+  font-size:var(--label-size,11px);stroke-width:var(--label-halo,3px);dominant-baseline:middle;
+  text-rendering:geometricPrecision;pointer-events:none}
+
+/* ── Таблица ─────────────────────────────────────────────────────
+   Шапка и первый столбец подсвечены: по ним читают столбец и ряд.
+   Остальные клетки обычные, а ряды чередуются еле заметно — чтобы глаз
+   не сбивался на длинной таблице, но полосы не спорили с содержимым. */
+/* У таблицы рамок нет: её границы и так видны по клеткам, а двойной контур
+   (карточка плюс обёртка) только рябил. Обводка появляется при наведении
+   и у выбранной — чтобы было понятно, что это один объект. */
+/* Фон таблицы с лёгким градиентом сверху вниз: шапка чуть светлее, низ тише —
+   глаз читает ряды в том же порядке, в каком они записаны. Градиент берётся
+   от чернил темы, поэтому он работает и на светлой, и на тёмной. */
+.node.table .node-card{border-radius:var(--r-sm);border-color:transparent;box-shadow:none;
+  background:linear-gradient(180deg,
+      color-mix(in srgb,var(--ink) 6%,transparent) 0%,
+      color-mix(in srgb,var(--ink) 2%,transparent) 45%,
+      transparent 100%),
+    var(--card-fill,var(--surface))}
+.node.table:hover .node-card{border-color:color-mix(in srgb,var(--line) 60%,transparent)}
+.node.table.selected .node-card,.node.table.node.selected .node-card{border-color:var(--accent)}
+.node.table .node-inner{padding:8px;gap:6px}
+.node.table .node-title{font-size:var(--f-sm);text-transform:uppercase;letter-spacing:.04em;
+  color:var(--card-ink-dim,var(--ink-dim))}
+.node-grid-wrap{flex:1 1 auto;min-height:0;overflow:auto;border-radius:var(--r-sm)}
+
+/* Таблице нужен воздух: в неё смотрят издалека, на схеме, а не в отчёте. */
+.node-grid{width:100%;border-collapse:collapse;font-size:13px;line-height:1.5;table-layout:fixed}
+.node-grid th,.node-grid td{padding:10px 14px;text-align:left;vertical-align:top;
+  border-right:1px solid color-mix(in srgb,var(--line) 55%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent);
+  overflow:hidden;text-overflow:ellipsis}
+.node-grid th:last-child,.node-grid td:last-child{border-right:none}
+.node-grid tbody tr:last-child th,.node-grid tbody tr:last-child td{border-bottom:none}
+
+/* Шапка: заметно, но без крика. */
+.node-grid thead th{background:color-mix(in srgb,var(--accent) 14%,var(--surface-2));
+  color:var(--ink);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+  position:sticky;top:0;z-index:1;
+  border-bottom:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.node-grid .grid-corner{background:var(--surface-2);width:22%}
+.node-grid .grid-name{background:color-mix(in srgb,var(--accent) 7%,var(--surface-2));
+  font-weight:600;color:var(--ink);width:22%}
+
+/* Чередование рядов: еле заметная полоса сверху вниз. */
+.node-grid tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.node-grid tbody tr:nth-child(even) .grid-name{background:color-mix(in srgb,var(--accent) 10%,var(--surface-2))}
+.node-grid.no-zebra tbody tr:nth-child(even) td{background:transparent}
+.node-grid.compact th,.node-grid.compact td{padding:5px 8px;font-size:12px}
+.node.table.has-image .node-grid-wrap{background:rgba(8,15,24,.84)}
+
+/* ── Ярлык-ссылка (canvas/link.js) ───────────────────────────────
+   Бирка у края объекта: короткий отросток и плашка «↗ имя цели».
+   У владельца — справа, сплошная; у цели — слева, контурная
+   «↙ из …» («на меня ссылаются»). Несколько ярлыков — столбиком.
+   Цвет свой, фиолетовый: ярлык не стрелка и не прогон. */
+.node{--link-ink:var(--c-purple,#a091cf)}
+.node > .link-stubs{position:absolute;top:10px;display:flex;flex-direction:column;gap:5px;
+  pointer-events:none;z-index:7}
+.node > .link-stubs.out{left:100%;align-items:flex-start}
+.node > .link-stubs.in{right:100%;align-items:flex-end}
+/* У шлюза и ромба край фигуры касается рамки только посередине высоты — там и бирки:
+   пунктир доходит до самой фигуры, а не обрывается в пустом углу рамки. */
+.node:is(.gateway,.decision) > .link-stubs{top:50%;transform:translateY(-50%)}
+.link-stub{pointer-events:auto;display:flex;align-items:center;margin:0;padding:0;
+  border:none;background:none;cursor:pointer;white-space:nowrap}
+.link-stub.in{flex-direction:row-reverse}
+/* Отросток — черта от края карточки до бирки. */
+.link-stub::before{content:"";flex:0 0 14px;border-top:2px solid var(--link-ink)}
+/* Сама бирка. */
+.link-stub .link-tag{display:flex;align-items:center;gap:5px;max-width:220px;height:22px;
+  padding:0 9px 0 7px;border-radius:11px;box-sizing:border-box;
+  font:600 11.5px/1 var(--sans);color:#15121f;background:var(--link-ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .12s,filter .12s}
+.link-stub .link-icon{font-weight:800;font-size:12px}
+.link-stub .link-name{overflow:hidden;text-overflow:ellipsis}
+/* Название — только при наведении: бирка раскрывается сразу, без задержки системной подсказки. */
+.link-stub .link-title{max-width:0;margin-left:-5px;overflow:hidden;white-space:nowrap;opacity:0;
+  transition:max-width .2s ease,opacity .2s ease,margin-left .2s ease}
+.link-stub:hover .link-title{max-width:200px;margin-left:0;opacity:1}
+/* У цели — контурная: это не ссылка, а «на меня ссылаются». */
+.link-stub.in .link-tag{color:var(--link-ink);background:var(--surface);border:1.5px solid var(--link-ink);
+  box-shadow:none;padding:0 8px 0 6px}
+/* Ведёт в другую папку — пунктирный отросток. */
+.link-stub.other::before{border-top-style:dashed}
+.link-stub:hover .link-tag{transform:scale(1.06);filter:brightness(1.12)}
+/* Мелкий масштаб: имя не прочесть — остаётся значок, но бирка видна всегда. */
+body.no-labels .link-stub .link-name{display:none}
+body.no-labels .link-stub .link-tag{padding:0 6px}
+/* Пришли по ярлыку — карточка коротко вспыхивает. */
+.node[data-link-arrived] .node-card{outline:2.5px solid var(--link-ink);outline-offset:4px}
+/* Ждём вторую точку ярлыка («щёлк — щёлк»): владелец подсвечен. */
+.node[data-link-from] .node-card{outline:2px dashed var(--link-ink);outline-offset:4px}
+/* Инструмент «ярлык»: тянут от блока, группы или области. */
+body.tool-link .node.block,body.tool-link .node.group,body.tool-link .node.area{cursor:crosshair}
+.link-ghost{stroke:var(--c-purple,#a091cf);stroke-width:2;stroke-dasharray:4 4;fill:none}
+/* Строки ярлыков в панели свойств (panel/links-view.js). */
+.link-row{display:flex;align-items:center;gap:6px;margin:4px 0}
+.link-row-dot{flex:0 0 9px;height:9px;border-radius:50%;background:var(--c-cyan,var(--accent));box-sizing:border-box}
+.link-row.in .link-row-dot{background:transparent;border:2px solid var(--c-cyan,var(--accent))}
+.link-row-text{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+.link-row-text small{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-row-title{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-row-name{padding:3px 6px;font-size:12.5px}
+.link-picker{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.link-picker-label{display:block;margin-top:2px}
+/* Значок ярлыков в строке иерархии (ui/hierarchy.js). */
+.ui-tree-jumps{color:var(--c-cyan,var(--accent));font-family:var(--sans);cursor:pointer;margin-right:4px}
+.ui-tree-jumps:hover{text-decoration:underline}
+
+/* ── Стартер прогона: блок с флажком start — круг «пуск». Сверху вниз:
+   подпись СТАРТЕР, значок ▶ по центру, под ним название; номер — над кругом.
+   Описание прогона (ТЗ стартера) на холсте не показывается. Правила усилены
+   (!important): облики холста рисуют карточку по-своему, но стартер — всегда круг.
+   Цвет — зелёный «пуск» (--starter), а не акцент редактора. */
+.node.el.starter{--starter:var(--ok,#4caf7a)}
+.node.el.starter .node-card{border-radius:50% !important;overflow:hidden;
+  border:2px solid var(--starter) !important;
+  background:radial-gradient(circle at 50% 45%,
+    color-mix(in srgb,var(--starter) 26%,var(--surface)) 0%,var(--surface) 72%) !important;
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--starter) 16%,transparent),var(--shadow-1,none) !important}
+.node.el.starter .node-inner{height:100%;display:flex !important;flex-direction:column;align-items:center;
+  justify-content:center;gap:0;text-align:center;padding:12% 10% !important;border:0 !important}
+/* Подпись вида — над значком */
+.node.el.starter .node-inner::before{content:'СТАРТЕР';display:block;margin-bottom:6px;
+  font:600 10px/1 var(--mono,ui-monospace,monospace);letter-spacing:.14em;color:var(--starter)}
+.node.el.starter .node-inner:lang(en)::before{content:'STARTER'}
+/* Название — под значком, по центру, на всю ширину круга */
+.node.el.starter .node-title{display:block !important;width:100% !important;max-width:100% !important;
+  margin:0 !important;padding:0 !important;border:0 !important;background:none !important;
+  white-space:normal !important;overflow:hidden;text-overflow:clip;overflow-wrap:anywhere;
+  font-weight:700;line-height:1.2;text-align:center !important;text-transform:none !important}
+.node.el.starter .node-title::before{content:'▶';display:block !important;position:static !important;
+  width:auto !important;height:auto !important;margin:0 auto 8px !important;background:none !important;
+  border:0 !important;font-size:26px;line-height:1;color:var(--starter)}
+.node.el.starter .node-title::after{content:none !important}
+/* Номер — над кругом по центру, не на обводке */
+.node.el.starter .node-seq-badge{left:50% !important;right:auto !important;top:-34px !important;
+  transform:translateX(-50%) !important}
+.node.el.starter :is(.node-image-section,.node-desc,.node-grid-wrap,.node-badges,.node-data,
+  .node-result,.node-review,.node-brick,.node-md-badge,.node-clip,.node-agent,.node-step){display:none !important}
+/* Пройден — css/run.css: кольцо цвета «принят», вместо ▶ — ✓. */

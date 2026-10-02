@@ -1,0 +1,23 @@
+{
+ "editor.rail.settings_tab": "Настройки: язык, файлы, каталог схем, холст",
+ "editor.rail.fold": "Свернуть раздел",
+ "editor.settings.title": "Настройки",
+ "editor.settings.language": "Язык",
+ "editor.settings.files": "Файлы",
+ "editor.settings.catalog": "Каталог схем",
+ "editor.settings.builder": "Конструктор схем",
+ "editor.settings.open": "Открыть…",
+ "editor.settings.save": "Сохранить…",
+ "editor.settings.project": "Проект",
+ "editor.settings.canvas": "Холст",
+ "editor.settings.canvas_settings": "Настройки холста",
+ "editor.settings.docs": "Документация",
+ "editor.settings.docs_open": "Документация Goblin",
+ "editor.settings.docs_hint": "Документация Goblin — открыть в новой вкладке",
+ "editor.settings.help": "Инструкция",
+ "editor.settings.leader_guide": "Инструкция leader",
+ "editor.settings.lists": "Списки",
+ "editor.settings.open_folder_first": "Сначала откройте папку",
+ "editor.account.mine": "Мой кабинет",
+ "editor.account.login": "Войти"
+}

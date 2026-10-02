@@ -1,0 +1,23 @@
+{
+ "editor.rail.settings_tab": "Settings: language, files, scheme catalog, canvas",
+ "editor.rail.fold": "Collapse section",
+ "editor.settings.title": "Settings",
+ "editor.settings.language": "Language",
+ "editor.settings.files": "Files",
+ "editor.settings.catalog": "Scheme catalog",
+ "editor.settings.builder": "Scheme builder",
+ "editor.settings.open": "Open…",
+ "editor.settings.save": "Save…",
+ "editor.settings.project": "Project",
+ "editor.settings.canvas": "Canvas",
+ "editor.settings.canvas_settings": "Canvas settings",
+ "editor.settings.docs": "Documentation",
+ "editor.settings.docs_open": "Goblin documentation",
+ "editor.settings.docs_hint": "Goblin documentation — opens in a new tab",
+ "editor.settings.help": "Guide",
+ "editor.settings.leader_guide": "Leader instructions",
+ "editor.settings.lists": "Lists",
+ "editor.settings.open_folder_first": "Open a folder first",
+ "editor.account.mine": "My account",
+ "editor.account.login": "Sign in"
+}

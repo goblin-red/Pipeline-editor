@@ -1,0 +1,18 @@
+{
+  "server.journal.long_text": "long text",
+  "server.journal.bytes": "{n} bytes",
+  "server.ai.journal_job": "AI assistant, job {job}",
+  "server.ai.journal_constructor": "builder",
+  "server.ai.no_answer": "No answer from the model",
+  "server.ai.new_scheme": "New scheme",
+  "server.template.own_category": "Custom",
+  "server.template.journal": "template",
+  "server.template.journal_key": "template {key}",
+  "server.template.check_name": "Draft check",
+  "server.template.check_label": "draft check",
+  "server.table.column": "Column {n}",
+  "server.token.agent_label": "agent {name}",
+  "server.token.session_label": "browser sign-in",
+  "server.token.admin_label": "admin panel",
+  "server.template.key_long": "Template key is longer than {max} characters"
+}

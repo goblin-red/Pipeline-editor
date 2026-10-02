@@ -1,0 +1,59 @@
+<?php
+/* Публикация подробных статей из frontend-content.json в базу документации.
+   Запуск: php md_backend/документация/publish-frontend.php
+   Сохраняет ID существующих статей и связей. Все записи меняются в одной транзакции.
+   Повторный запуск обновляет содержание перечисленных статей исходным материалом. */
+declare(strict_types=1);
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
+require_once dirname(__DIR__, 2) . '/lib/core/config.php';
+require_once dirname(__DIR__, 2) . '/lib/core/db.php';
+
+$document = json_decode(file_get_contents(__DIR__ . '/frontend-content.json'), true, 512, JSON_THROW_ON_ERROR);
+$pages = $document['pages'];
+$result = dbTransaction(static function () use ($pages): array {
+    $ids = [];
+    foreach (dbAll('SELECT id, slug FROM documentation_pages') as $row) $ids[$row['slug']] = (int) $row['id'];
+    $types = [];
+    $created = 0;
+    foreach ($pages as $page) {
+        $slug = $page['slug'];
+        $types[$slug] = $page['resource_type'] ?? 'related';
+        if (isset($ids[$slug])) continue;
+        dbRun('INSERT INTO documentation_pages (slug, title, summary_html, body_html) VALUES (?, ?, ?, ?)', [$slug, $page['title'], '', '']);
+        $ids[$slug] = dbId();
+        $created++;
+    }
+    $linksAdded = 0;
+    foreach ($pages as $page) {
+        $source = $ids[$page['slug']];
+        $order = 0;
+        $ensureLink = static function (string $target) use ($source, $ids, $types, &$order, &$linksAdded): int {
+            if (!isset($ids[$target])) throw new RuntimeException('Не найден документ назначения: ' . $target);
+            $type = $types[$target] ?? 'related';
+            $existing = dbValue('SELECT id FROM documentation_links WHERE source_page_id = ? AND target_page_id = ?', [$source, $ids[$target]]);
+            if ($existing) {
+                dbRun('UPDATE documentation_links SET resource_type = ? WHERE id = ?', [$type, $existing]);
+                return (int) $existing;
+            }
+            dbRun('INSERT INTO documentation_links (source_page_id, target_page_id, resource_type, sort_order) VALUES (?, ?, ?, ?)', [$source, $ids[$target], $type, $order++]);
+            $linksAdded++;
+            return dbId();
+        };
+        $replace = static function (array $match) use ($ensureLink): string {
+            return '[[' . $ensureLink($match[1]) . '|' . $match[2] . ']]';
+        };
+        $pattern = '/\[\[([a-z][a-z0-9_-]*)\|([^\]\r\n]+)\]\]/u';
+        $summary = preg_replace_callback($pattern, $replace, $page['summary_html']);
+        $body = preg_replace_callback($pattern, $replace, $page['body_html']);
+        // Техническая связь может существовать только в нижнем блоке статьи.
+        foreach ($page['references'] as $target) $ensureLink($target);
+        $parent = $page['parent'];
+        if ($parent !== null && !isset($ids[$parent])) throw new RuntimeException('Не найден родитель: ' . $parent);
+        dbRun('UPDATE documentation_pages SET parent_id = ?, title = ?, summary_html = ?, body_html = ?, keywords = ?, sort_order = ? WHERE id = ?', [
+            $parent === null ? null : $ids[$parent], $page['title'], $summary, $body,
+            json_encode($page['tags'], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), $page['order'], $source,
+        ]);
+    }
+    return ['articles' => count($pages), 'created' => $created, 'links_added' => $linksAdded];
+});
+echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) . "\n";

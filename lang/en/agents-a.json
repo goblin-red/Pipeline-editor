@@ -1,0 +1,19 @@
+{
+  "agents.runs.reset_closed": "Run r{no} is already closed ({state}) — a reset does not revive a closed run: start a new run",
+  "agents.runs.ev_reset_block": "block {no}: attempts up to {no}.{attempt} erased — these numbers will not repeat",
+  "agents.runs.ev_reset_run": "run restarted: {n} steps erased, attempt numbers continue",
+  "agents.runs.not_ready": "The scheme is not ready for a run — the run is not started: {list}",
+  "agents.runs.entries_many": "The scheme has several entries ({list}) — the run would start from all of them at once. Add a starter or keep one entry",
+  "agents.runs.from_not_entry": "Cannot start from element {from}: a run starts only at the scheme entry — element {no}",
+  "agents.precheck.at_block": "block {no}: ",
+  "agents.precheck.decision_exits_extra": "Decision exits: “yes” — {yes}, “no” — {no}, without a branch — {other}. Exactly one “yes” and one “no” are needed: otherwise the run takes the first arrow and silently drops the other",
+  "agents.precheck.join_values": "Rule join = {value}: only all or any is allowed",
+  "agents.steps.result_too_long": "The answer is too long: {bytes} bytes, while a step holds at most {max}. Put the full text into a file and submit its path",
+  "agents.runs.ev_paused": "run paused",
+  "agents.runs.ev_resumed": "run resumed",
+  "agents.events.kind.pause": "pause",
+  "agents.events.kind.resume": "resume",
+  "agents.steps.who_bad": "The performer name (who) is up to {max} characters: letters, digits, space, _ . -",
+  "agents.events.kind.who": "performer",
+  "agents.steps.ev_who_changed": "{task}: performer {was} → {now}"
+}

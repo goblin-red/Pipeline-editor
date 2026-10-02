@@ -1,0 +1,214 @@
+/* Админка Гоблина: боковое меню, сводки, таблицы с сортировкой, карточка-шторка, окна.
+   Цвета и размеры — из tokens.css: админка следует теме редактора. */
+
+body.adm{display:grid;grid-template-columns:232px minmax(0,1fr);height:100vh;overflow:hidden;
+  --ok-soft:color-mix(in srgb,var(--ok) 16%,transparent);--bad-soft:color-mix(in srgb,var(--bad) 16%,transparent);
+  --warn-soft:color-mix(in srgb,var(--warn) 16%,transparent);--info-soft:color-mix(in srgb,var(--info) 16%,transparent);
+  --accent-soft:color-mix(in srgb,var(--accent) 16%,transparent)}
+
+/* ── Боковое меню ────────────────────────────────────────────── */
+.adm-side{display:flex;flex-direction:column;gap:18px;padding:18px 12px;background:var(--surface);
+  border-right:1px solid var(--line);overflow:auto}
+.adm-brand{display:flex;align-items:center;gap:10px;padding:0 8px;color:var(--ink);text-decoration:none}
+.adm-brand span{display:flex;flex-direction:column;font-weight:700;letter-spacing:.08em;font-size:13px}
+.adm-brand small{font-weight:500;letter-spacing:.02em;font-size:11px;color:var(--ink-faint)}
+.adm-nav{display:flex;flex-direction:column;gap:2px}
+.adm-nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink-dim);
+  text-decoration:none;font-size:13.5px}
+.adm-nav a svg{width:18px;height:18px;flex:none}
+.adm-nav a:hover{background:var(--surface-2);color:var(--ink)}
+.adm-nav a.on{background:var(--accent-soft);color:var(--ink)}
+.adm-nav a.on svg{color:var(--accent)}
+.adm-nav a b{margin-left:auto;font-size:11px;font-weight:500;color:var(--ink-faint)}
+.adm-side-foot{margin-top:auto;display:flex;flex-direction:column;gap:2px}
+.adm-side-foot a{padding:7px 10px;border-radius:8px;color:var(--ink-dim);text-decoration:none;font-size:13px}
+.adm-side-foot a:hover{background:var(--surface-2);color:var(--ink)}
+
+/* ── Основная часть ──────────────────────────────────────────── */
+.adm-main{overflow:auto;padding:24px 28px 60px}
+.adm-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.adm-head h1{font-size:22px;font-weight:650}
+.adm-head p{margin:4px 0 0;color:var(--ink-dim);font-size:13px}
+.adm-head .adm-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.adm-sub{font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-dim);margin:26px 0 10px;font-weight:600}
+.adm-sub:first-child{margin-top:0}
+.adm-muted{color:var(--ink-dim)}
+.adm-faint{color:var(--ink-faint)}
+.adm-bad{color:var(--bad)}
+.adm-mono{font-family:var(--mono);font-size:12px}
+.adm-link{color:var(--info);text-decoration:none;cursor:pointer;background:none;border:0;padding:0;font:inherit}
+.adm-link:hover{text-decoration:underline}
+
+/* Сводка: крупные числа. */
+.adm-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.adm-kpi{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  display:flex;flex-direction:column;gap:4px;min-width:0}
+.adm-kpi b{font-size:26px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.1}
+.adm-kpi span{font-size:12.5px;color:var(--ink-dim)}
+.adm-kpi small{font-size:11.5px;color:var(--ink-faint)}
+.adm-kpi.accent b{color:var(--accent)}
+button.adm-kpi{cursor:pointer;text-align:left;font:inherit;color:inherit}
+button.adm-kpi:hover{border-color:var(--ink-faint)}
+
+.adm-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px}
+.adm-panel{padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);min-width:0}
+.adm-panel h3{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.adm-panel h3 small{margin-left:auto;font-weight:400;color:var(--ink-faint)}
+
+/* Здоровье. */
+.adm-health{display:flex;flex-direction:column;gap:6px}
+.adm-health div{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px}
+.adm-health .ok{background:var(--ok-soft)}
+.adm-health .warn{background:var(--warn-soft)}
+.adm-health .bad{background:var(--bad-soft)}
+.adm-health i{width:8px;height:8px;border-radius:50%;flex:none}
+.adm-health .ok i{background:var(--ok)} .adm-health .warn i{background:var(--warn)} .adm-health .bad i{background:var(--bad)}
+
+/* Столбики по дням. */
+.adm-chart{width:100%;height:120px;display:block}
+.adm-chart rect{fill:color-mix(in srgb,var(--accent) 70%,transparent);transition:fill var(--fast)}
+.adm-chart rect:hover{fill:var(--accent)}
+.adm-chart .zero{fill:var(--line)}
+.adm-chart text{fill:var(--ink-faint);font-size:10px}
+.adm-chart-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-faint);margin-top:4px}
+.adm-chart-total{font-size:20px;font-weight:650;font-variant-numeric:tabular-nums}
+
+/* Полоска доли. */
+.adm-bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;min-width:60px}
+.adm-bar i{display:block;height:100%;background:var(--accent)}
+
+/* ── Таблица ─────────────────────────────────────────────────── */
+.adm-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.adm-search{flex:0 1 320px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:8px;
+  background:var(--surface);color:var(--ink)}
+.adm-chips{display:flex;gap:6px;flex-wrap:wrap}
+.adm-chip{height:30px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:transparent;
+  color:var(--ink-dim);cursor:pointer;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+.adm-chip b{font-weight:500;color:var(--ink-faint);font-size:11.5px}
+.adm-chip:hover{color:var(--ink);border-color:var(--ink-faint)}
+.adm-chip.on{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--ink)}
+.adm-count{margin-left:auto;font-size:12.5px;color:var(--ink-faint)}
+.adm-table-wrap{border:1px solid var(--line);border-radius:12px;overflow:auto;background:var(--surface);max-height:calc(100vh - 230px)}
+.adm-table{width:100%;border-collapse:collapse;font-size:13px}
+.adm-table th{position:sticky;top:0;z-index:1;background:var(--surface-2);text-align:left;font-weight:600;font-size:12px;
+  color:var(--ink-dim);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;user-select:none}
+.adm-table th.sort{cursor:pointer}
+.adm-table th.sort:hover{color:var(--ink)}
+.adm-table th .arrow{opacity:.35;margin-left:4px;font-size:10px}
+.adm-table th.asc .arrow,.adm-table th.desc .arrow{opacity:1;color:var(--accent)}
+.adm-table td{padding:8px 12px;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent);vertical-align:middle}
+.adm-table tr:last-child td{border-bottom:0}
+.adm-table tbody tr:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.adm-table tbody tr.click{cursor:pointer}
+.adm-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.adm-table .nowrap{white-space:nowrap}
+.adm-table .wrap{max-width:420px;overflow-wrap:anywhere}
+.adm-table .empty{text-align:center;color:var(--ink-faint);padding:28px}
+.adm-table .zero{color:var(--ink-faint)}
+.adm-pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:10px;font-size:12.5px;color:var(--ink-dim)}
+
+.adm-table-box.compact .adm-tools{display:none}
+.adm-table-box.compact .adm-table-wrap{max-height:380px}
+.adm-table-box + .adm-sub, .adm-drawer-body > * + .adm-sub{margin-top:22px}
+
+/* Списки в панелях: строка — одна запись. */
+.adm-rows{display:flex;flex-direction:column}
+.adm-rows > *{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent);font-size:13px;min-width:0}
+.adm-rows > *:last-child{border-bottom:0}
+.adm-rows .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-rows a{color:var(--ink);text-decoration:none}
+.adm-rows a:hover{color:var(--info)}
+
+/* Метки состояний. */
+.adm-badge{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:999px;font-size:11.5px;
+  font-weight:500;white-space:nowrap;background:var(--surface-2);color:var(--ink-dim)}
+.adm-badge.ok{background:var(--ok-soft);color:var(--ok)}
+.adm-badge.bad{background:var(--bad-soft);color:var(--bad)}
+.adm-badge.warn{background:var(--warn-soft);color:var(--warn)}
+.adm-badge.info{background:var(--info-soft);color:var(--info)}
+.adm-badge.accent{background:var(--accent-soft);color:var(--accent)}
+.adm-badge.live::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:adm-pulse 1.2s infinite}
+@keyframes adm-pulse{50%{opacity:.3}}
+
+/* ── Шторка подробностей ─────────────────────────────────────── */
+.adm-shade{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}
+.adm-drawer{position:fixed;top:0;right:0;bottom:0;width:min(640px,96vw);z-index:41;background:var(--bg);
+  border-left:1px solid var(--line);display:flex;flex-direction:column;box-shadow:var(--shadow-2)}
+.adm-drawer-head{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:var(--surface)}
+.adm-drawer-head h2{font-size:18px;font-weight:650;overflow-wrap:anywhere}
+.adm-drawer-head p{margin:4px 0 0;font-size:12.5px;color:var(--ink-dim)}
+.adm-drawer-head .dialog-x{position:static;margin-left:auto;flex:none}
+.adm-drawer-body{flex:1;overflow:auto;padding:18px 20px 40px}
+.adm-drawer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.adm-kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13px;margin:0}
+.adm-kv dt{color:var(--ink-dim)}
+.adm-kv dd{margin:0;overflow-wrap:anywhere;white-space:pre-line}
+.adm-form{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));align-items:end}
+.adm-form .field{margin:0}
+.adm-switch{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+/* Паспорт схемы и раздела каталога: поле под полем, списки — по строке на пункт. */
+.adm-passport{display:grid;gap:10px;margin:8px 0}
+/* Раздел «Настройки»: карточки групп, строка поля — подпись слева, ввод справа. */
+.adm-set-grid{display:grid;gap:10px;align-items:start}
+.adm-set-hint{margin:-4px 0 10px;font-size:12px}
+.adm-set-fields{display:grid;gap:10px}
+.adm-set-row{display:grid;grid-template-columns:minmax(120px,38%) 1fr;gap:10px;align-items:start}
+.adm-set-row.locked .adm-set-name{color:var(--ink-faint)}
+.adm-set-name{padding-top:7px;font-size:13px;color:var(--ink-dim)}
+.adm-set-input{display:flex;gap:6px;align-items:center}
+.adm-set-input textarea{resize:vertical;white-space:pre;overflow-x:auto;font-family:var(--mono);font-size:12px}
+.adm-set-input input[type=checkbox]{width:18px;height:18px;margin:7px 0}
+.adm-set-row small{display:block;margin-top:4px;font-size:11.5px;line-height:1.4}
+.adm-set-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.adm-set-wide{grid-column:1/-1}
+.adm-ai-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:12px;margin-top:12px}
+.adm-ai-conn{padding:12px;border:1px solid var(--line);border-radius:10px}
+.adm-ai-conn .adm-set-foot{margin-top:8px}
+.adm-ai-add{margin-right:auto}
+/* Раскрывающиеся разделы настроек и подключения ИИ: щелчок по заголовку */
+.adm-fold>h3{cursor:pointer;user-select:none;margin-bottom:0}
+.adm-fold>h3::before{content:"";flex:none;width:6px;height:6px;margin:0 4px 0 2px;border:solid var(--ink-faint);border-width:0 1.5px 1.5px 0;transform:rotate(-45deg);transition:transform .15s}
+.adm-fold.open>h3{margin-bottom:10px}
+.adm-fold.open>h3::before{transform:rotate(45deg)}
+.adm-fold:not(.open)>:not(h3){display:none}
+.adm-fold>h3:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+textarea.adm-set-lists{width:100%;min-height:60vh;resize:vertical;white-space:pre;overflow:auto;font:12.5px/1.55 var(--mono)}
+.adm-set-problems{display:grid;gap:4px;margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bad-soft);color:var(--bad);font-size:13px}
+.adm-set-problem{all:unset;cursor:pointer;text-decoration:underline dotted}
+.adm-set-problem:hover{text-decoration-style:solid}
+.adm-passport textarea{resize:vertical;font-size:13px;line-height:1.45}
+.adm-problems{margin:0;padding-left:18px;font-size:13px;color:var(--warn)}
+.adm-problems li{margin:3px 0}
+.adm-json{margin:0;padding:10px 12px;border-radius:8px;background:var(--surface-2);font:12px/1.5 var(--mono);
+  white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto}
+.adm-log{margin:0;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);
+  font:11.5px/1.6 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:60vh;overflow:auto}
+
+/* ── Окно подтверждения ──────────────────────────────────────── */
+.adm-modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5)}
+.adm-modal-card{width:min(440px,92vw);padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);
+  box-shadow:var(--shadow-2);display:flex;flex-direction:column;gap:12px}
+.adm-modal-card h3{font-size:16px}
+.adm-modal-card p{margin:0;font-size:13px;color:var(--ink-dim);white-space:pre-wrap}
+.adm-modal-card .row{justify-content:flex-end}
+.adm-secret{font:600 16px var(--mono);padding:10px 12px;border-radius:8px;background:var(--surface-2);user-select:all;text-align:center}
+
+.adm-toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:70;padding:10px 16px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--ok);box-shadow:var(--shadow-2);font-size:13px;max-width:70ch}
+.adm-toast.bad{border-left-color:var(--bad)}
+.adm-loading{padding:40px;text-align:center;color:var(--ink-faint)}
+
+/* ── Вход ────────────────────────────────────────────────────── */
+body.adm-login{display:flex;align-items:center;justify-content:center}
+.adm-login-card{width:min(360px,92vw);padding:28px;border:1px solid var(--line);border-radius:16px;background:var(--surface);
+  display:flex;flex-direction:column;gap:12px;align-items:stretch}
+.adm-login-card img{align-self:center}
+.adm-login-card h1{text-align:center;font-size:18px;margin-bottom:6px}
+
+@media (max-width:900px){
+  body.adm{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .adm-side{flex-direction:row;overflow-x:auto;padding:10px}
+  .adm-nav{flex-direction:row}
+  .adm-side-foot{display:none}
+  .adm-main{padding:16px}
+}

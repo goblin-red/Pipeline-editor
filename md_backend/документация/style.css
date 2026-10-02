@@ -1,0 +1,159 @@
+:root { color-scheme: light; --ink: #292929; --muted: #6b6b6b; --line: #dedede; --accent: #333333; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+body { margin: 0; background: #f6f6f6; color: var(--ink); font: 17px/1.7 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { text-decoration: underline; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+/* Место под полосу прокрутки — всегда: иначе на длинной статье страница сдвигается вбок. */
+html { scrollbar-gutter: stable; }
+.layout { max-width: 1400px; margin: auto; display: grid; grid-template-columns: 310px minmax(0, 1fr); }
+aside { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: scroll; padding: 42px 24px; }
+/* Постоянно видимая полоса прокрутки меню (macOS иначе прячет её) */
+aside { scrollbar-width: thin; scrollbar-color: #b5b5b5 #ececec; }
+aside::-webkit-scrollbar { width: 10px; }
+aside::-webkit-scrollbar-track { background: #ececec; }
+aside::-webkit-scrollbar-thumb { background: #b5b5b5; border-radius: 5px; border: 2px solid #ececec; }
+aside::-webkit-scrollbar-thumb:hover { background: #8f8f8f; }
+.brand { font-weight: 750; font-size: 23px; letter-spacing: .04em; text-decoration: none; }
+.caption { color: var(--muted); font-size: 13px; margin: 4px 0 28px; }
+aside nav ul { list-style: none; padding: 0; margin: 0; }
+aside nav ul ul { margin: 8px 0 12px 8px; padding-left: 12px; border-left: 1px solid var(--line); }
+aside nav li { margin: 0; }
+aside nav a { display: block; padding: 7px 8px; font-size: 14px; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+aside nav a[aria-current="page"] { background: #e8e8e8; border-radius: 5px; }
+aside summary { cursor: pointer; color: var(--accent); }
+aside summary a { display: inline; }
+main { min-width: 0; background: white; border-inline: 1px solid var(--line); padding: 40px 58px 70px; min-height: 100vh; }
+.breadcrumbs { font-size: 13px; color: var(--muted); margin-bottom: 32px; overflow-wrap: anywhere; }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.22; letter-spacing: -.025em; margin: 0 0 26px; }
+h2 { font-size: 25px; line-height: 1.3; margin: 0 0 20px; }
+h3 { font-size: 19px; line-height: 1.4; margin: 24px 0 12px; }
+h4, h5, h6 { font-size: 18px; line-height: 1.4; margin: 24px 0 8px; }
+p { margin: 0 0 16px; }
+li { margin-bottom: 10px; }
+ul, ol { padding-left: 24px; }
+.doc-article { overflow-wrap: anywhere; }
+.doc-article .doc-article { margin-top: 36px; padding-top: 32px; border-top: 1px solid var(--line); }
+.section-summary { padding: 20px 24px; margin-bottom: 28px; background: #f3f3f3; border-left: 3px solid var(--accent); }
+.section-summary > :first-child { margin-top: 0; font-size: 18px; color: var(--accent); }
+.section-summary > :last-child { margin-bottom: 0; }
+.section-body > :first-child { font-size: 19px; margin-top: 0; }
+.note { background: #f3f3f3; border-left: 3px solid var(--accent); padding: 20px 24px; margin: 24px 0; }
+.note p:last-child { margin-bottom: 0; }
+.connections { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+.connections h2, .connections h3, .connections h4 { font-size: 16px; margin: 8px 0; }
+.connections ul { margin: 0 0 18px; }
+.connections { padding: 16px 18px; margin: 20px 0 28px; background: #fafafa; border: 1px solid var(--line); border-radius: 8px; }
+.connections summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.connection-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 12px; }
+.map-link, .empty { font-size: 14px; }
+.link-group-title { font-size: 13px; font-weight: 650; margin: 14px 0 6px; }
+.empty, .graph-help { color: var(--muted); }
+.doc-search { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 18px; }
+/* Поиск и карта связей — внизу боковой панели */
+aside { display: flex; flex-direction: column; }
+aside .doc-search { margin-top: auto; padding-top: 40px; }
+.doc-search label { grid-column: 1 / -1; font-size: 13px; }
+.doc-search input { min-width: 0; width: 100%; }
+input, button { font: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid #c4c4c4; border-radius: 5px; background: white; color: var(--ink); }
+button { cursor: pointer; }
+button:hover { background: #eeeeee; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.graph-nav { display: block; font-size: 14px; margin-bottom: 24px; font-weight: 600; }
+.graph-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 20px 0 12px; }
+.graph-controls label { font-size: 13px; margin-left: auto; }
+.graph-frame { position: relative; border: 1px solid var(--line); border-radius: 10px; background: #f8f8f8; overflow: hidden; }
+/* Плашка у закреплённого шарика: переход в статью — только по ней (graph.js). */
+.graph-more { position: absolute; transform: translate(-50%, calc(-100% - 28px)); padding: 6px 12px; border: 1px solid #c7c7c7;
+  border-radius: 6px; background: white; box-shadow: 0 4px 14px rgba(0,0,0,.12); font-size: 14px; font-weight: 600;
+  white-space: nowrap; text-decoration: none; z-index: 2; }
+.graph-more.below { transform: translate(-50%, 28px); }
+.graph-more[hidden] { display: none; }
+#document-graph { display: block; width: 100%; height: min(70vh, 700px); min-height: 420px; touch-action: none; cursor: grab; }
+#document-graph:active { cursor: grabbing; }
+.hierarchy-edges line { stroke: #c1c1c1; stroke-width: 1.5; stroke-dasharray: 5 7; }
+.doc-edge { fill: none; stroke: #707070; stroke-width: 2; opacity: .65; }
+.doc-edge.active-edge { stroke-width: 4; opacity: 1; }
+.graph-node { cursor: pointer; }
+.graph-node circle { fill: #e7e7e7; stroke: #666666; stroke-width: 2; }
+.graph-node text { font: 14px system-ui, sans-serif; fill: #292929; paint-order: stroke; stroke: #f8f8f8; stroke-width: 5px; stroke-linejoin: round; }
+.graph-node.selected-node circle, .graph-node:hover circle, .graph-node:focus circle { fill: #333333; stroke-width: 4; }
+.graph-node.search-match circle { fill: #cccccc; stroke: #444444; stroke-width: 4; }
+.graph-node.search-other { opacity: .45; }
+.dimmed { opacity: .16; }
+.graph-help { font-size: 13px; margin: 12px 0 24px; }
+.graph-table { overflow-x: auto; }
+.graph-table summary { cursor: pointer; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 12px; border-bottom: 1px solid var(--line); }
+.search-result { padding: 28px 0; border-top: 1px solid var(--line); }
+.missing-link { color: #666666; }
+.connections li { margin: 4px 0; font-size: 15px; }
+.tags, .permalink { font-size: 13px; color: var(--muted); margin: 14px 0 0; }
+.tags span { font-weight: 600; }
+.doc-tag { display: inline-block; padding: 2px 9px; margin: 3px 2px; border: 1px solid var(--line); border-radius: 12px; background: #f3f3f3; text-decoration: none; }
+.doc-tag:hover { background: #e7e7e7; }
+code { font-size: .88em; overflow-wrap: anywhere; }
+pre { overflow-x: auto; }
+.skip-link { position: absolute; left: -10000px; }
+.skip-link:focus { left: 12px; top: 12px; z-index: 2; padding: 10px; background: white; }
+@media (max-width: 850px) {
+  .connection-columns { grid-template-columns: 1fr; gap: 0; }
+  .layout { display: block; }
+  aside { position: static; height: auto; overflow-y: visible; padding: 24px; }
+  main { padding: 30px 24px 48px; border: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  body { background: white; font-size: 11pt; }
+  .layout { display: block; }
+  aside, .breadcrumbs, .skip-link, .permalink { display: none; }
+  main { padding: 0; border: 0; min-height: 0; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  a { color: inherit; }
+}
+
+/* Тип врезки отражён также в данных и HTML, цвет не единственный признак. */
+.doc-callout { margin-top: 28px; }
+.callout-plan { background: #fff6df; border-left-color: #a66a12; }
+.callout-plan > :first-child { color: #80500d; }
+.callout-agent { background: #edf0ff; border-left-color: #6554af; }
+.callout-agent > :first-child { color: #51428c; }
+.callout-meta { font-size: 13px; color: var(--muted); }
+.doc-callout:target { outline: 2px solid currentColor; outline-offset: 4px; }
+
+.scenario-diagram { margin: 24px 0; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow-x: auto; }
+.scenario-diagram svg { display: block; width: 100%; min-width: 540px; height: auto; font-family: system-ui, sans-serif; }
+.scenario-diagram figcaption { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+/* Статус статьи и область карты. */
+.doc-status { margin: 0 0 1.5rem; font-size: .85rem; color: #606060; }
+.doc-status > span { display:inline-block; padding:.2rem .6rem; border-radius:1rem; background:#f0f0f0; font-weight:600; }
+.doc-status p { margin:.4rem 0; }
+.graph-filters { display:flex; flex-wrap:wrap; gap:.8rem; align-items:end; margin:1rem 0; }
+.graph-filters label { display:flex; flex-direction:column; gap:.3rem; font-size:.85rem; }
+.graph-filters select { max-width:min(32rem, 85vw); padding:.5rem; border:1px solid #c7c7c7; border-radius:.4rem; background:white; color:#303030; }
+.graph-filters button { padding:.55rem .8rem; }
+
+.brand img { display: block; max-width: 100%; height: auto; }
+aside > nav { margin-bottom: 24px; }
+
+.brand { display: block; width: fit-content; margin: 0 auto 24px; }
+/* Язык страницы: два переключателя под логотипом. */
+.doc-lang { display: flex; gap: 6px; margin: 0 0 8px; }
+.doc-lang a { padding: 4px 12px; border: 1px solid var(--line); border-radius: 5px; font-size: 13px; text-decoration: none; color: inherit; }
+.doc-lang a:hover { background: #ededed; }
+.doc-lang a[aria-current] { background: #e8e8e8; font-weight: 650; }
+.brand img { width: 140px; height: auto; }
+
+/* Цветовые акценты используются только для двух типов врезок. */
+.scenario-diagram svg { filter: grayscale(1); }
+
+/* Общая карта: один контур связей, без массовой перерисовки при наведении. */
+.overview-edges { fill: none; stroke: #999; stroke-width: 1; opacity: .25; pointer-events: none; }
+#document-graph[data-lite="1"] .graph-node text { display: none; }
+#document-graph[data-lite="1"] .graph-node:hover text,
+#document-graph[data-lite="1"] .graph-node:focus text { display: block; }
+#document-graph[data-lite="1"] .graph-node circle { r: 9px; }

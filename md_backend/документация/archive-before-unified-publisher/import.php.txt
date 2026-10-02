@@ -1,0 +1,123 @@
+<?php
+/* Однократный перенос авторского HTML в documentation_pages.
+   Запуск: php md_backend/документация/import.php
+   Сначала применяется sql/migrations/014-documentation.sql штатным migrate.
+   Повторный запуск сохраняет уже импортированный и отредактированный материал. */
+declare(strict_types=1);
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
+
+$root = dirname(__DIR__, 2);
+require_once $root . '/lib/core/config.php';
+require_once $root . '/lib/core/db.php';
+
+function importInner(DOMNode $node): string
+{
+    $out = '';
+    foreach ($node->childNodes as $child) $out .= $node->ownerDocument->saveHTML($child);
+    return trim($out);
+}
+
+function importParagraphs(DOMNode $node): string
+{
+    $out = '';
+    foreach ($node->childNodes as $child) {
+        if ($child instanceof DOMElement && $child->tagName === 'p') $out .= $node->ownerDocument->saveHTML($child);
+    }
+    return trim($out);
+}
+
+$dom = new DOMDocument('1.0', 'UTF-8');
+$previous = libxml_use_internal_errors(true);
+try {
+    $html = file_get_contents(__DIR__ . '/меморандум.html');
+    if ($html === false || !$dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_NONET)) {
+        throw new RuntimeException('Не удалось прочитать меморандум.');
+    }
+} finally {
+    libxml_clear_errors();
+    libxml_use_internal_errors($previous);
+}
+$xpath = new DOMXPath($dom);
+$header = $xpath->query('//main/header')->item(0);
+$title = $xpath->query('//main/header/h1')->item(0);
+if (!$header || !$title) throw new RuntimeException('В меморандуме отсутствует заголовок.');
+
+$related = [
+    'system-goals' => ['structure'],
+    'purpose' => ['agents', 'structure'],
+    'language' => ['object'],
+    'structure' => ['interface', 'references'],
+    'interface' => ['object', 'references'],
+    'object' => ['references'],
+    'references' => ['format'],
+    'agents' => ['language', 'object'],
+    'format' => ['structure'],
+];
+$keywords = [
+    'system-goals' => ['цели Goblin', 'прогон', 'визуальный редактор'],
+    'purpose' => ['целевая архитектура', 'генеральный план'],
+    'language' => ['ясный язык', 'краткое содержание', 'подробное содержание'],
+    'structure' => ['бэкэнд', 'фронтэнд', 'прогон', 'кабинеты', 'планы на будущее'],
+    'interface' => ['содержание', 'навигация', 'интерфейс документации'],
+    'object' => ['объекты', 'единый шаблон', 'свойства'],
+    'references' => ['перекрёстные ссылки', 'ключевые слова', 'упоминания'],
+    'agents' => ['агенты', 'разработка', 'правила'],
+    'format' => ['HTML', 'PHP', 'база данных'],
+];
+$footer = $xpath->query('//main/footer')->item(0);
+$pages = [[
+    'slug' => 'memorandum', 'title' => trim($title->textContent),
+    'summary' => importParagraphs($header),
+    'body' => $footer ? '<p>' . importInner($footer) . '</p>' : '',
+    'keywords' => ['меморандум', 'преамбула', 'архитектура Goblin'], 'related' => [],
+]];
+foreach ($xpath->query('//main/section') as $section) {
+    $key = $section->getAttribute('id');
+    $heading = $xpath->query('./h2', $section)->item(0);
+    $summary = $xpath->query('./div[contains(concat(" ", normalize-space(@class), " "), " section-summary ")]', $section)->item(0);
+    $detail = $xpath->query('./h3[@id="' . $key . '-detail"]', $section)->item(0);
+    if (!$heading || !$summary || !$detail || !preg_match('/^[a-z0-9-]+$/D', $key)) {
+        throw new RuntimeException('Не удалось разобрать рубрику меморандума: ' . $key);
+    }
+    $body = '';
+    for ($node = $detail->nextSibling; $node !== null; $node = $node->nextSibling) $body .= $dom->saveHTML($node);
+    $pages[] = [
+        'slug' => 'memorandum-' . $key, 'title' => trim($heading->textContent),
+        'summary' => importParagraphs($summary), 'body' => trim($body),
+        'keywords' => $keywords[$key] ?? [],
+        'related' => array_map(static fn(string $target): string => 'memorandum-' . $target, $related[$key] ?? []),
+    ];
+}
+
+$count = dbTransaction(static function () use ($pages): int {
+    if (dbValue('SELECT id FROM documentation_pages WHERE slug = ? FOR UPDATE', ['memorandum'])) return 0;
+    $parent = null;
+    $ids = [];
+    $titles = array_column($pages, 'title', 'slug');
+    foreach ($pages as $order => $page) {
+        dbRun('INSERT INTO documentation_pages (parent_id, slug, title, summary_html, body_html, keywords, sort_order)
+               VALUES (?, ?, ?, ?, ?, ?, ?)', [
+            $parent, $page['slug'], $page['title'], $page['summary'], $page['body'],
+            json_encode($page['keywords'], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), $order,
+        ]);
+        $ids[$page['slug']] = dbId();
+        if ($parent === null) $parent = $ids[$page['slug']];
+    }
+    // Сначала статьи, затем связи: оба конца существуют и защищены внешними ключами.
+    foreach ($pages as $page) {
+        $tokens = [];
+        foreach ($page['related'] as $order => $target) {
+            if (!isset($ids[$target])) throw new RuntimeException('Не найдена цель ссылки: ' . $target);
+            dbRun('INSERT INTO documentation_links (source_page_id, target_page_id, sort_order) VALUES (?, ?, ?)',
+                [$ids[$page['slug']], $ids[$target], $order]);
+            $tokens[] = '[[' . dbId() . '|' . htmlspecialchars($titles[$target], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ']]';
+        }
+        if ($tokens) {
+            dbRun('UPDATE documentation_pages SET body_html = ? WHERE id = ?', [
+                $page['body'] . "\n<p>Связанные темы: " . implode('; ', $tokens) . '.</p>', $ids[$page['slug']],
+            ]);
+        }
+    }
+    return count($pages);
+});
+echo $count ? "Меморандум перенесён: $count записей.\n" : "Меморандум уже в базе; существующий текст сохранён.\n";

@@ -1,0 +1,139 @@
+# ───────────────────────────────────────────────────────────────
+#  Гоблин v2 — списки, которые правятся руками.
+#
+#  Этот файл читает и сайт, и агенты. Сохранили — обновили
+#  страницу — новые значения на месте.
+#
+#  Формат строки:   ключ = Название | цвет
+#  У раздела [cli]: ключ = Название | цвет | модели
+#
+#  ключ      — то, что хранится в базе. Латиница, цифры, дефис.
+#              Менять ключ у существующей записи нельзя: на него
+#              ссылаются данные. Название менять можно свободно.
+#  Название  — то, что видит человек.
+#  цвет      — ключ из раздела [colors]. Необязателен.
+#  модели    — через запятую, только у [cli]. Если у модели свой
+#              набор эффортов, он пишется в скобках за именем:
+#                  claude = Claude Code | blue | opus-5[low, high]
+#              Модель без скобок берёт весь список [effort].
+#
+#  Разделы [colors], [asset_kinds] и [props] — новые в v2.
+#  Раздел [interface] устроен иначе: там не списки, а числа.
+# ───────────────────────────────────────────────────────────────
+
+
+#  Четвёртое поле — чем leader запускает worker (`goblin launch --mode cli`).
+#  В строке подставляются: {пакет} — путь к файлу задания, {шаг} — 14.2,
+#  {папка} — рабочая папка прогона, {модель} и {усилие} — из карточки агента.
+#  Пропуск шага уходит переменной окружения.
+[cli]
+claude   = Claude Code | blue   | claude-opus-5-5[low, medium, high, xhigh], opus-5[low, medium, high, xhigh], sonnet-5[low, medium, high], haiku-4.5[normal] | claude -p "прочитай {пакет} и работай по нему"
+codex    = Codex | red          | gpt-6-sol, 5.6, 5.5, gpt-5.6-luna
+grok     = Grok CLI | cyan      | grok-4.7, 4.6, 4.5
+gemini   = Gemini CLI | teal    | 3-pro, 3-flash
+cursor   = Cursor | purple
+boss-subagents = Boss-Subagents | green
+other    = Other | gray
+
+
+#  Ролей ровно две. leader ведёт прогон и никогда не выполняет
+#  шаг сам; worker выполняет один шаг и сдаёт результат.
+[roles]
+lead   = leader | red
+worker = worker | blue
+
+
+[effort]
+normal = Normal
+low    = Low
+medium = Medium
+high   = High
+xhigh  = Extra high
+
+
+[permission]
+default           = Ask every time
+acceptEdits       = Accept edits
+auto              = Auto
+dontAsk           = Do not ask
+bypassPermissions = Bypass permissions
+plan              = Plan only
+
+
+[sandbox]
+off       = Off
+workspace = Workspace
+read-only = Read only
+strict    = Strict
+
+
+#  Единственный способ покрасить элемент — ключ отсюда.
+#  Произвольный HEX сервер не принимает: тогда цвет не переживает
+#  смену темы и не читается на экспорте.
+[colors]
+blue   = Синий
+green  = Зелёный
+teal   = Бирюзовый
+purple = Фиолетовый
+red    = Красный
+orange = Оранжевый
+yellow = Жёлтый
+pink   = Розовый
+cyan   = Голубой
+lime   = Лаймовый
+brown  = Коричневый
+gray   = Серый
+
+
+#  Типы ассетов: чем открывать материал. Список расширяется прямо
+#  здесь, без миграции базы — поле kind у ассета обычная строка.
+[asset_kinds]
+text    = Текст
+spec    = ТЗ
+code    = Код
+image   = Картинка
+video   = Видео
+audio   = Звук
+pdf     = PDF
+doc     = Документ
+table   = Таблица
+archive = Архив
+model   = 3D-модель
+file    = Файл
+folder  = Папка
+link    = Ссылка
+
+
+#  Дополнительные свойства элемента («допы»). Слева ключ, справа
+#  подпись для человека и вид поля.
+#  Вид поля: text, number, bool, list, json, select.
+#
+#  Первые пять читает сервер — это правила прогона. Остальные он
+#  не толкует, они просто показываются человеку и ищутся.
+[props]
+join         = Как ждать входы | select | all, any
+max_attempts = Сколько попыток | number
+outputs      = Обязательные выходы | list
+paid_calls   = Платных вызовов на шаг | number
+timeout      = Сколько ждать worker | number
+expr         = Выражение | text
+cond         = Условие | text
+answer       = Образец ответа | text
+tag          = Метка | text
+number       = Номер или код | text
+badges       = Значки | list
+rows         = Строки | list
+indexes      = Указатели | list
+accept       = Что должно быть правдой | list
+reject       = Чего быть не должно | list
+judge        = Кто принимает этот блок | select | human
+trust_form   = Хватит совпадения с образцом | bool
+
+
+#  Насколько резко колесо и трекпад меняют масштаб холста.
+#  1.0 — как было всегда. Больше — резче, меньше — плавнее.
+#  Разумные пределы: от 0.2 до 5.
+[interface]
+zoom-wheel    = 2.0
+zoom-trackpad = 4.0
+pulse-seconds = 5

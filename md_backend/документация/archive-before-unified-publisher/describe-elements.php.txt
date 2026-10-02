@@ -1,0 +1,181 @@
+<?php
+/* Обновляет только статью elements по структуре действующей базы.
+   Не меняет таблицу elements и её данные. Запуск: php md_backend/документация/describe-elements.php */
+declare(strict_types=1);
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
+require_once dirname(__DIR__, 2) . '/lib/core/config.php';
+require_once dirname(__DIR__, 2) . '/lib/core/db.php';
+function e(string $text): string { return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
+function code(string $text): string { return '<code>' . e($text) . '</code>'; }
+function grid(array $head, array $rows): string {
+    $out = '<table><thead><tr>';
+    foreach ($head as $cell) $out .= '<th>' . $cell . '</th>';
+    $out .= '</tr></thead><tbody>';
+    foreach ($rows as $row) {
+        $out .= '<tr>';
+        foreach ($row as $cell) $out .= '<td>' . $cell . '</td>';
+        $out .= '</tr>';
+    }
+    return $out . '</tbody></table>';
+}
+$ddl = dbRow('SHOW CREATE TABLE elements')['Create Table'];
+$columns = dbAll('SHOW FULL COLUMNS FROM elements');
+$indexes = dbAll('SHOW INDEX FROM elements');
+$foreign = dbAll("SELECT k.TABLE_NAME,k.COLUMN_NAME,k.CONSTRAINT_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,r.DELETE_RULE,r.UPDATE_RULE
+    FROM information_schema.KEY_COLUMN_USAGE k
+    JOIN information_schema.REFERENTIAL_CONSTRAINTS r ON r.CONSTRAINT_SCHEMA=k.CONSTRAINT_SCHEMA AND r.TABLE_NAME=k.TABLE_NAME AND r.CONSTRAINT_NAME=k.CONSTRAINT_NAME
+    WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND (k.TABLE_NAME='elements' OR k.REFERENCED_TABLE_NAME='elements')
+    ORDER BY k.TABLE_NAME,k.COLUMN_NAME");
+$triggers = dbAll("SELECT TRIGGER_NAME,ACTION_TIMING,EVENT_MANIPULATION FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA=DATABASE() AND EVENT_OBJECT_TABLE='elements'");
+$database = (string) dbValue('SELECT DATABASE()');
+$snapshot = ['captured_at' => date(DATE_ATOM), 'database' => $database, 'ddl' => $ddl, 'columns' => $columns, 'indexes' => $indexes, 'foreign_keys' => $foreign, 'triggers' => $triggers];
+$meaning = [
+    'id' => 'Внутренний идентификатор строки. На него ссылаются внешние ключи. Выдаётся AUTO_INCREMENT.',
+    'project_id' => 'Проект элемента. Связан с projects.id; номер no уникален внутри этого проекта.',
+    'folder_id' => 'Папка схемы, которой принадлежит элемент. Связана с folders.id.',
+    'no' => 'Номер элемента, который видит пользователь. Уникален в проекте, включая разные папки; выдаётся серверным счётчиком projects.next_no.',
+    'type' => 'Тип элемента. Полный перечень девяти значений приведён ниже.',
+    'title' => 'Название элемента. Пустая строка допустима; поле не хранит NULL.',
+    'description' => 'Текстовое описание. Отсутствие значения может быть представлено NULL. Это не отдельный MD-файл технического задания.',
+    'agent_id' => 'Ссылка на карточку агента agents.id. Допускается у блока; NULL означает, что агент не назначен.',
+    'from_id' => 'Источник стрелки или владелец ярлыка. Ссылка на elements.id.',
+    'to_id' => 'Назначение стрелки или цель ярлыка. Ссылка на elements.id.',
+    'branch' => 'Ветка стрелки: flow — обычный переход, yes — «да», no — «нет». У остальных типов должна быть NULL.',
+    'back' => 'Признак возвратной стрелки. Приложение записывает 0 или 1; значение 1 не меняет местами from_id и to_id.',
+    'target_folder_id' => 'Папка назначения шлюза, ссылка на folders.id. NULL означает отсутствие заданной цели.',
+    'style' => 'JSON с оформлением и координатами. Физический тип — LONGTEXT; база проверяет синтаксическую корректность JSON.',
+    'rev' => 'Ревизия изменения элемента. Приложение записывает ревизию операции проекта; это не номер шага прогона.',
+    'created_at' => 'Время создания строки с точностью до миллисекунд. По умолчанию устанавливается базой.',
+    'updated_at' => 'Время последнего изменения строки с точностью до миллисекунд. Обновляется базой при изменении записи.',
+];
+$rows = [];
+foreach ($columns as $col) {
+    $default = $col['Default'];
+    if ($default === null) $default = $col['Null'] === 'YES' ? 'NULL' : 'не задано';
+    elseif ($default === '') $default = "''";
+    $rows[] = [code($col['Field']), code($col['Type']), $col['Null'] === 'YES' ? 'Да' : 'Нет', code((string) $default),
+        e($col['Extra'] ?: '—'), e($meaning[$col['Field']] ?? 'Требует отдельного описания.')];
+}
+$summary = '<p>Таблица <code>elements</code> хранит объекты схемы Goblin: блоки, ромбы, шлюзы, стрелки, группы, области, пометки, таблицы и ярлыки. Одна строка описывает один объект и связывает его с проектом и папкой.</p>'
+    . '<p>Здесь находятся основные поля объекта, концы связей и оформление. Состав контейнеров, дополнительные свойства, материалы и состояние выполнения хранятся отдельно. Ниже приведена полная структура действующей таблицы: поля, индексы, внешние ключи и ограничения, а также правила обработки в приложении.</p>';
+$body = '<h4>Назначение и границы</h4><p>Идентификатор <code>id</code> используется для связей в базе. Поле <code>no</code> — номер объекта внутри проекта: он остаётся понятным пользователю независимо от папки. При восстановлении удалённого объекта приложение может вернуть прежний номер, создав строку с новым ID.</p>'
+    . '<p>Данная статья фиксирует существующую структуру, прочитанную из <code>SHOW CREATE TABLE</code> и системных метаданных базы <code>' . e($database) . '</code>. Дата снимка: ' . e(date('Y-m-d')) . '. Изменения целевой архитектуры следует описывать отдельно от этого снимка.</p>'
+    . '<h4>Параметры хранения</h4>' . grid(['Параметр', 'Значение'], [['Таблица', code('elements')], ['Движок', code('InnoDB')], ['Кодировка', code('utf8mb4')], ['Сопоставление строк', code('utf8mb4_unicode_ci')], ['Количество столбцов', (string) count($columns)]])
+    . '<h4>Полный состав полей</h4>' . grid(['Поле', 'Тип MariaDB', 'NULL', 'По умолчанию', 'Автоматика', 'Назначение'], $rows)
+    . '<p>В обозначениях <code>bigint(20)</code>, <code>int(10)</code> и <code>tinyint(1)</code> число в скобках не задаёт количество допустимых цифр или значений. <code>TINYINT(1)</code> сам по себе не ограничивает поле значениями 0 и 1. У <code>VARCHAR(512)</code> число обозначает максимальную длину в символах, у <code>DATETIME(3)</code> — точность долей секунды.</p>'
+    . '<h4>Значения type</h4>' . grid(['Значение', 'Объект', 'Особые данные'], [
+        [code('block'), 'Блок', 'Может иметь agent_id. Стартер также является блоком; признак стартера хранится в props.'],
+        [code('decision'), 'Ромб', 'Критерий развилки и исходящие стрелки ветвей.'],
+        [code('gateway'), 'Шлюз', 'Может иметь target_folder_id.'],
+        [code('arrow'), 'Стрелка', 'Обязательны from_id и to_id; используются branch и back.'],
+        [code('group'), 'Группа', 'Состав хранится в members.'],
+        [code('area'), 'Область', 'Состав хранится в members.'],
+        [code('note'), 'Пометка', 'Текстовые поля и оформление.'],
+        [code('table'), 'Таблица на холсте', 'Структура её содержимого хранится через дополнительные свойства.'],
+        [code('link'), 'Ярлык', 'Обязательны from_id и to_id; branch = NULL, back = 0.'],
+    ]);
+$indexPurpose = [
+    'PRIMARY' => 'Однозначный поиск строки и цель внешних ключей.',
+    'uq_elements_no' => 'Запрещает повтор одного номера в одном проекте.',
+    'ix_elements_rev' => 'Выбор изменённых элементов проекта по ревизии.',
+    'ix_elements_folder' => 'Выбор элементов папки.',
+    'ix_elements_from' => 'Поиск исходящих связей и обслуживание внешнего ключа источника.',
+    'ix_elements_to' => 'Поиск входящих связей и обслуживание внешнего ключа назначения.',
+    'ix_elements_target' => 'Поиск шлюзов, leader в папку.',
+    'ix_elements_agent' => 'Поиск элементов назначенного агента.',
+    'ix_elements_folder_type' => 'Выбор элементов определённого типа внутри папки.',
+];
+$grouped = [];
+foreach ($indexes as $index) {
+    $key = $index['Key_name'];
+    $grouped[$key]['columns'][(int) $index['Seq_in_index']] = $index['Column_name'];
+    $grouped[$key]['unique'] = !(int) $index['Non_unique'];
+    $grouped[$key]['type'] = $index['Index_type'];
+}
+$rows = [];
+foreach ($grouped as $name => $index) {
+    ksort($index['columns']);
+    $rows[] = [code($name), code(implode(', ', $index['columns'])), $index['unique'] ? 'Да' : 'Нет', code($index['type']), e($indexPurpose[$name] ?? 'Дополнительный индекс.')];
+}
+$body .= '<h4>Индексы</h4>' . grid(['Индекс', 'Столбцы по порядку', 'Уникальный', 'Метод', 'Назначение'], $rows)
+    . '<p>Номер <code>no</code> уникален по паре с проектом, а не с папкой. Для пары <code>from_id, to_id</code> уникального индекса нет: запрет повторной одинаковой связи реализован в PHP.</p>';
+$out = $in = [];
+foreach ($foreign as $fk) {
+    $row = [code($fk['CONSTRAINT_NAME']), code($fk['TABLE_NAME'] . '.' . $fk['COLUMN_NAME']), code($fk['REFERENCED_TABLE_NAME'] . '.' . $fk['REFERENCED_COLUMN_NAME']), code($fk['DELETE_RULE']), code($fk['UPDATE_RULE'])];
+    if ($fk['TABLE_NAME'] === 'elements') $out[] = $row;
+    else $in[] = $row;
+}
+$fkHead = ['Ограничение', 'Откуда', 'Куда', 'При удалении цели', 'При изменении ключа'];
+$body .= '<h4>Внешние ключи elements</h4>' . grid($fkHead, $out)
+    . '<p><code>CASCADE</code> удаляет зависимые строки при удалении родительской записи. Поэтому удаление проекта или папки удаляет её элементы, а удаление конца связи удаляет связанные стрелки и ярлыки. <code>SET NULL</code> сохраняет элемент, очищая ссылку на удалённого агента или папку назначения шлюза. <code>RESTRICT</code> запрещает изменение используемого ключа цели.</p>'
+    . '<h4>Входящие внешние ключи других таблиц</h4>' . grid($fkHead, $in)
+    . '<p>При удалении элемента база удаляет его дополнительные свойства, членство в контейнерах, привязки материалов и связанные записи <code>run_marks.edge_id</code>. В <code>run_steps</code> ссылки на удалённые элементы и стрелки обнуляются: строки истории шагов сохраняются. Удаление привязки материала само по себе не является удалением записи материала.</p>'
+    . '<p>Самоссылки <code>elements.from_id</code> и <code>elements.to_id</code> уже перечислены в предыдущей таблице.</p>'
+    . '<h4>Ограничения CHECK</h4>' . grid(['Проверка', 'Что гарантирует база'], [
+        [code('JSON_VALID(style)'), 'Поле style содержит синтаксически корректный JSON. Проверка не определяет состав его ключей и сама по себе не требует JSON-объект.'],
+        [code('ck_elements_arrow'), 'Для arrow и link оба конца обязаны быть заполнены. Для остальных типов запрещено одновременное заполнение обоих концов.'],
+        [code('ck_elements_branch'), 'У всех типов, кроме arrow, branch должно быть NULL, а back — 0.'],
+        [code('ck_elements_gate'), 'target_folder_id разрешено только для gateway; у самого шлюза цель может быть NULL.'],
+        [code('ck_elements_agent'), 'agent_id разрешено только для block; у самого блока назначение может быть NULL.'],
+    ])
+    . '<p>У <code>ck_elements_arrow</code> есть точная граница: для обычного объекта проверка запрещает два заполненных конца, но не запрещает один заполненный конец. Прикладной контракт строже: поля концов относятся только к стрелке или ярлыку. Аналогично SQL не проверяет, что источник и назначение относятся к одному проекту или имеют допустимые типы.</p>'
+    . '<h4>Правила приложения</h4>' . grid(['Правило', 'Где и как применяется'], [
+        ['Принадлежность проекту', 'PHP проверяет проект папки, агента, концов связи и папки назначения шлюза. Одни внешние ключи не обеспечивают совпадение проектов.'],
+        ['Нумерация', 'nextNo() увеличивает projects.next_no и выдаёт номер. Обычное создание не переиспользует освобождённый номер. Восстановление — отдельная операция с проверкой конфликта.'],
+        ['Концы стрелки', 'Разрешены блок, ромб и шлюз. Ветки yes и no допустимы только на выходе из ромба; обычная ветка — flow.'],
+        ['Концы ярлыка', 'Разрешены блок, группа и область одного проекта, в том числе из разных папок. Ярлык принадлежит папке владельца from_id и не может вести на самого себя.'],
+        ['Дубликаты связей', 'Для одинаковой пары концов приложение ищет уже существующую стрелку или ярлык того же типа и отклоняет повтор. SQL UNIQUE для этой пары отсутствует.'],
+        ['Смена типа', 'Обычное обновление допускает только преобразование group в area и обратно.'],
+        ['Активный прогон', 'Семантические изменения элемента проходят защиту активной схемы. Набор проверок задаёт код движка; это не ограничение SQL-таблицы.'],
+    ])
+    . '<h4>Устройство style</h4><p>Общие ключи оформления включают <code>x</code>, <code>y</code>, <code>z</code>, <code>width</code>, <code>height</code>, <code>thick</code>, <code>color</code>, <code>locked</code> и <code>order</code>. Специальные ключи зависят от типа: например, порты и маршрут стрелки, свёрнутость группы или вид области.</p>'
+    . '<p><code>styleJson()</code> накладывает присланные ключи на прежние; значение <code>null</code> удаляет ключ. Цвет проверяется приложением. Для блока, ромба и шлюза при отсутствии <code>z</code> сервер добавляет <code>z = 1</code>. Поэтому значение по умолчанию SQL <code>{}</code> и результат обычного создания через API могут различаться.</p>'
+    . '<p>Поля <code>props</code>, <code>in</code>, <code>assets</code> и <code>hasSpec</code>, которые встречаются в JSON-ответе, не являются столбцами <code>elements</code>. Они собираются из связанных данных. Состояния и результаты прогона относятся к шагам выполнения.</p>'
+    . '<h4>Соответствие именам в API</h4>' . grid(['Колонка', 'Поле API'], [[code('folder_id'),code('folder')],[code('agent_id'),code('agent')],[code('from_id'),code('from')],[code('to_id'),code('to')],[code('target_folder_id'),code('target')]])
+    . '<p>Представление ответа собирает <code>lib/elements/shape.php</code>. Полный ответ включает оформление и ревизию; рабочий вид сокращает визуальные данные. Внутренняя строка SQL и публичный JSON не совпадают один к одному.</p>';
+$body .= '<h4>Триггеры</h4>';
+if (!$triggers) $body .= '<p>В действующей базе для elements триггеры не зарегистрированы. Автоматическое время обновления задаётся свойством столбца updated_at.</p>';
+else {
+    $body .= grid(['Имя', 'Момент', 'Событие'], array_map(static fn(array $t): array => [code($t['TRIGGER_NAME']),code($t['ACTION_TIMING']),code($t['EVENT_MANIPULATION'])], $triggers));
+}
+$definition = preg_replace('/ AUTO_INCREMENT=\d+/', '', $ddl);
+$body .= '<h4>Полное определение SQL</h4><p>Ниже — определение действующей таблицы. Текущий счётчик AUTO_INCREMENT в параметрах таблицы опущен: он меняется при создании строк и не является постоянной частью структуры.</p><pre><code>' . e($definition . ';') . '</code></pre>'
+    . '<h4>Источники структуры</h4><p>Первичная схема находится в <code>sql/schema.sql</code>. Миграция <code>007-engine.sql</code> добавляет индекс по папке и типу; <code>008-link.sql</code> добавляет тип link и обновляет проверку концов связи. Для этой статьи приоритет отдан действующей базе, поскольку исходная схема и поздние миграции могут различаться.</p>'
+    . '<p>Прикладные правила описаны по <code>lib/elements/elements.php</code>, <code>lib/elements/kinds.php</code>, <code>lib/elements/shape.php</code> и <code>lib/core/ids.php</code>.</p>';
+$references = [
+    'backend-resource-lib-elements-elements-php' => 'php',
+    'backend-resource-table-projects' => 'database',
+    'backend-resource-table-folders' => 'database',
+    'backend-resource-table-agents' => 'database',
+    'backend-resource-table-members' => 'database',
+    'backend-resource-table-props' => 'database',
+    'backend-resource-table-assets' => 'database',
+    'backend-resource-table-asset_links' => 'database',
+    'backend-resource-table-run_steps' => 'database',
+];
+$tags = ['elements', 'база данных', 'структура таблицы', 'поля', 'индексы', 'внешние ключи', 'ограничения', 'объекты схемы'];
+dbTransaction(static function () use ($summary, $body, $references, $tags): void {
+    $id = dbValue('SELECT id FROM documentation_pages WHERE slug = ? FOR UPDATE', ['backend-resource-table-elements']);
+    if (!$id) throw new RuntimeException('Статья elements не найдена.');
+    dbRun('UPDATE documentation_pages SET title = ?, summary_html = ?, body_html = ?, keywords = ? WHERE id = ?', ['Таблица elements', $summary, $body, json_encode($tags, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), $id]);
+    foreach ($references as $slug => $type) {
+        $target = dbValue('SELECT id FROM documentation_pages WHERE slug = ?', [$slug]);
+        if (!$target) throw new RuntimeException('Не найдена техническая статья: ' . $slug);
+        dbRun('INSERT INTO documentation_links (source_page_id, target_page_id, resource_type) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE resource_type = VALUES(resource_type)', [$id, $target, $type]);
+    }
+});
+// Сохраняем содержание для будущей публикации без отката к краткой справке.
+$sourcePath = __DIR__ . '/frontend-content.json';
+$source = json_decode(file_get_contents($sourcePath), true, 512, JSON_THROW_ON_ERROR);
+foreach ($source['pages'] as &$page) {
+    if ($page['slug'] !== 'backend-resource-table-elements') continue;
+    $page['title'] = 'Таблица elements';
+    $page['summary_html'] = $summary;
+    $page['body_html'] = $body;
+    $page['tags'] = $tags;
+    $page['references'] = array_values(array_unique(array_merge($page['references'], array_keys($references))));
+}
+unset($page);
+file_put_contents($sourcePath, json_encode($source, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n");
+file_put_contents(__DIR__ . '/elements-structure.json', json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n");
+echo "Описание elements опубликовано.\n";

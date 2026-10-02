@@ -1,0 +1,23 @@
+# Настройки и ключи установки — у каждого свои (их пишет установщик)
+secrets.php
+config_admin.php
+config_web.php
+
+# Данные: база SQLite, материалы, рабочие папки, отметка установки
+data/*
+!data/files/
+data/files/*
+!data/files/.htaccess
+storage/*
+!storage/.htaccess
+workspace/*
+!workspace/.gitkeep
+public/workfiles/*
+!public/workfiles/.htaccess
+
+# Служебное
+backup/
+archive/
+_up/
+.DS_Store
+*.log

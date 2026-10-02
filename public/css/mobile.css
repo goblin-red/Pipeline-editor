@@ -1,0 +1,296 @@
+/* Мобильный скин: телефон и планшет, главная ориентация — вертикальная.
+   Всё здесь — под body[data-look="mobile"]: компьютерные скины не меняются.
+   Подключён последним. Разметку своих узлов (меню ☰, полоски) создаёт src/mobile/.
+
+   Холст главный и занимает весь экран. Остальное — в меню ☰: шторка слева
+   с вкладками (body.m-open, body[data-m-tab]). Во вкладках показываются
+   разделы левой плашки (#rail) и вкладки правой панели (#panel) — те же узлы,
+   что на компьютере, только в шторке. */
+
+/* Свои узлы мобильного скина на компьютере не видны. */
+.m-top,.m-drawer,.m-bar,.m-chip,.m-rail-foot,.m-panel-empty,.m-ai-close,.m-marquee{display:none}
+
+/* Шторка шириной с ряд значков в шапке: 7 вкладок по 52 точки. */
+body[data-look="mobile"]{--topbar-h:56px;--m-tab-w:52px;--m-drawer-w:min(calc(var(--m-tab-w) * 7),100vw);
+  overflow:hidden;overscroll-behavior:none}
+
+@keyframes m-slide{from{transform:translateX(-18px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── Шапка: вкладки меню всегда; на широком экране — папка ──── */
+
+body[data-look="mobile"] .topbar{padding:0 4px;gap:4px}
+body[data-look="mobile"] :is(.topbar-left,.topbar-right){display:none}
+body[data-look="mobile"] .m-top{display:flex;align-items:center;gap:2px;flex:1;min-width:0}
+.m-folder{flex:0 1 auto;min-width:0;height:52px;padding:0 8px;border:0;background:none;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--ink);font:inherit;font-size:var(--f-lg);font-weight:600}
+.m-gap{flex:1}
+
+/* ── Холст на весь экран ───────────────────────────────────── */
+
+body[data-look="mobile"] .workspace{display:block;position:relative;
+  height:calc(100vh - var(--topbar-h));height:calc(100dvh - var(--topbar-h))}
+body[data-look="mobile"] .workspace > .canvas-wrap{position:absolute;inset:0;
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+body[data-look="mobile"] :is(.side-toggle,#btn-zoom-100,#zoom-label,.marquee,.empty-hint){display:none!important}
+/* Лента прогона — тоже на весь экран: шкала листается пальцем, строки агентов уже,
+   кнопки под палец; подсказки про колесо мыши здесь не нужно. */
+body[data-look="mobile"] .workspace > .ui-timeline{position:absolute;inset:0;--tl-name-w:96px}
+body[data-look="mobile"] .ui-timeline .tl-hint,body[data-look="mobile"] .ui-timeline .tl-when{display:none}
+body[data-look="mobile"] .ui-timeline .tl-head{flex-wrap:wrap;gap:8px}
+body[data-look="mobile"] .ui-timeline .tl-btn{height:44px;padding:0 14px;font-size:14px}
+body[data-look="mobile"] .ui-timeline .tl-body{-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+
+/* Масштаб — столбиком у правого края: низ экрана отдан полоске выбранного. */
+body[data-look="mobile"] .canvas-tools{flex-direction:column;right:10px;bottom:10px;gap:8px;
+  padding:0;border:0;background:none;box-shadow:none;opacity:1}
+body[data-look="mobile"] .canvas-tools .btn{width:54px;height:54px;font-size:26px;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1)}
+/* Рамка «Выделения» (инструмент в «Инструментах», mobile/touch.js). */
+body[data-look="mobile"] .m-marquee:not([hidden]){display:block;position:absolute;z-index:40;pointer-events:none;
+  border:2px dashed var(--accent);border-radius:4px;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+
+/* Значки групп «свернуть / развернуть» — своим слоем поверх всех карточек (mobile/folds.js),
+   в правом верхнем углу группы; свой значок в рамке спрятан — его закрывали блоки группы.
+   Размер — в единицах схемы: значок растёт и уменьшается вместе с холстом, как сама группа
+   (решение хозяина 29.09.2026); спокойный серый — заметен, но не спорит со схемой. */
+.m-folds{display:none}
+body[data-look="mobile"] .node.group .node-fold{display:none}
+body[data-look="mobile"] .m-folds{display:block;position:absolute;inset:0;z-index:5000;pointer-events:none}
+body[data-look="mobile"] .m-fold{position:absolute;pointer-events:auto;display:flex;align-items:center;justify-content:center;padding:0;
+  transform:translate(calc(-100% - 8px), 8px);
+  width:52px;height:44px;border-radius:10px;
+  border:2px solid var(--ink-faint);background:var(--surface);color:var(--ink-dim);box-shadow:var(--shadow-2)}
+/* Стрелка — своя, крупная: вниз — раскрыта, вправо — свёрнута. */
+body[data-look="mobile"] .m-fold::before{content:"";width:13px;height:13px;
+  border-right:3.5px solid currentColor;border-bottom:3.5px solid currentColor;
+  transform:translateY(-25%) rotate(45deg)}
+body[data-look="mobile"] .m-fold.collapsed::before{transform:translateX(-25%) rotate(-45deg)}
+
+/* Карточка: рамка и название — общие правила с «Минимальным» в css/looks.css.
+   Здесь — только пальцам: точек для стрелок нет (стрелку ставят инструментом). */
+body[data-look="mobile"] .el .port{display:none!important}
+
+/* Размер блока — уголком, только у выбранного, под палец: --zoom ставит камера
+   (canvas/view.js), поэтому уголок на экране всегда 44 точки. */
+body[data-look="mobile"] .el .node-grip{display:none}
+body[data-look="mobile"] .el.selected .node-grip{display:block;opacity:1;
+  width:calc(44px / var(--zoom,1));height:calc(44px / var(--zoom,1));
+  right:calc(-22px / var(--zoom,1));bottom:calc(-22px / var(--zoom,1))}
+body[data-look="mobile"] .el.selected .node-grip::after{right:calc(12px / var(--zoom,1));bottom:calc(12px / var(--zoom,1));
+  width:calc(18px / var(--zoom,1));height:calc(18px / var(--zoom,1));border-color:var(--accent);
+  background:repeating-linear-gradient(135deg,transparent 0 4px,var(--accent) 4px 5px,transparent 5px 9px)}
+
+/* Стрелку ловить пальцем: полоса касания на экране — 40 точек при любом масштабе. */
+body[data-look="mobile"] .layer-arrows .hit{stroke-width:calc(40px / var(--zoom,1))}
+
+/* ── Меню ☰: шторка с вкладками ────────────────────────────── */
+
+body[data-look="mobile"].m-open .m-drawer{display:flex;flex-direction:column;position:fixed;
+  top:var(--topbar-h);left:0;bottom:0;width:var(--m-drawer-w);z-index:60;
+  background:var(--surface);border-right:1px solid var(--line);box-shadow:var(--shadow-2);
+  animation:m-slide .16s ease-out}
+/* Вкладки — в шапке одними значками, все одной ширины, видны всегда.
+   Узкий экран — сжимаются поровну. Название вкладки — aria-label (mobile/drawer.js). */
+.m-tabs{display:flex;flex:0 1 auto;min-width:0;align-self:stretch}
+.m-tab{flex:0 1 var(--m-tab-w);width:var(--m-tab-w);display:flex;align-items:center;justify-content:center;
+  min-width:0;padding:0;border:0;background:none;color:var(--ink-dim)}
+.m-tab svg{flex:none;width:28px;height:28px}
+.m-tab.on{color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+/* Меню закрыто — ни одна вкладка не горит. */
+body:not(.m-open) .m-tab.on{color:var(--ink-dim);box-shadow:none}
+
+/* Вкладка «Инструменты» — своя: узкая колонка значков без подписей, холст рядом виден
+   и работает. Какой инструмент в руке — плашка над холстом справа от колонки. */
+body[data-look="mobile"]{--m-tools-w:60px}
+body[data-look="mobile"][data-m-tab="tools"].m-open .m-drawer{width:var(--m-tools-w)}
+.m-tools{display:none;flex:1;overflow:auto;padding:6px}
+body[data-m-tab="tools"] .m-tools{display:block}
+.m-tool-grid{display:grid;grid-template-columns:1fr;gap:5px}
+.m-tool{display:flex;align-items:center;justify-content:center;height:48px;padding:0;
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2);color:var(--ink);font:inherit}
+.m-tool b{font-size:22px;line-height:1;font-weight:400}
+.m-tool b svg{display:block;width:22px;height:22px}
+.m-tool.on{border-color:var(--accent);color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 14%,var(--surface-2))}
+
+/* Остальные вкладки — те же плашка и панель, что на компьютере, под шапкой. */
+body[data-look="mobile"] .workspace > :is(.rail,.panel){display:none;position:fixed;
+  top:var(--topbar-h);left:0;right:auto;bottom:0;width:var(--m-drawer-w);
+  z-index:61;border:0;border-right:1px solid var(--line);box-shadow:none;transform:none}
+body[data-look="mobile"].m-open:is([data-m-tab="folders"],[data-m-tab="more"]) .workspace > .rail{
+  display:block;animation:m-slide .16s ease-out}
+body[data-look="mobile"].m-open:is([data-m-tab="props"],[data-m-tab="assets"],[data-m-tab="run"],[data-m-tab="ai"]) .workspace > .panel{
+  display:flex;animation:m-slide .16s ease-out}
+
+/* «Папки» — только список проектов и папок; «Ещё» — меню настроек. */
+body[data-look="mobile"] .rail{overflow:auto;padding:14px}
+body[data-look="mobile"] .rail :is(.railbar-tabs,.rail-block,.rail-logo,.rail-version,.rail-arrow){display:none}
+/* Плашка сама прячет разделы атрибутом hidden (он сильнее всего, base.css) —
+   во вкладке шторки нужный раздел виден всегда. */
+body[data-look="mobile"][data-m-tab="folders"] .rail .rail-block[data-block="list"],
+body[data-look="mobile"][data-m-tab="more"] .rail .rail-block[data-block="settings"]{display:block!important}
+body[data-look="mobile"] .rail .rail-block.folded > :not(.rail-title,[hidden]){display:block}
+body[data-look="mobile"] .rail .rail-fold{pointer-events:none}
+/* «Папки» и «Ещё» — узкие колонки, как «Инструменты»: значок сверху, подпись под ним
+   (до двух строк). У папок счётчик и заголовок раздела не нужны; кнопки внизу — столбиком. */
+body[data-look="mobile"]{--m-narrow-w:104px;--m-more-w:124px}
+body[data-look="mobile"]:is([data-m-tab="folders"],[data-m-tab="more"]).m-open .m-drawer,
+body[data-look="mobile"]:is([data-m-tab="folders"],[data-m-tab="more"]) .workspace > .rail{width:var(--m-narrow-w)}
+/* «Ещё» чуть шире: «Конструктор», «Сохранить…» — длинные слова, их не рвём посередине. */
+body[data-look="mobile"][data-m-tab="more"].m-open .m-drawer,
+body[data-look="mobile"][data-m-tab="more"] .workspace > .rail{width:var(--m-more-w)}
+body[data-look="mobile"]:is([data-m-tab="folders"],[data-m-tab="more"]) .rail{padding:8px 6px}
+body[data-look="mobile"] .rail .rail-title{display:none}
+body[data-look="mobile"] .rail .tree-item{flex-direction:column;justify-content:center;gap:4px;
+  min-height:0;padding:8px 2px!important;text-align:center;font-size:12px;line-height:1.2}
+body[data-look="mobile"] .rail .tree-item > span:first-child{flex:none;font-size:30px;line-height:1}
+body[data-look="mobile"] .rail .tree-item > span:nth-child(2){max-width:100%;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+/* Телефон: вложенная плитка — правее, с полосой слева; линии ветки не нужны. */
+body[data-look="mobile"] .rail .tree-item.nested{margin-left:calc(var(--depth) * 8px);width:calc(100% - var(--depth) * 8px);
+  border-left:2px solid var(--line);border-radius:0 8px 8px 0}
+body[data-look="mobile"] .rail .tree-item.nested::before{display:none}
+body[data-look="mobile"] .rail .tree-item small{display:none}
+body[data-look="mobile"] .rail #folder-actions{flex-direction:column;gap:6px}
+body[data-look="mobile"] .rail #folder-actions .btn{flex:none;width:100%;height:40px;padding:0 4px;justify-content:center;font-size:13px}
+/* Меню «Ещё»: пункт — значок 26 сверху, подпись 12 под ним; заголовки групп — мелкой строкой. */
+body[data-look="mobile"] .rail .menu-title{font-size:10px;margin-top:12px;text-align:center}
+body[data-look="mobile"] .rail .menu-item{width:100%;flex-direction:column;justify-content:center;gap:4px;
+  min-height:0;padding:8px 2px;text-align:center;font-size:12px;line-height:1.2;white-space:normal;overflow-wrap:break-word}
+body[data-look="mobile"] .rail .menu-item > span:first-child{flex:none}
+body[data-look="mobile"] .rail .menu-item > span:first-child svg{width:26px;height:26px}
+body[data-look="mobile"] .m-rail-foot{display:block;margin-top:14px}
+body[data-look="mobile"] .m-rail-foot .btn{width:100%;height:auto;min-height:46px;padding:4px;justify-content:center;
+  white-space:normal;text-align:center;font-size:12px;line-height:1.2}
+
+/* ── Панель в меню: крупно, под палец ─────────────────────────
+   Шрифты панели — из переменных (tokens.css): поднимаем их разом, как в кабинете
+   (account.css), — подписи полей, заголовки разделов, шаги и журнал прогона растут вместе.
+   Поля и кнопки — не ниже 46 точек. */
+body[data-look="mobile"] .panel{--f-xs:13.5px;--f-sm:15.5px;--f-md:17px;--f-lg:19px;--f-xl:23px}
+body[data-look="mobile"] .panel .panel-title{font-size:14px}
+body[data-look="mobile"] .panel .section > summary{min-height:46px;font-size:15px}
+body[data-look="mobile"] .panel :is(.input,textarea.input,select.input){min-height:46px;padding:10px 12px;font-size:17px}
+body[data-look="mobile"] .panel .btn:not(.btn-icon){height:auto;min-height:46px;padding:0 16px;font-size:16px}
+body[data-look="mobile"] .panel .kv{gap:8px 14px}
+
+/* ── Вкладка «Блок»: только главное ─────────────────────────── */
+
+/* Секции элемента: название и описание, ТЗ, материалы, шаг прогона, куда ведут
+   стрелка и шлюз. Стартер, исполнитель, свойства, оформление, ярлыки, состав,
+   таблица и «всё об элементе» — на компьютере (panel.js метит секции data-section). */
+body[data-look="mobile"] #panel-body [data-section]:not([data-section="main"],[data-section="spec"],
+  [data-section="assets"],[data-section="step"],[data-section="arrow"],[data-section="gateway"]){display:none}
+body[data-look="mobile"] #panel-body .where-row{display:none}
+/* Порядок: название и описание, ТЗ, материалы, потом шаг прогона. */
+body[data-look="mobile"][data-m-tab="props"] #panel-body[data-screen="element"]{display:flex;flex-direction:column}
+body[data-look="mobile"] #panel-body [data-section="spec"]{order:1}
+body[data-look="mobile"] #panel-body [data-section="assets"]{order:2}
+body[data-look="mobile"] #panel-body [data-section="step"]{order:3}
+/* Шаг прогона — только сведения; ручная смена состояния — на компьютере. Шага нет — нет и секции. */
+body[data-look="mobile"] [data-section="step"] :is(.step-states,:has(+ .step-states),.step-states + .muted){display:none}
+body[data-look="mobile"] [data-section="step"]:not(:has(.kv)){display:none}
+body[data-look="mobile"] #panel-head :is(#btn-focus,#btn-frame){display:none!important}
+body[data-look="mobile"] #panel-head #btn-delete{width:48px;height:48px;font-size:22px}
+
+/* Ничего не выбрано: вместо настроек папки — подсказка. */
+body[data-look="mobile"][data-m-tab="props"] #panel-body[data-screen="folder"]{display:none}
+body[data-look="mobile"][data-m-tab="props"] #panel:has(#panel-body[data-screen="folder"]) .m-panel-empty{
+  display:flex;flex-direction:column;gap:8px;padding:28px 20px;text-align:center;color:var(--ink-dim);font-size:var(--f-sm)}
+.m-panel-empty b{color:var(--ink);font-size:var(--f-md)}
+
+/* «Материалы»: с телефона не перетаскивают — только кнопка «Обзор». */
+body[data-look="mobile"] .drop-zone{padding:8px;border:0}
+body[data-look="mobile"] .drop-zone > :is(span,small){display:none}
+body[data-look="mobile"] .drop-zone .drop-browse{margin:0;width:100%;height:40px;justify-content:center}
+
+/* Разговор с ИИ — справа поверх холста, шириной со шторку; своя кнопка «✕». */
+body[data-look="mobile"] .screen{width:var(--m-drawer-w);top:var(--topbar-h)}
+body[data-look="mobile"] .m-ai-close{display:flex;align-items:center;justify-content:space-between;flex:none;
+  height:56px;padding:0 8px 0 14px;border:0;border-bottom:1px solid var(--line);background:none;
+  color:var(--ink);font:inherit;font-weight:600}
+body[data-look="mobile"] .m-ai-close b{display:flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:50%;background:var(--surface-2);font-weight:400;font-size:18px}
+/* Значки под полем разговора — под палец. */
+body[data-look="mobile"] .ai-icon{width:44px;height:44px}
+body[data-look="mobile"] .ai-icon svg{width:24px;height:24px}
+body[data-look="mobile"] #ai-send{height:44px}
+
+/* ── Окна (ТЗ, материал, выбор из хранилища) ───────────────── */
+
+/* Окно — в видимой части экрана, над клавиатурой (--m-vh, --m-vv-top ставит
+   mobile.js). Содержимое столбиком: поле ТЗ забирает всё свободное место. */
+body[data-look="mobile"] .dialog[open]{display:flex;flex-direction:column;position:fixed;margin:0;
+  left:50%;top:calc(var(--m-vv-top,0px) + var(--m-vh,100dvh) / 2);transform:translate(-50%,-50%);
+  width:min(720px,calc(100vw - 24px));max-width:none;max-height:calc(var(--m-vh,100dvh) - 24px);overflow:auto}
+body[data-look="mobile"] #dialog-text[open]{height:calc(var(--m-vh,100dvh) - 24px)}
+body[data-look="mobile"] #dialog-text :is(.code-box,.dialog-textarea){flex:1 1 auto;min-height:120px}
+body[data-look="mobile"] #dialog-text .code-box{display:flex;flex-direction:column}
+body[data-look="mobile"] #dialog-text .dialog-textarea{height:auto;font-size:15px}
+/* Окно материала задаёт размер своим id — перекрываем тем же весом. */
+body[data-look="mobile"] #dialog-asset[open]{width:min(1180px,calc(100vw - 24px));
+  height:calc(var(--m-vh,100dvh) - 24px);max-height:calc(var(--m-vh,100dvh) - 24px)}
+body[data-look="mobile"] .dialog .btn{height:44px;padding:0 16px}
+body[data-look="mobile"] .dialog-x{width:44px;height:44px}
+/* Окно «Новая схема» — во весь экран: каталог и конструктор столбиком. */
+body[data-look="mobile"] #dialog-newscheme[open]{width:min(1180px,calc(100vw - 24px));
+  height:calc(var(--m-vh,100dvh) - 24px);max-height:calc(var(--m-vh,100dvh) - 24px);overflow:hidden}
+body[data-look="mobile"] .ns-option,body[data-look="mobile"] .ns-cat{min-height:44px}
+body[data-look="mobile"] .ns-own .input,body[data-look="mobile"] .ns-field .input{height:44px;font-size:15px}
+
+/* Сообщения — поверх шторки и над полоской выбранного. Касания пропускают
+   насквозь: подсказка «коснись блока» не должна закрывать этот самый блок. */
+body[data-look="mobile"] .toast{z-index:90;bottom:84px;pointer-events:none}
+
+/* ── Полоски поверх холста ─────────────────────────────────── */
+
+/* Снизу по центру — что выбрано и что с ним сделать. */
+body[data-look="mobile"] .m-bar:not([hidden]){display:flex;align-items:center;gap:6px;
+  position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:50;
+  max-width:calc(100vw - 132px);padding:6px 6px 6px 14px;
+  border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow-2)}
+.m-bar-name{min-width:0;margin-right:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.m-bar-btn{flex:none;height:44px;padding:0 14px;font-size:var(--f-md)}
+.m-bar-danger{color:var(--bad)}
+/* Ветка стрелки из ромба: выбранная — в цвет ветки. */
+.m-bar-branch{min-width:64px;justify-content:center;font-weight:700}
+.m-bar-branch.m-bar-yes.on{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+.m-bar-branch.m-bar-no.on{background:var(--bad);border-color:var(--bad);color:var(--bg)}
+
+/* Какой инструмент в руке — в шапке справа, на месте названия папки. */
+body[data-look="mobile"] .m-chip:not([hidden]){display:flex;align-items:center;gap:8px;flex:0 1 auto;
+  min-width:0;padding:0 8px 0 12px;color:var(--ink);font-size:var(--f-sm)}
+body[data-look="mobile"] .m-top:has(.m-chip:not([hidden])) .m-folder{display:none}
+.m-chip > span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m-chip-icon{flex:none;font-style:normal;font-size:18px;line-height:1}
+.m-chip-icon svg{display:block;width:20px;height:20px}
+.m-chip-go{flex:none;height:40px;padding:0 16px;border-radius:999px}
+/* Открыто меню или разговор с ИИ — полоски не мешают. Кроме «Инструментов»: там
+   холст рабочий, и полоски встают правее колонки значков. */
+body[data-look="mobile"]:is(.m-open:not([data-m-tab="tools"]),.ai-open) :is(.m-bar,.m-chip){display:none}
+
+
+/* ── Узкий экран: телефон стоймя ───────────────────────────── */
+
+/* Меню ☰ — на всю ширину (--m-drawer-w). Полоска выбранного — по низу во всю
+   ширину, кнопки масштаба поднимаются над ней. */
+@media (max-width:600px){
+  body[data-look="mobile"] .m-bar:not([hidden]){left:10px;right:10px;transform:none;max-width:none;padding-left:12px}
+  body[data-look="mobile"].m-open[data-m-tab="tools"] .m-bar:not([hidden]){left:calc(var(--m-tools-w) + 10px)}
+  /* В шапке телефона места нет — подсказка инструмента висит под ней, правее колонки «Инструментов». */
+  body[data-look="mobile"] .m-chip:not([hidden]){position:fixed;left:10px;top:calc(var(--topbar-h) + 10px);z-index:50;
+    max-width:calc(100vw - 20px);min-height:40px;padding:4px 14px;border:1px solid var(--accent);border-radius:999px;
+    background:var(--surface);box-shadow:var(--shadow-2)}
+  body[data-look="mobile"].m-open[data-m-tab="tools"] .m-chip:not([hidden]){left:calc(var(--m-tools-w) + 10px);
+    max-width:calc(100vw - var(--m-tools-w) - 20px)}
+  body[data-look="mobile"] .m-bar-btn{padding:0 10px}
+  body[data-look="mobile"] .canvas-tools{bottom:80px}
+  /* Окна — на весь видимый экран: «щелчок мимо окна» тут некуда делать. */
+  body[data-look="mobile"] .dialog[open]{top:var(--m-vv-top,0px);transform:translateX(-50%);
+    width:100vw;height:var(--m-vh,100dvh);max-height:var(--m-vh,100dvh);border:0;border-radius:0;padding:14px}
+  body[data-look="mobile"] :is(#dialog-text,#dialog-asset,#dialog-newscheme)[open]{width:100vw;height:var(--m-vh,100dvh);max-height:var(--m-vh,100dvh)}
+  body[data-look="mobile"] .dialog-note{display:none}
+  /* Телефон: шапка — только вкладки, названию папки места нет (оно во вкладке «Папки»). */
+  body[data-look="mobile"] .m-folder{display:none}
+}

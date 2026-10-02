@@ -1,0 +1,30 @@
+<section class="canvas-wrap" id="canvas-wrap">
+  <div class="canvas" id="canvas">
+    <svg class="layer-arrows" id="layer-arrows" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+        </marker>
+      </defs>
+      <g id="arrows"></g>
+    </svg>
+    <div class="layer-elements" id="layer-elements"></div>
+  </div>
+  <!-- Рамка выделения живёт в экранных пикселях, а не в координатах схемы:
+       внутри .canvas её бы возила и масштабировала камера. -->
+  <div class="marquee" id="marquee" hidden></div>
+  <!-- Какой прогон на холсте и в каком он состоянии (shell/runbar.js);
+       «Следить» — холст сам едет к открытому узлу (run/follow.js). -->
+  <div class="run-corner">
+    <div class="run-chip" id="run-chip" hidden></div>
+    <button class="run-follow" id="run-follow" type="button" aria-pressed="false" hidden><i>◎</i>{{t:editor.runbar.follow}}</button>
+  </div>
+  <div class="canvas-tools">
+    <button class="btn btn-icon" id="btn-zoom-out" title="{{t:editor.canvas.zoom_out}}">−</button>
+    <span class="zoom" id="zoom-label">100%</span>
+    <button class="btn btn-icon" id="btn-zoom-in" title="{{t:editor.canvas.zoom_in}}">+</button>
+    <button class="btn btn-icon" id="btn-zoom-100" title="{{t:editor.canvas.zoom_100}}">1:1</button>
+    <button class="btn btn-icon" id="btn-fit" title="{{t:editor.canvas.fit}}">⤢</button>
+  </div>
+  <div class="empty-hint" id="empty-hint" hidden>{{t:editor.canvas.empty}}</div>
+</section>

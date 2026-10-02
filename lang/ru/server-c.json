@@ -1,0 +1,18 @@
+{
+  "server.journal.long_text": "длинный текст",
+  "server.journal.bytes": "{n} байт",
+  "server.ai.journal_job": "ИИ-помощник, задание {job}",
+  "server.ai.journal_constructor": "конструктор",
+  "server.ai.no_answer": "Не дождались ответа модели",
+  "server.ai.new_scheme": "Новая схема",
+  "server.template.own_category": "Свои",
+  "server.template.journal": "заготовка",
+  "server.template.journal_key": "заготовка {key}",
+  "server.template.check_name": "Проверка черновика",
+  "server.template.check_label": "проверка черновика",
+  "server.table.column": "Столбец {n}",
+  "server.token.agent_label": "агент {name}",
+  "server.token.session_label": "вход в браузере",
+  "server.token.admin_label": "админка",
+  "server.template.key_long": "Ключ заготовки длиннее {max} знаков"
+}

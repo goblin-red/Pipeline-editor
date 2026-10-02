@@ -1,0 +1,19 @@
+{
+  "agents.runs.reset_closed": "Прогон r{no} уже закрыт ({state}) — сброс не оживляет закрытый прогон: начни новый прогон",
+  "agents.runs.ev_reset_block": "блок {no}: попытки до {no}.{attempt} стёрты — эти номера не повторятся",
+  "agents.runs.ev_reset_run": "прогон начат заново: стёрто шагов — {n}, номера попыток продолжаются",
+  "agents.runs.not_ready": "Схема не готова к прогону — прогон не начат: {list}",
+  "agents.runs.entries_many": "У схемы несколько входов ({list}) — прогон пошёл бы со всех сразу. Поставьте стартер или оставьте один вход",
+  "agents.runs.from_not_entry": "С элемента {from} начать нельзя: прогон начинается только со входа схемы — элемента {no}",
+  "agents.precheck.at_block": "блок {no}: ",
+  "agents.precheck.decision_exits_extra": "Выходы ромба: «да» — {yes}, «нет» — {no}, без ветки — {other}. Нужно ровно по одному «да» и «нет»: иначе прогон пойдёт по первой стрелке, а другую молча бросит",
+  "agents.precheck.join_values": "Правило join = {value}: бывает только all или any",
+  "agents.steps.result_too_long": "Ответ слишком длинный: {bytes} байт, а в шаг входит не больше {max}. Положите полный текст в файл и сдайте путь к нему",
+  "agents.runs.ev_paused": "прогон на паузе",
+  "agents.runs.ev_resumed": "прогон продолжен",
+  "agents.events.kind.pause": "пауза",
+  "agents.events.kind.resume": "продолжение",
+  "agents.steps.who_bad": "Имя исполнителя (who) — до {max} знаков: буквы, цифры, пробел, _ . -",
+  "agents.events.kind.who": "исполнитель",
+  "agents.steps.ev_who_changed": "{task}: исполнитель {was} → {now}"
+}

@@ -1,0 +1,705 @@
+/* Правая панель: сверху первичное, ниже вторичное в раскрывающихся секциях. */
+.panel{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:var(--gap-sm);padding:var(--gap-md);border-bottom:1px solid var(--line)}
+/* Шапки нет, когда нечего подписывать: display:flex сильнее атрибута hidden. */
+.panel-head[hidden]{display:none}
+.panel-no{font:600 var(--f-sm)/1 var(--mono);background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 8px;color:var(--ink-dim)}
+.panel-kind{font-weight:600}
+.panel-head-tools{margin-left:auto;display:flex;align-items:center;gap:6px}
+.panel-head-tools .btn-icon svg{display:block}
+/* overflow-anchor: панель пересобирает секции сама, и привязка прокрутки
+   браузером только мешает — от неё панель уезжала при замене секции. */
+.panel-body{flex:1;overflow:auto;padding:var(--gap-md);overflow-anchor:none}
+/* Заголовок раздела вкладки: отступ сверху отделяет раздел от кнопок выше. */
+.panel-title{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-dim);margin:22px 0 2px}
+.panel-title:first-child{margin-top:0}
+/* «Входит в» и «Связи» в свойствах — одной строкой. */
+.where-row{display:flex;flex-wrap:wrap;gap:4px 22px;align-items:flex-start}
+/* Материалы: «Папка / Проект» — крупно, во всю ширину, над видом «превью / список». */
+.asset-scope{display:flex;width:100%;margin-bottom:var(--gap-md)}
+.asset-scope .switch-item{flex:1;display:flex;align-items:center;justify-content:center;height:36px;padding:0 12px;font-size:var(--f-md);font-weight:500}
+.asset-scope .switch-item.on{font-weight:600}
+/* Материалы проекта по папкам: заголовок раздела над его плитками. */
+.asset-group-title{margin:16px 0 6px;font-size:var(--f-xs);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim)}
+.asset-group-title:first-child{margin-top:0}
+/* В панели раздел сворачивается: заголовок — кнопка во всю ширину со стрелкой справа. */
+button.asset-group-title{display:flex;align-items:center;justify-content:space-between;width:100%;padding:4px 0;background:none;border:0;cursor:pointer;text-align:left}
+button.asset-group-title:hover{color:var(--ink)}
+button.asset-group-title b{font-size:10px;font-weight:400;opacity:.7}
+.section{border-top:1px solid var(--line);margin-top:var(--gap-md);padding-top:var(--gap-sm)}
+.section:first-child{border-top:none;margin-top:0;padding-top:0}
+.section > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;
+  font-size:var(--f-xs);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-dim);padding:4px 0}
+.section > summary::-webkit-details-marker{display:none}
+/* Стрелка — справа от подписи и покрупнее: слева она сливалась с текстом. */
+.section > summary::after{content:"▸";margin-left:6px;font-size:20px;line-height:1;
+  color:var(--ink-dim);transition:transform var(--fast)}
+.section > summary:hover::after{color:var(--ink)}
+.section > summary:not(:has(b))::after{margin-left:auto}
+.section[open] > summary::after{transform:rotate(90deg)}
+.section > summary b{margin-left:auto;color:var(--ink-faint);font-weight:400}
+.section-body{padding:var(--gap-sm) 0}
+/* Приветствие справа: пока только логотип. */
+.panel-welcome{display:flex;justify-content:center;padding:56px 0 24px}
+.panel-welcome img{width:150px;height:auto;pointer-events:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:var(--f-sm)}
+.kv dt{color:var(--ink-dim)} .kv dd{margin:0}
+/* Сведения о папке (shell/info.js): подзаголовки и строки «на что посмотреть» — к элементу по щелчку. */
+.info-title{margin:10px 0 4px;font-size:var(--f-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+.info-title:first-child{margin-top:0}
+.info-problems{display:flex;flex-direction:column;gap:2px}
+.info-problem{padding:4px 6px;border:0;border-radius:var(--r-sm);background:none;color:var(--ink-dim);
+  font:inherit;font-size:var(--f-sm);text-align:left;cursor:pointer}
+.info-problem:hover{background:var(--surface-2);color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface-2);font-size:var(--f-xs);margin:2px 4px 2px 0}
+.asset{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:var(--f-sm)}
+.asset:last-child{border-bottom:none}
+.asset .role{margin-left:auto;color:var(--ink-faint);font-size:var(--f-xs)}
+.asset button{background:none;border:none;cursor:pointer;color:var(--ink-faint)}
+.asset button:hover{color:var(--bad)}
+/* История помощника: корзина у разговора; после первого нажатия — красная, «точно?» */
+.asset .chat-del{display:flex;align-items:center;flex-shrink:0;padding:2px;opacity:.6}
+.asset:hover .chat-del,.asset .chat-del:focus-visible{opacity:1}
+.asset .chat-del svg{width:15px;height:15px}
+.asset .chat-del.sure{color:var(--bad);opacity:1}
+
+/* Полка поверх холста: ИИ, библиотека, агенты — одно устройство на все. */
+/* Экран помощника лежит поверх всего справа: ярлычок панели и кнопки масштаба
+   раньше просвечивали сквозь него. */
+.screen{position:fixed;right:0;top:var(--topbar-h);bottom:0;width:380px;z-index:60;display:flex;flex-direction:column;
+  background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow-2)}
+.ai-log{flex:1;overflow:auto;padding:var(--gap-md);display:flex;flex-direction:column;gap:4px}
+/* Реплики разведены лёгким фоном: свои — тёплым, ответы ИИ — ровным серым,
+   чтобы разговор читался сверху вниз без вглядывания в подписи. */
+/* Реплики — полосой во всю ширину, без рамок и скруглений: лёгкий оттенок
+   только показывает, чей это голос, и не спорит с текстом. */
+.ai-line{display:flex;gap:8px;font-size:var(--f-sm);white-space:pre-wrap;
+  padding:10px var(--gap-md);margin:0 calc(var(--gap-md) * -1);border:none;border-radius:0}
+.ai-line.me{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.ai-line.it{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.ai-line b{color:var(--ink-faint);min-width:26px;font-weight:600}
+.ai-line.me b{color:color-mix(in srgb,var(--accent) 55%,var(--ink-dim))}
+.ai-line.bad span{color:var(--bad)}
+.ai-line.wait span{color:var(--ink-faint)}
+
+/* Ответ ИИ — размеченный текст: заголовки, списки, код. Полотно из
+   одного абзаца не читалось, а он почти всегда пишет по пунктам. */
+.ai-line{flex-wrap:wrap}
+.ai-rich{flex:1;min-width:0;white-space:normal;line-height:1.5}
+.ai-rich p{margin:0 0 8px}
+.ai-rich p:last-child{margin-bottom:0}
+.ai-rich h4{margin:10px 0 6px;font-size:var(--f-sm);color:var(--ink);letter-spacing:.01em}
+.ai-rich h4:first-child{margin-top:0}
+.ai-rich ul,.ai-rich ol{margin:0 0 8px;padding-left:20px}
+.ai-rich li{margin:3px 0}
+.ai-rich li::marker{color:var(--ink-faint)}
+.ai-rich b{color:var(--ink);font-weight:600}
+.ai-rich code{font-family:var(--mono,ui-monospace,monospace);font-size:var(--f-xs);
+  padding:1px 5px;border-radius:4px;background:var(--surface-2);color:var(--ink)}
+.ai-rich pre{margin:6px 0 10px;padding:10px;border-radius:var(--r-sm);background:var(--surface-2);
+  font-family:var(--mono,ui-monospace,monospace);font-size:var(--f-xs);overflow:auto;white-space:pre}
+
+/* Ход мысли: свёрнут, разворачивается щелчком по заголовку. */
+.ai-think{width:100%;margin-left:34px;font-size:var(--f-xs)}
+.ai-think summary{cursor:pointer;color:var(--ink-faint);user-select:none;padding:2px 0}
+.ai-think summary:hover{color:var(--ink-dim)}
+.ai-think > div{margin-top:6px;padding:8px 10px;border-left:2px solid var(--line);
+  color:var(--ink-dim);white-space:pre-wrap;line-height:1.5;max-height:260px;overflow:auto}
+
+/* Счёт токенов у самой реплики: сколько стоил именно этот ответ. */
+.ai-tokens{width:100%;padding-left:34px;color:var(--ink-faint);font-size:var(--f-xs)}
+.ai-plan{border:1px solid var(--line);border-radius:var(--r-md);padding:10px;background:var(--surface-2);font-size:var(--f-sm)}
+.ai-plan ul{margin:6px 0 10px;padding-left:18px}
+.ai-plan .btn{margin-right:6px}
+.ai-foot{padding:var(--gap-md);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:var(--gap-sm);
+  position:relative}
+/* Ряд значков под полем ввода и счётчик токенов: подсказка, а не главное. */
+.ai-tools{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-sm);flex-wrap:wrap}
+.ai-scope .switch-item{padding:4px 10px}
+/* Микрофон: идёт запись — красный и дышит; ждёт итог — приглушён. */
+.ai-mic{width:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.ai-mic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ai-mic.on{color:var(--bad);border-color:var(--bad);animation:ai-mic 1.2s ease-in-out infinite}
+.ai-mic.wait{opacity:.5;pointer-events:none}
+/* Читать вслух: включено — волны у динамика, выключено — крестик и приглушённый цвет. */
+.ai-read.on{color:var(--ink);border-color:var(--line);animation:none}
+.ai-read:not(.on){color:var(--ink-faint)}
+.ai-read .read-off,.ai-read.on .read-off{display:none}
+.ai-read:not(.on) .read-off{display:inline}
+.ai-read:not(.on) .read-on{display:none}
+/* Ключевые слова выключены — подсказка о них бледнее. */
+.ai-foot:has(.ai-words:not(.on)) .ai-words-hint{opacity:.5;text-decoration:line-through}
+@keyframes ai-mic{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--bad) 25%,transparent)}}
+.ai-icons{display:flex;gap:4px}
+.ai-icon{width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
+  color:var(--ink-dim);cursor:pointer}
+.ai-icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.ai-icon:hover{color:var(--ink);border-color:var(--ink-faint)}
+.ai-icon.on{color:var(--accent);border-color:var(--accent)}
+.ai-hint,.ai-usage{font-size:var(--f-xs);color:var(--ink-faint)}
+/* Выпадающий список у значков — именно список, а не продолжение переписки:
+   своя подложка, чёткий край и строки через разделитель. */
+.ai-drop{position:absolute;left:var(--gap-md);right:var(--gap-md);bottom:calc(100% - 6px);z-index:5;
+  max-height:44vh;overflow:auto;background:var(--surface-2);
+  border:1px solid color-mix(in srgb,var(--ink-faint) 55%,var(--line));
+  border-radius:var(--r-md);box-shadow:0 12px 28px rgba(0,0,0,.45);padding:4px}
+.ai-drop[hidden]{display:none}
+.ai-drop button{display:block;width:100%;text-align:left;padding:8px 10px;background:none;border:none;
+  border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent);
+  color:var(--ink-dim);cursor:pointer;font-size:var(--f-sm);line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ai-drop button:last-child{border-bottom:none}
+.ai-drop button:hover{background:var(--surface);color:var(--ink)}
+
+/* Материалы: строкой или превьюшками — как было в прежнем Гоблине. */
+.switch-small{gap:0;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;
+  display:inline-flex;margin-bottom:var(--gap-sm)}
+.switch-small .switch-item{border:none;background:transparent;color:var(--ink-dim);
+  padding:3px 10px;cursor:pointer;font-size:var(--f-xs)}
+.switch-small .switch-item.on{background:var(--surface-2);color:var(--ink)}
+/* Переключатель значками: две кнопки вместо списка — видно сразу, что выбрано. */
+.switch-icon{font-size:16px;line-height:1;padding:4px 12px}
+
+/* Поле «перетащи данные сюда»: пунктир, а под курсором с файлом — в цвет. */
+.drop-zone{display:flex;flex-direction:column;align-items:center;gap:2px;
+  margin:var(--gap-sm) 0;padding:12px 10px;text-align:center;
+  border:1px dashed var(--line);border-radius:var(--r-md);
+  color:var(--ink-dim);font-size:var(--f-sm)}
+.drop-zone small{color:var(--ink-faint);font-size:var(--f-xs)}
+.drop-zone .drop-browse{margin-top:6px}
+.drop-zone.over{border-color:var(--accent);border-style:solid;
+  background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--ink)}
+.drop-zone.off{display:none}
+
+/* Имя материала: одной строкой с отточием — ссылки бывают длиной в экран. */
+.asset-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.project-row{display:grid;grid-template-columns:22px minmax(0,1fr) 104px;align-items:center;gap:10px;
+  width:100%;min-height:58px;padding:9px 0;border:0;border-bottom:1px solid var(--line);
+  background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.project-row:hover{background:var(--surface-2)}
+.project-row:disabled{opacity:1;cursor:default}
+.project-icon{font-size:18px;text-align:center}
+.project-name{min-width:0;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.project-row.is-current .project-name{color:var(--accent)}
+.project-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+  white-space:nowrap;color:var(--ink-faint);font-size:var(--f-xs);line-height:1.4;font-variant-numeric:tabular-nums}
+.asset-sort,.asset-selection{margin:8px 0;flex-wrap:wrap}
+.asset-sort select{flex:1;min-width:0}
+.asset-sort-icons{margin-bottom:0}
+.asset-sort-icons .switch-item{display:flex;align-items:center;justify-content:center;width:38px;height:30px;padding:0}
+.asset-sort-icons .switch-item.on{color:var(--accent)}
+/* Превью / список — в том же ряду, у правого края. */
+.asset-sort .asset-view-icons{margin-left:auto}
+.asset-selection{justify-content:space-between;font-size:var(--f-xs)}
+.asset-pickable{user-select:none}
+.asset-pickable.picked{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-sm);
+  background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.asset-tile-wrap.picked .asset-tile{border-color:var(--accent)}
+.asset-open{cursor:pointer}
+.asset-open:hover{color:var(--accent)}
+.asset-off{background:none;border:none;cursor:pointer;color:var(--ink-faint);margin-left:4px}
+.asset-off:hover{color:var(--bad)}
+
+.asset-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+/* Ряд «файл · ссылка · из хранилища» не должен липнуть к плиткам. */
+.asset-tiles + .row,.asset-list + .row{margin-top:10px}
+/* Окно «из хранилища папки»: отмеченные — обведены, уже прикреплённые — тише. */
+#dialog-pick-asset-body{max-height:60vh;overflow:auto;padding:2px}
+.pick-scope{margin-bottom:var(--gap-md)}
+.asset-pick.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.asset-pick.off{opacity:.45;cursor:default}
+.asset-tile-wrap{position:relative}
+.asset-tile{width:100%;display:flex;flex-direction:column;gap:4px;padding:0;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
+  color:var(--ink);cursor:pointer;overflow:hidden}
+.asset-tile:hover{border-color:var(--accent)}
+.asset-face{display:grid;place-items:center;height:60px;background:var(--bg);overflow:hidden}
+.asset-face img{width:100%;height:100%;object-fit:cover}
+.asset-face i{font-style:normal;font-size:22px}
+.asset-tile small{padding:0 5px 5px;font-size:10px;color:var(--ink-dim);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.asset-tile-wrap .asset-off{position:absolute;right:2px;top:2px;background:var(--surface);
+  border-radius:4px;line-height:1;padding:1px 3px}
+
+/* Звёздочка «заглавная картинка»: в списке — у правого края, на превьюшке — в углу. */
+.asset-star{background:none;border:none;cursor:pointer;color:var(--ink-faint);
+  font-size:13px;line-height:1;padding:0 2px;margin-left:4px}
+.asset-star:hover{color:var(--accent)}
+.asset-star.on{color:var(--accent)}
+.asset-star:disabled{cursor:default;opacity:.5}
+.asset-tile-wrap .asset-star{position:absolute;left:2px;top:2px;background:var(--surface);
+  border-radius:4px;padding:1px 3px;margin:0}
+/* Значок свойств — рядом со звёздочкой: открывает окно материала. */
+.asset-gear{background:none;border:none;cursor:pointer;color:var(--ink-faint);
+  font-size:13px;line-height:1;padding:0 2px;margin-left:4px}
+.asset-gear:hover{color:var(--accent)}
+.asset-tile-wrap .asset-gear{position:absolute;left:26px;top:2px;background:var(--surface);
+  border-radius:4px;padding:1px 3px;margin:0}
+/* Нет звёздочки (библиотека проекта) — значок свойств встаёт на её место. */
+.asset-tile-wrap:not(:has(.asset-star)) .asset-gear{left:2px}
+.asset-tile-wrap.is-cover .asset-tile{border-color:var(--accent)}
+
+.btn-small{height:26px;padding:0 10px;font-size:var(--f-xs);white-space:nowrap}
+
+/* Окно материала: картинка крупно, под ней поля. */
+/* Окно материала: место под крупную картинку и длинный текст. */
+.asset-window{max-height:76vh;overflow:auto}
+.asset-preview{display:grid;place-items:center;min-height:120px;margin-bottom:var(--gap-md);
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--r-md);padding:8px}
+.asset-preview img,.asset-preview video{max-width:100%;max-height:58vh;border-radius:var(--r-sm)}
+#dialog-asset{width:min(1180px,96vw);height:92dvh;max-height:96dvh;overflow:hidden;padding-top:32px}
+#dialog-asset[open]{display:flex;flex-direction:column}
+#dialog-asset-view{flex:1;min-height:0;max-height:none;display:flex;flex-direction:column}
+#dialog-asset-view>.field{flex-shrink:0}
+#dialog-asset-view>.asset-preview,
+#dialog-asset-view>.asset-text-field{flex:1;min-height:160px}
+#dialog-asset-view>.asset-preview{overflow:hidden;grid-template-rows:minmax(0,1fr)}
+#dialog-asset-view .asset-preview img,
+#dialog-asset-view .asset-preview video{width:100%;height:100%;max-height:100%;object-fit:contain;min-height:0}
+#dialog-asset-view>.asset-text-field{display:flex;flex-direction:column}
+#dialog-asset-view .asset-text-field textarea{flex:1;min-height:0;height:auto}
+#dialog-asset-view .asset-text-field>.code-box{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface-2);border-radius:var(--r-sm)}
+#dialog-asset-view .asset-text-field .code-mirror,
+#dialog-asset-view .asset-text-field textarea{scrollbar-gutter:stable}
+#dialog-asset-foot{flex-shrink:0}
+
+/* Настройки холста: строка — переключатель и объяснение под ним. */
+/* Настройки холста: строка — подпись слева, переключатель справа, между
+   строками тонкая черта. Все органы управления в цвет темы. */
+.settings-links{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 var(--gap-md)}
+.settings-list{display:flex;flex-direction:column;max-height:62vh;overflow:auto;
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2)}
+.setting{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--gap-md);
+  padding:12px var(--gap-md);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);
+  cursor:pointer}
+.setting:last-child{border-bottom:none}
+.setting:hover{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+.setting-name{display:block;font-size:var(--f-sm);color:var(--ink)}
+.setting-hint{margin:3px 0 0;font-size:var(--f-xs);line-height:1.4}
+.setting-control{display:flex;align-items:center;justify-content:flex-end;min-width:150px}
+.setting-control input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
+.setting-control input[type="range"]{width:150px;accent-color:var(--accent);cursor:pointer}
+.setting-input{width:110px;height:30px;padding:0 8px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--surface);color:var(--ink)}
+select.setting-input{width:auto;min-width:130px}
+
+/* Окно «Новая схема»: каталог и конструктор (src/shell/newscheme.js). */
+.ns-dialog{height:min(820px,90dvh);display:none;flex-direction:column;padding-bottom:14px}
+.ns-dialog[open]{display:flex}
+.ns-top{display:flex;align-items:center;gap:var(--gap-lg);padding-right:44px;margin-bottom:var(--gap-md)}
+.ns-top .dialog-title{margin:0}
+.ns-tabs .switch-item{padding:6px 18px}
+.ns-body{flex:1 1 auto;min-height:0;overflow:auto}
+.ns-note{color:var(--ink-dim);font-size:var(--f-sm);padding:var(--gap-md) 0}
+.ns-title{font-size:var(--f-xl);line-height:1.25;margin:0 0 6px}
+.ns-about{color:var(--ink-dim);font-size:var(--f-sm);line-height:1.5;margin:0 0 var(--gap-md)}
+.ns-chip{display:inline-flex;align-items:center;padding:2px 9px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface-2);color:var(--ink-dim);font-size:var(--f-xs);white-space:nowrap}
+.ns-chip-btn{cursor:pointer;padding:6px 12px;font-size:var(--f-sm);white-space:normal;text-align:left}
+.ns-chip-btn:hover{border-color:var(--accent);color:var(--ink)}
+.ns-ok{color:var(--ok);font-size:var(--f-xs)}
+.ns-bad{color:var(--bad);font-size:var(--f-sm)}
+.ns-actions{display:flex;gap:var(--gap-sm);flex-wrap:wrap;margin-top:var(--gap-md)}
+.ns-field{display:flex;flex-direction:column;gap:5px;margin-top:var(--gap-md);font-size:var(--f-xs);color:var(--ink-dim)}
+
+/* Каталог: разделы слева, карточки справа. */
+.ns-catalog{display:grid;grid-template-columns:230px 1fr;gap:var(--gap-lg);height:100%}
+.ns-side{display:flex;flex-direction:column;min-height:0}
+.ns-cats{display:flex;flex-direction:column;gap:2px;overflow:auto;padding-right:4px}
+.ns-search{margin-bottom:var(--gap-sm)}
+.ns-cat{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:0;
+  border-radius:var(--r-sm);background:none;color:var(--ink-dim);font-size:var(--f-sm);text-align:left;cursor:pointer}
+.ns-cat:hover{background:var(--surface-2);color:var(--ink)}
+.ns-cat.on{background:var(--surface-2);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.ns-cat small{color:var(--ink-faint);font:10px/1 var(--mono)}
+.ns-list{overflow:auto;min-width:0}
+.ns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.ns-card{display:flex;flex-direction:column;gap:6px;padding:14px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--surface-2);color:var(--ink);text-align:left;cursor:pointer;transition:border-color var(--fast),transform var(--fast)}
+.ns-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ns-card b{font-size:var(--f-md);line-height:1.3}
+.ns-card-cat{color:var(--ink-faint);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.ns-card-about{color:var(--ink-dim);font-size:var(--f-xs);line-height:1.45;display:-webkit-box;
+  -webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ns-card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:auto;padding-top:6px;
+  color:var(--ink-faint);font-size:var(--f-xs)}
+
+/* Схема: миникарта и паспорт — и в каталоге, и у черновика конструктора. */
+.ns-back{margin-bottom:var(--gap-md)}
+.ns-detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,1fr);gap:var(--gap-lg);align-items:start}
+.ns-map{border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg);padding:10px;
+  height:min(560px,62dvh);display:flex}
+.ns-svg{width:100%;height:100%}
+.ns-node{fill:var(--surface-2);stroke:var(--ink-faint);stroke-width:3}
+.ns-node.start{fill:color-mix(in srgb,var(--accent) 22%,var(--surface-2));stroke:var(--accent)}
+.ns-node.decision{stroke:var(--c-blue)}
+.ns-node.gateway{stroke:var(--c-purple)}
+.ns-label{fill:var(--ink);font:600 26px var(--sans)}
+.ns-arrow{fill:none;stroke:var(--ink-faint);stroke-width:3}
+.ns-arrow.back{stroke-dasharray:10 8}
+.ns-tip{fill:var(--ink-faint)}
+.ns-branch{fill:var(--ink-dim);font:22px var(--sans)}
+.ns-pass{min-width:0}
+.ns-facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:var(--gap-md) 0 0;font-size:var(--f-sm)}
+.ns-facts dt{color:var(--ink-faint)}
+.ns-facts dd{margin:0;color:var(--ink)}
+.ns-facts :is(ol,ul){margin:0;padding-left:18px}
+
+/* Конструктор: цель, история, карточка вопроса, черновик. */
+.ns-intro{max-width:720px;margin:var(--gap-lg) auto 0;display:flex;flex-direction:column;gap:var(--gap-sm)}
+.ns-goal-input{font-size:var(--f-md);line-height:1.5;resize:vertical}
+.ns-examples{display:flex;flex-wrap:wrap;gap:6px}
+.ns-session{display:flex;flex-direction:column;gap:var(--gap-md)}
+.ns-head{display:flex;align-items:flex-start;gap:var(--gap-md);flex-wrap:wrap}
+.ns-goal{flex:1 1 320px;font-size:var(--f-md);line-height:1.45}
+.ns-progress{display:flex;gap:8px;align-items:center;color:var(--ink-dim);font-size:var(--f-xs)}
+.ns-history{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;
+  border-left:2px solid var(--line);padding-left:12px}
+.ns-history li{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:var(--f-sm)}
+.ns-q{color:var(--ink-dim)}
+.ns-a{color:var(--ink)}
+.ns-a::before{content:'→ ';color:var(--ink-faint)}
+.ns-card-now{max-width:760px;padding:18px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface-2)}
+.ns-say{font-size:var(--f-sm);color:var(--ink-dim)}
+.ns-question{font-size:var(--f-lg);line-height:1.35;margin:var(--gap-sm) 0 4px}
+.ns-why{color:var(--ink-faint);font-size:var(--f-xs);margin:0 0 var(--gap-sm)}
+.ns-options{display:flex;flex-wrap:wrap;gap:8px;margin:var(--gap-sm) 0}
+.ns-option{padding:9px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
+  color:var(--ink);font-size:var(--f-sm);cursor:pointer;text-align:left}
+.ns-option:hover,.ns-option:focus-visible{border-color:var(--accent)}
+.ns-option.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.ns-plan{margin:0;padding-left:20px;font-size:var(--f-sm)}
+.ns-own{display:flex;gap:var(--gap-sm);margin-top:var(--gap-sm)}
+.ns-wait{color:var(--ink-dim);font-size:var(--f-md);padding:var(--gap-lg) 0}
+.ns-wait::before{content:'';display:inline-block;width:10px;height:10px;margin-right:10px;border-radius:50%;
+  background:var(--accent);animation:ns-pulse 1.2s ease-in-out infinite}
+@keyframes ns-pulse{50%{opacity:.25;transform:scale(.7)}}
+.ns-redo{display:flex;flex-direction:column;gap:var(--gap-sm);margin-top:var(--gap-lg);padding-top:var(--gap-md);
+  border-top:1px solid var(--line)}
+.ns-redo .btn{align-self:flex-start}
+/* Узко (планшет, телефон, узкое окно): разделы — строкой сверху, схема и паспорт — столбиком. */
+@media (max-width:860px){
+  .ns-top{flex-wrap:wrap;gap:var(--gap-sm)}
+  .ns-catalog{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+  .ns-cats{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:0 0 6px}
+  .ns-cat{flex:0 0 auto;white-space:nowrap}
+  .ns-cat.on{box-shadow:inset 0 -3px 0 var(--accent)}
+  .ns-detail{grid-template-columns:minmax(0,1fr)}
+  .ns-map{height:min(360px,42dvh)}
+  .ns-grid{grid-template-columns:1fr}
+}
+
+/* Выравнивание: сетка значков, по три в ряд. */
+.align-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.align-btn{height:30px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--surface-2);color:var(--ink);cursor:pointer;font-size:15px;line-height:1}
+.align-btn:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
+.align-btn[disabled]{opacity:.4;cursor:default}
+
+/* Устройство таблицы: столбцы и строки плашками, текст правится на холсте. */
+.tbl-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--ink-dim);margin:10px 0 4px}
+.tbl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.tbl-chip{display:inline-flex;align-items:center;gap:2px;max-width:100%;
+  padding:3px 4px 3px 10px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface-2);font-size:var(--f-xs)}
+.tbl-chip > span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px}
+.tbl-drop{width:18px;height:18px;padding:0;border:1px solid transparent;border-radius:50%;
+  background:none;color:var(--ink-faint);cursor:pointer;line-height:1;font-size:13px}
+.tbl-drop:hover:not([disabled]){border-color:var(--bad);color:var(--bad)}
+.tbl-drop[disabled]{opacity:.3;cursor:default}
+/* Новое свойство: имя строкой во всю ширину, под ним значение и кнопка. */
+.prop-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
+.prop-add > select.input,.prop-add > input.input{grid-column:1 / -1;width:100%}
+.prop-add > input.input[hidden]{display:none}
+.prop-value{min-width:0}
+.prop-value .input{width:100%}
+
+/* Строка допа: поле во всю ширину, крестик у правого края. */
+.prop-row{display:flex;align-items:flex-end;gap:6px}
+.prop-row .field{flex:1;min-width:0}
+.prop-line{display:flex;align-items:center;gap:6px}
+.prop-line > .input{flex:1;min-width:0}
+.prop-line > .asset-off{flex:none;margin:0}
+
+/* Кнопки устройства таблицы: переносятся по строкам, подписи не ломаются. */
+.tbl-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tbl-actions .btn{flex:0 0 auto;white-space:nowrap}
+
+/* Окно «Открыть» и «Сохранить»: строка на способ, значок в своей колонке. */
+.file-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--surface-2);overflow:hidden}
+.file-row{display:flex;align-items:center;gap:12px;width:100%;padding:12px var(--gap-md);
+  background:none;border:none;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);
+  color:var(--ink);cursor:pointer;text-align:left;font-size:var(--f-sm)}
+.file-row:last-child{border-bottom:none}
+.file-row:hover{background:var(--surface)}
+.file-row b{flex:0 0 22px;text-align:center;color:var(--ink-faint);font-weight:400}
+
+/* Рабочая папка: поле и «Обзор…» в строку; окно обзора — путь сверху, список прокручивается. */
+.workdir-row{display:flex;gap:6px;align-items:center}
+.workdir-row .input{flex:1;min-width:0}
+.dir-head{display:flex;align-items:center;gap:8px;margin-bottom:var(--gap-sm)}
+.dir-path{flex:1;min-width:0;overflow-wrap:anywhere;color:var(--ink-dim)}
+.dir-list{max-height:50vh;overflow:auto}
+.dir-empty{padding:12px var(--gap-md);margin:0}
+
+/* Карточка агента: два столбика, имя и пояснение — во всю ширину. */
+.agent-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 16px;
+  max-height:64vh;overflow:auto;align-content:start}
+.agent-form .field{margin:6px 0;min-width:0}
+.agent-form .span-2{grid-column:1 / -1}
+.agent-form select.input,.agent-form input.input{width:100%}
+
+/* Агенты плитками: имя и инструмент, а цвет плитки — цвет инструмента,
+   приглушённый: он подсказывает, а не кричит. */
+/* Подложка под кирпичами агентов и материалами папки: по ней тянут рамку
+   выделения, и текст при этом не выделяется браузером. */
+.agents-board,.asset-board{padding:12px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:color-mix(in srgb,var(--ink) 3%,transparent);
+  user-select:none;-webkit-user-select:none}
+.agent-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:14px;margin-bottom:0}
+.agent-tile{--cli:var(--line);display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:12px 8px;border-radius:var(--r-md);cursor:pointer;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--cli) 32%,var(--line));
+  background:color-mix(in srgb,var(--cli) 9%,var(--surface-2));color:var(--ink)}
+.agent-tile:hover{border-color:color-mix(in srgb,var(--cli) 70%,var(--line));
+  background:color-mix(in srgb,var(--cli) 16%,var(--surface-2))}
+.agent-tile.lead{box-shadow:inset 0 2px 0 0 color-mix(in srgb,var(--cli) 60%,transparent)}
+.agent-tile small{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.agent-tile i{font-style:normal;font-size:10px;color:var(--ink-faint);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+/* Цвет инструмента: точка у агента и ободок плитки. */
+.cli-dot{flex:0 0 10px;width:10px;height:10px;border-radius:50%;display:inline-block;
+  background:var(--line);box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 20%,transparent)}
+.agent-tile{--cli:var(--line)}
+.agent-tile b{box-shadow:0 0 0 2px var(--cli)}
+.agent-tile:hover{border-color:var(--cli)}
+
+/* Плашка выбора: закрытая — строка с текущим значением, раскрытая — список,
+   который выезжает плавно. Цвет инструмента виден и там, и там. */
+.pick{position:relative}
+.pick-head{display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 10px;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
+  color:var(--ink);cursor:pointer;text-align:left;font-size:var(--f-sm)}
+.pick-head span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick-arrow{color:var(--ink-faint);font-weight:400;transition:transform var(--fast)}
+.pick.open .pick-head{border-color:var(--accent)}
+.pick.open .pick-arrow{transform:rotate(180deg)}
+.pick.off .pick-head{opacity:.5;cursor:default}
+.pick-list{max-height:0;overflow:hidden auto;transition:max-height var(--slow);
+  border-radius:var(--r-sm);margin-top:4px}
+.pick.open .pick-list{border:1px solid var(--line);background:var(--surface)}
+.pick-item{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;
+  background:color-mix(in srgb,var(--tint,transparent) 12%,transparent);color:var(--ink-dim);
+  cursor:pointer;text-align:left;font-size:var(--f-sm)}
+.pick-item:hover{background:color-mix(in srgb,var(--tint,var(--ink)) 22%,transparent);color:var(--ink)}
+.pick-item.on{color:var(--ink);font-weight:600}
+
+/* Вкладка агентов: вид и сортировка сверху, действия снизу. */
+.agents-tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--gap-sm)}
+/* Кнопки выбранного — ярлычками у низа панели: выбрал кирпич в любом месте
+   списка, а «снять» и «удалить» всё равно перед глазами. */
+.agents-bottom{position:sticky;bottom:calc(var(--gap-md) * -1);z-index:6;
+  display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  margin:8px calc(var(--gap-md) * -1) calc(var(--gap-md) * -1);
+  padding:8px var(--gap-md) var(--gap-md);background:var(--surface);
+  box-shadow:0 -8px 10px -8px rgba(0,0,0,.45)}
+.agents-bottom[hidden]{display:none}
+/* «Удалить» — чуть красным: видно, что действие необратимое, но кнопка не кричит. */
+#dialog-agent .btn-danger,
+.agents-bottom .btn-danger{border-color:color-mix(in srgb,var(--c-red) 40%,var(--line));
+  background:color-mix(in srgb,var(--c-red) 10%,var(--surface-2));
+  color:color-mix(in srgb,var(--c-red) 55%,var(--ink-dim))}
+#dialog-agent .btn-danger:hover,
+.agents-bottom .btn-danger:hover{background:color-mix(in srgb,var(--c-red) 18%,var(--surface-2));
+  border-color:color-mix(in srgb,var(--c-red) 60%,var(--line))}
+
+/* «+ агент» — ярлычок по центру, притёртый к верхней плашке панели: под ним
+   не должно просвечивать, иначе кирпичи лезут в кнопку. */
+.agents-add{position:sticky;top:calc(var(--gap-md) * -1);z-index:7;display:flex;justify-content:center;
+  margin:calc(var(--gap-md) * -1) calc(var(--gap-md) * -1) 8px;
+  padding:6px var(--gap-md) 8px;background:var(--surface);
+  box-shadow:0 8px 10px -8px rgba(0,0,0,.45)}
+.agents-add .btn{min-width:70%;justify-content:center;padding:8px 22px;font-size:13.5px;font-weight:500;
+  border-color:color-mix(in srgb,var(--c-green) 55%,var(--line));
+  background:color-mix(in srgb,var(--c-green) 16%,var(--surface-2));
+  color:color-mix(in srgb,var(--c-green) 70%,var(--ink))}
+.agents-add .btn:hover{background:color-mix(in srgb,var(--c-green) 26%,var(--surface-2));
+  border-color:var(--c-green)}
+/* Среда прогона папки — над списком агентов (panel/agents-view.js). */
+.agents-env{margin:4px 0 12px}
+.agent-rows,.agent-tiles{min-height:60px}
+.agent-rows{display:flex;flex-direction:column;gap:4px}
+/* Выбранные — обведены: их можно удалить пачкой. */
+.agent-pickable.picked{outline:2px solid #fff;outline-offset:-2px;border-radius:var(--r-md)}
+.agent-marquee,.asset-marquee{position:fixed;z-index:80;pointer-events:none;border:1px solid var(--accent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:4px}
+
+/* Ручка переноса агента: за неё тянут на холст, остальное — под рамку выбора. */
+/* Сколько блоков держат агента: маленькое число в углу кирпича. */
+.agent-count{position:absolute;left:5px;top:4px;min-width:15px;height:15px;padding:0 4px;
+  display:inline-flex;align-items:center;justify-content:center;border-radius:999px;
+  background:color-mix(in srgb,var(--cli,var(--line)) 22%,var(--surface-2));
+  border:1px solid color-mix(in srgb,var(--cli,var(--line)) 45%,var(--line));
+  color:var(--ink-dim);font:normal 10px/1 var(--mono)}
+.agent-row .agent-count{position:static;justify-self:start}
+.agent-row .agent-grip{right:4px;top:50%;transform:translateY(-50%)}
+
+/* Ручка переноса: заметная, но не крикливая — по ней видно, что кирпич
+   можно утащить на блок. Тянется и сам кирпич. */
+.agent-grip{position:absolute;right:5px;top:4px;padding:0 2px;cursor:grab;
+  color:var(--ink-faint);font-size:16px;line-height:1;opacity:0;transition:opacity var(--fast)}
+/* Список агентов: строки-сетки, одинаковые столбцы у всех. */
+.agent-rows{display:flex;flex-direction:column;gap:2px}
+.agent-row{display:grid;grid-template-columns:9px minmax(46px,1.3fr) 46px minmax(46px,1fr) 24px;
+  align-items:center;gap:7px;width:100%;padding:7px 8px;text-align:left;
+  border:1px solid transparent;border-radius:8px;background:none;color:inherit;cursor:grab;
+  font:var(--f-md)/1.3 var(--sans)}
+.agent-row:hover{background:var(--surface-2);border-color:var(--line)}
+.agent-rows .agent-head{padding:2px 8px 6px;cursor:default;color:var(--ink-faint);
+  font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.agent-rows .agent-head:hover{background:none;border-color:transparent}
+.agent-head > span{overflow:hidden;text-overflow:clip;white-space:nowrap}
+.agent-head-sort{cursor:pointer}
+.agent-head-sort:hover{color:var(--ink-dim)}
+.agent-head-sort.on{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.agent-row .cli-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.agent-row-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agent-row-role,.agent-row-cli{color:var(--ink-dim);font-size:12px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agent-row-cli{color:color-mix(in srgb,var(--cli,var(--ink-faint)) 60%,var(--ink-dim))}
+
+.agent-tile,.agent-row{position:relative;cursor:grab}
+:is(.agent-tile,.agent-row):hover .agent-grip,
+.agent-pickable.picked .agent-grip,
+body.dragging-agent .agent-grip{opacity:1}
+:is(.agent-tile,.agent-row):active{cursor:grabbing}
+
+/* Состояния шага — все на виду: выбранное подсвечено своим цветом. */
+.step-states{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 8px}
+.step-state{padding:4px 9px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface-2);color:var(--ink-dim);cursor:pointer;
+  font:12px/1.2 var(--sans);transition:border-color var(--fast),color var(--fast)}
+.step-state:hover{border-color:var(--ink-faint);color:var(--ink)}
+/* Без прогона состояние только показывают: кнопки на месте, но приглушены —
+   видно, что стоит сейчас, и понятно, что менять пока нечем. */
+.step-state:disabled{opacity:.45;cursor:default}
+.step-state:disabled:hover{border-color:var(--line);color:var(--ink-dim)}
+.step-state.on:disabled{opacity:.75}
+/* Цвет состояния — общая таблица прогона (--run, css/run.css). */
+.step-state.on{color:var(--ink);border-color:var(--run,var(--ink-faint));
+  background:color-mix(in srgb,var(--run,var(--ink-faint)) 18%,var(--surface-2))}
+
+
+/* Удаление папки: отделено чертой, чтобы не нажать мимоходом. */
+.panel-danger{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.panel-danger .btn-danger{border-color:color-mix(in srgb,var(--c-red) 40%,var(--line));
+  color:color-mix(in srgb,var(--c-red) 75%,var(--text))}
+.panel-danger .btn-danger:hover{background:color-mix(in srgb,var(--c-red) 18%,var(--surface-2));
+  border-color:var(--c-red)}
+
+/* ── Журнал прогона ───────────────────────────────────────────── */
+
+/* Список прогонов: свёрнут до текущего, раскрыт — вся история папки. */
+.runs-list{margin:8px 0 10px}
+.runs-head{cursor:pointer;padding:7px 10px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--surface-2);font-size:var(--f-sm);color:var(--ink)}
+.runs-head::marker{color:var(--ink-faint)}
+.runs-item{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;width:100%;text-align:left;
+  padding:5px 10px;border:0;border-radius:var(--r-sm);background:none;color:var(--ink);cursor:pointer}
+.runs-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.runs-item:hover{background:var(--surface-2)}
+.runs-item.on{background:color-mix(in srgb,var(--accent) 14%,var(--surface-2))}
+.runs-item small{grid-column:1/-1;color:var(--ink-faint);font-size:var(--f-xs)}
+.runs-empty{padding:8px 10px;color:var(--ink-faint);font-size:var(--f-sm)}
+
+/* Лента событий: строка на событие, тело раскрывается по щелчку. */
+.runlog-strip{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.runlog-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.runlog-filter{padding:4px 10px;border:1px solid var(--line);border-radius:999px;
+  background:none;color:var(--ink-dim);cursor:pointer;font-size:var(--f-xs)}
+.runlog-filter:hover{color:var(--ink)}
+.runlog-filter.on{border-color:var(--accent);color:var(--ink);background:var(--surface-2)}
+
+/* Шапка ленты: прогон и полная дата его начала — один раз. */
+.runlog-run{display:flex;gap:8px;align-items:baseline;padding:4px 8px 6px;
+  font-family:var(--mono,ui-monospace,monospace);font-size:var(--f-xs);color:var(--ink-dim)}
+.runlog-run b{color:var(--ink)}
+
+/* Событие — две строчки таблицы:
+     № шага · мм:сс · элемент · кто
+             что случилось
+   Графы одной ширины по всему журналу, поэтому лента читается столбцами. */
+.runlog-line,
+.runlog-line.has-body>summary{font-family:var(--mono,ui-monospace,monospace);font-size:var(--f-xs);
+  display:grid;grid-template-columns:10px 2.2em 5.2em 5.6em minmax(0,1fr);
+  grid-template-areas:"caret n time el who" ". . what what what";gap:1px 8px;
+  white-space:pre-wrap;word-break:break-word}
+.runlog-line{color:var(--ink-dim);padding:4px 8px;border-radius:var(--r-sm)}
+.runlog-line.has-body{display:block;padding:0}
+.runlog-line.has-body>summary{cursor:pointer;padding:4px 8px}
+.runlog-caret{grid-area:caret}
+.runlog-n{grid-area:n;text-align:right;color:var(--ink-faint)}
+.runlog-time{grid-area:time}
+.runlog-el{grid-area:el;white-space:nowrap;color:var(--ink)}
+.runlog-who{grid-area:who}
+.runlog-what{grid-area:what}
+/* Свой значок вместо системного треугольника: тот при сетке пропадает. */
+.runlog-line>summary::marker,
+.runlog-line>summary::-webkit-details-marker{display:none;content:''}
+.runlog-caret{width:9px;color:var(--ink-faint);transition:transform .12s}
+.runlog-line.has-body>summary .runlog-caret{color:var(--accent)}
+.runlog-line.has-body[open]>summary .runlog-caret{transform:rotate(90deg)}
+
+/* Графы: время бледное, ярлык говорящего цветной. */
+.runlog-time,.runlog-who{white-space:nowrap;color:var(--ink-faint)}
+.who-lead .runlog-who{color:var(--accent)}
+.who-worker .runlog-who{color:var(--c-green,#5aa469)}
+.who-human .runlog-who{color:var(--c-violet,#a78bfa)}
+.who-judge .runlog-who{color:var(--c-violet,#a78bfa)}
+/* Графа джева: его вопрос и ответ видно отдельно от работы прогона. */
+.kind-jev-ask,.kind-jev-say{background:color-mix(in srgb,var(--c-violet,#a78bfa) 7%,transparent)}
+.kind-jev-ask .runlog-who,.kind-jev-say .runlog-who{color:var(--c-violet,#a78bfa)}
+.kind-jev-say .runlog-what{color:var(--ink)}
+.who-lead{box-shadow:inset 2px 0 color-mix(in srgb,var(--accent) 55%,transparent)}
+.who-worker{box-shadow:inset 2px 0 color-mix(in srgb,var(--c-green,#5aa469) 55%,transparent)}
+.runlog-line.has-body{cursor:pointer}
+.runlog-line.has-body:hover{background:var(--surface-2);color:var(--ink)}
+.runlog-line.kind-fail,.runlog-line.kind-return{color:var(--c-red,#f0506e)}
+.runlog-line.kind-accept,.runlog-line.kind-finish{color:var(--c-green,#5aa469)}
+.runlog-line.kind-message{color:var(--accent)}
+.runlog-line{cursor:pointer}
+.runlog-line.on{background:color-mix(in srgb,var(--accent) 16%,transparent);
+  color:var(--ink);box-shadow:inset 2px 0 var(--accent)}
+.runlog-body-text{margin:6px 0 10px;padding:10px;background:var(--surface-2);
+  border-radius:var(--r-sm);white-space:pre-wrap;word-break:break-word;
+  font-size:var(--f-xs);max-height:420px;overflow:auto}
+
+/* Группа событий: сводка прогона и подробности одного шага. */
+.runlog-step{border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:6px;padding:4px}
+.runlog-step-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;
+  cursor:pointer;padding:5px 8px;font-size:var(--f-sm);color:var(--ink)}
+.runlog-step-head::marker{color:var(--ink-faint)}
+.runlog-key{flex:none;padding:1px 7px;border-radius:999px;background:var(--surface-2);
+  color:var(--ink-dim);font-family:var(--mono,ui-monospace,monospace);
+  font-size:var(--f-xs);font-weight:600}
+.runlog-name{color:var(--ink)}
+.runlog-meta{margin-left:auto;color:var(--ink-faint);font-size:var(--f-xs)}
+
+/* Плашка шага стоит прямо в ленте, поэтому чуть утоплена и подсвечена. */
+.runlog-step{margin:4px 0 4px 14px;background:var(--surface-2)}
+.runlog-step[open]{background:none}
+.runlog-bad{border-color:color-mix(in srgb,var(--c-red,#f0506e) 45%,var(--line))}
+.ui-run-sub{margin:18px 0 8px;font-size:var(--f-sm);color:var(--ink-dim);
+  text-transform:uppercase;letter-spacing:.06em}
+
+/* Папка схемы у агента (веб-режим): путь только для чтения и пояснение. */
+.agentdir{display:grid;gap:4px}
+.agentdir small{font-size:var(--f-xs);line-height:1.4}

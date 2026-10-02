@@ -1,0 +1,131 @@
+/* Вид «Лента» (ui/timeline.js): время одного прогона по исполнителям.
+   Поверхности и шрифты — «Студии», независимо от скина и темы редактора: они объявлены
+   на корне вида и действуют только внутри него. Цвета состояний своих копий не имеют —
+   общая таблица подсветки (css/run.css: --run по data-state, --step-* из tokens.css). */
+
+.ui-timeline{
+  --bg:#181b21;--surface:#20242c;--surface-2:#282d36;--line:#ffffff0f;--line-strong:#ffffff24;
+  --hover:#ffffff0a;--ink:#eceef2;--ink-dim:#9aa0ab;--ink-faint:#6b7079;--accent:#f59f4a;
+  --sans:"Studio Inter",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Studio Mono","JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --tl-name-w:168px;
+  position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;
+  background:var(--bg);color:var(--ink);color-scheme:dark;
+  font:12.5px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+
+/* ── Шапка: какой прогон, кнопки масштаба ─────────────────────── */
+.tl-head{display:flex;align-items:center;gap:10px;flex:none;min-width:0;padding:9px 14px;
+  border-bottom:1px solid var(--line);background:var(--surface);white-space:nowrap}
+.tl-head > *{flex:none}
+.tl-chip{display:inline-flex;align-items:center;gap:7px;padding:3px 11px 3px 9px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--run,var(--line-strong)) 55%,var(--line));font-weight:600}
+.tl-chip[hidden]{display:none}
+.tl-chip b{font-family:var(--mono)}
+.tl-chip i{font-style:normal;color:var(--run,var(--ink-dim))}
+.tl-chip[data-run="running"]{--run:var(--step-running)}
+.tl-chip[data-run="paused"]{--run:var(--step-submitted)}
+.tl-chip[data-run="stopped"]{--run:var(--step-cancelled)}
+.tl-chip[data-run="done"]{--run:var(--step-accepted)}
+.tl-chip[data-run="failed"]{--run:var(--step-failed)}
+.tl-when{color:var(--ink-dim);font:500 11px/1 var(--mono)}
+.tl-pick{height:28px;padding:0 8px;border:1px solid var(--line-strong);border-radius:7px;
+  background:var(--surface-2);color:var(--ink);font:500 12px/1 var(--mono)}
+.tl-pick[hidden]{display:none}
+.tl-head > .tl-grow{flex:1 1 0}
+/* Подсказка про колесо — в две строки; второстепенна: на узкой ленте сжимается первой. */
+.tl-head > .tl-hint{flex:0 1 auto;min-width:0;overflow:hidden;white-space:pre-line;
+  color:var(--ink-faint);font-size:11px;line-height:1.3}
+.tl-btn{height:28px;padding:0 11px;border:1px solid var(--line-strong);border-radius:7px;
+  background:var(--surface-2);color:var(--ink);font:500 12px/1 var(--sans);cursor:pointer}
+.tl-btn:hover{background:color-mix(in srgb,var(--ink) 8%,var(--surface-2))}
+
+/* ── Лента: прокрутка в обе стороны, шкала сверху и имена слева закреплены ── */
+.tl-body{flex:1;min-height:0;overflow:auto;position:relative}
+.tl-plot{position:relative;min-height:100%}
+.tl-top{position:sticky;top:0;z-index:6;background:var(--bg)}
+.tl-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.tl-name,.tl-corner{position:sticky;left:0;z-index:4;flex:0 0 var(--tl-name-w);width:var(--tl-name-w);
+  box-sizing:border-box;background:var(--surface);border-right:1px solid var(--line)}
+.tl-name{display:flex;flex-direction:column;justify-content:center;gap:1px;padding:4px 12px;overflow:hidden}
+.tl-name b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-name small{color:var(--ink-faint);font:500 9.5px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+/* Строка-догадка (старые попытки без факта): имя приглушено и курсивом — не точный исполнитель. */
+.tl-name[data-guess] b{color:var(--ink-dim);font-style:italic}
+.tl-track{position:relative;flex:none}
+.tl-lane[data-kind="engine"] .tl-name b,.tl-lane[data-kind="jev"] .tl-name b{color:var(--ink-dim)}
+
+/* Деления: минуты и секунды от начала прогона; абсолютное время — в подсказке над шкалой. */
+.tl-ruler{min-height:36px;background:var(--surface);cursor:zoom-in}
+.tl-tick{position:absolute;top:0;bottom:0;padding:6px 0 0 5px;border-left:1px solid var(--line-strong);
+  color:var(--ink-dim);font:500 10px/1 var(--mono);white-space:nowrap;pointer-events:none}
+
+/* ── Отрезки: попытка блока цветом состояния; работа (от «взят» до «сдан») — гуще ── */
+/* Высота одна, место по вертикали задаёт JS: параллельная работа одного исполнителя —
+   уровнями внутри его строки, строка выше. */
+.tl-bar{position:absolute;top:7px;height:26px;min-width:8px;box-sizing:border-box;display:flex;align-items:center;
+  overflow:hidden;border:1px solid color-mix(in srgb,var(--run) 70%,transparent);border-radius:6px;
+  background:color-mix(in srgb,var(--run) 16%,var(--surface));cursor:pointer}
+.tl-bar:hover{background:color-mix(in srgb,var(--run) 26%,var(--surface))}
+.tl-bar.on{box-shadow:0 0 0 2px var(--accent)}
+.tl-work{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--run) 42%,transparent)}
+.tl-label{position:relative;z-index:1;padding:0 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font:500 11px/1 var(--mono);color:var(--ink);pointer-events:none}
+/* Отменённая попытка — пунктир: её сняли, работы в ней нет. */
+.tl-bar[data-state="cancelled"]{border-style:dashed;background:transparent}
+/* Решение ромба — своя форма; цвет — «принят» при любой ветке, ветка — подписью ДА или НЕТ
+   (как на холсте: красный только у «сорван»). Ждёт решения — розовый «ждёт». */
+.tl-bar.tl-decision{border-radius:2px;clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,7px 100%,0 50%)}
+.tl-bar.tl-decision .tl-label{padding:0 10px}
+/* Шлюз и стартер — отметки-точки: миг, а не работа. */
+.tl-bar.tl-point{width:auto;min-width:0;padding:0 7px;gap:4px;transform:translateX(-50%);
+  border-radius:999px;background:var(--surface-2);clip-path:none}
+.tl-bar.tl-point b{color:var(--run);font:600 12px/1 var(--sans)}
+.tl-bar.tl-point .tl-label{padding:0}
+
+/* ── Ожидание прогона: штриховка с причиной ─────────────────── */
+.tl-waits{min-height:26px}
+.tl-waits .tl-name{padding:0 12px;color:var(--ink-faint);font:500 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.tl-wait{--wait:var(--step-wait);position:absolute;top:5px;bottom:5px;box-sizing:border-box;display:flex;align-items:center;
+  overflow:hidden;border:1px solid color-mix(in srgb,var(--wait) 45%,transparent);border-radius:4px;
+  background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--wait) 30%,transparent) 0 4px,transparent 4px 9px)}
+/* Пауза — тот же «ждёт», только спокойно: реже штриховка, рамка точками. */
+.tl-wait[data-reason="pause"]{border-style:dotted;
+  background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--wait) 14%,transparent) 0 4px,transparent 4px 9px)}
+.tl-wait span{padding:0 6px;color:var(--ink-dim);font:500 10px/1 var(--mono);white-space:nowrap}
+
+/* ── События прогона и «сейчас» — черты поперёк ленты ─────────── */
+.tl-marks{position:absolute;top:0;bottom:0;z-index:7;pointer-events:none}
+.tl-mark{--mark:var(--ink-faint);position:absolute;top:0;bottom:0;border-left:1px dashed var(--mark)}
+/* Значок события — под подписями делений, чтобы не ложиться на время; цвет — цвет события. */
+.tl-mark b{position:absolute;top:17px;left:0;transform:translateX(-50%);min-width:16px;padding:1px 4px;box-sizing:border-box;
+  border:1px solid color-mix(in srgb,var(--mark) 60%,transparent);border-radius:5px;background:var(--surface);
+  color:var(--mark);text-align:center;font:600 11px/1.2 var(--sans)}
+.tl-mark:is([data-kind="start"],[data-kind="resume"]){--mark:var(--ink-dim)}
+.tl-mark[data-kind="pause"]{--mark:var(--step-submitted)}
+.tl-mark[data-kind="reset"]{--mark:var(--step-returned)}
+.tl-mark[data-kind="stop"]{--mark:var(--step-cancelled)}
+.tl-mark[data-kind="finish"]{--mark:var(--step-accepted)}
+.tl-mark[data-kind="finish"][data-end="failed"]{--mark:var(--step-failed)}
+.tl-mark[data-kind="finish"][data-end="stopped"]{--mark:var(--step-cancelled)}
+/* Значок события ловит наведение: подсказка — что случилось и когда. */
+.tl-mark b{pointer-events:auto;cursor:default}
+.tl-now{position:absolute;top:0;bottom:0;border-left:2px solid var(--accent)}
+
+/* ── Подсказка и пустое состояние ─────────────────────────────── */
+.tl-tip{position:absolute;z-index:20;max-width:380px;padding:8px 11px;border:1px solid var(--line-strong);
+  border-radius:9px;background:#11141a;box-shadow:0 12px 32px #0009;pointer-events:none}
+.tl-tip[hidden]{display:none}
+.tl-tip b{display:block;margin-bottom:3px;font-weight:600}
+.tl-tip{max-height:70%;overflow:hidden}
+.tl-tip div{color:var(--ink-dim);font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+/* Ответ попытки — целиком, в своём окошке: у бегущей подсказки обрезан по высоте,
+   у закреплённой щелчком — прокручивается колесом. */
+.tl-tip .tl-answer{max-height:12em;overflow:hidden}
+.tl-tip.pinned{pointer-events:auto;max-height:80%;border-color:var(--accent)}
+.tl-tip.pinned .tl-answer{max-height:min(22em,45vh);overflow:auto;overscroll-behavior:contain}
+.tl-tip .tl-tip-hint{margin-top:5px;color:var(--ink-faint);font-size:11px}
+.tl-empty{position:absolute;inset:50px 0 0;display:grid;place-items:center;padding:24px;text-align:center;
+  color:var(--ink-dim);font-size:13px;pointer-events:none}
+.tl-empty[hidden]{display:none}
+
+@media (prefers-reduced-motion:reduce){.ui-timeline *{transition:none}}

@@ -1,0 +1,689 @@
+[
+  {
+    "slug": "run",
+    "title": "Прогон",
+    "parent": null,
+    "order": 30,
+    "summary_html": "<p>Прогон — выполнение агентами проекта, описанного блок-схемой. Человек задаёт этапы, задания и связи, а система выдаёт допустимую работу, сохраняет результаты и управляет переходами.</p><p>Это центральная функция Goblin. Само отображение схемы остаётся самостоятельной возможностью: нарисованная диаграмма ещё не означает, что её задания были выполнены.</p>",
+    "body_html": "<h3>Основная модель</h3><p>Схема описывает, что должно быть сделано. Прогон хранит отдельное прохождение этой схемы. Попытка шага связывает конкретное задание с исполнителем, результатом и решением о приёмке.</p><p>Переход разрешается по правилам графа после предусмотренного решения. Сообщение агента о готовности не заменяет сохранённое состояние шага.</p><h3>Архитектурное правило</h3><p>Все участники сверяются с текущим состоянием сервера. Адрес задания, номер попытки и результат передаются без подмены; повторный ответ не должен приниматься за новый проход цикла. Целевая документация задаёт это правило для дальнейшей реализации.</p>",
+    "references": [
+      "backend-resource-table-runs",
+      "backend-resource-table-run_steps",
+      "backend-resource-table-run_marks"
+    ],
+    "tags": [
+      "Прогон"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-roles",
+    "title": "leader — worker",
+    "parent": "run-role-models",
+    "order": 10,
+    "summary_html": "<p>leader координирует выполнение: получает состояние, организует исполнителей и принимает предусмотренные решения. worker выполняет выданное ему задание и возвращает результат.</p><p>Один агент может последовательно выполнять обе роли, если это явно согласовано. При этом выдача задания, выполнение и приёмка остаются отдельными действиями.</p>",
+    "body_html": "<h3>leader</h3><p>leader использует контекст прогона и разрешённые команды открытия, приёмки, возврата и выбора ветки. Он передаёт worker точный адрес задания и сохраняет адресованный ответ. Изменение текста результата ради совпадения с ожидаемым ответом недопустимо.</p><h3>worker</h3><p>worker получает пакет своего шага: ТЗ, входы, предыдущие результаты и правила сдачи. Через полноценный API он сообщает ход работы, регистрирует внешние заявки и сдаёт результат. Сервер связывает доступ с пропуском шага или агента.</p><p>Способ запуска и связи описан отдельно: [[run-environment|Среда выполнения]].</p>",
+    "references": [
+      "backend-resource-lib-agents-agents-php",
+      "backend-resource-lib-access-rights-php",
+      "backend-resource-lib-engine-package-php",
+      "backend-resource-lib-cli-launch-php",
+      "backend-resource-table-agents",
+      "backend-resource-table-tokens",
+      "run-environment"
+    ],
+    "tags": [
+      "leader и worker"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-start",
+    "title": "Подготовка и запуск",
+    "parent": "run",
+    "order": 20,
+    "summary_html": "<p>Перед запуском схема должна иметь понятный вход, задания и допустимые переходы. Серверная предпроверка выявляет препятствия, которые можно определить без выполнения работ.</p><p>Подготовка очищает отображение прежнего прогона и при необходимости архивирует выходные файлы. Создание нового прогона — отдельная операция.</p>",
+    "body_html": "<h3>Порядок действий</h3><p>Сначала получают схему и инструкции для её папки, затем выполняют run.check. При нескольких входах указывают стартовый элемент. До запуска проверяют рабочую папку, доступные инструменты и назначение исполнителей.</p><p>run.prepare требует отсутствия активного прогона папки. Она снимает прогонные обложки и скрывает прежние статусы; при files архивирует out и очищает служебные файлы шагов. Исходные материалы сохраняются.</p><h3>Создание</h3><p>run.start под блокировкой проверяет отсутствие другого активного прогона, создаёт runs с engine=2 и выпускает пропуск leader. Результаты размещаются в out/rN. Для JSON-пути driver выбирается из manual/utility, judge — human/formal; Jev задаётся отдельной настройкой.</p><p>Простой begin включает собственную подготовку и запуск leader. Его последовательность нельзя механически заменять набором команд из другого протокола: необходимо следовать полученным инструкциям.</p>",
+    "references": [
+      "backend-resource-lib-engine-precheck-php",
+      "backend-resource-lib-engine-prepare-php",
+      "backend-resource-lib-engine-runs-php",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-table-folders",
+      "backend-resource-table-runs"
+    ],
+    "tags": [
+      "Подготовка и запуск"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-lifecycle",
+    "title": "Состояния и попытки",
+    "parent": "run",
+    "order": 30,
+    "summary_html": "<p>Прогон хранит общее состояние прохождения, а шаг — состояние конкретной попытки элемента. Несколько попыток одного блока различаются номером attempt и идентификатором строки.</p><p>Сданный результат ещё может ожидать решения. Успешное завершение определяется состоянием графа, а не только отсутствием работающего worker.</p>",
+    "body_html": "<h3>Прогон</h3><table><thead><tr><th>Состояние</th><th>Смысл</th></tr></thead><tbody><tr><td>running</td><td>Выполнение активно.</td></tr><tr><td>paused</td><td>Продвижение приостановлено.</td></tr><tr><td>stopped</td><td>Прогон остановлен.</td></tr><tr><td>done</td><td>Прохождение завершено успешно.</td></tr><tr><td>failed</td><td>Зафиксирован неуспешный итог.</td></tr></tbody></table><p>Пауза и запрос остановки имеют разные последствия. stop_at отмечает запрос остановки, finished_at — завершение. Последовательность команд проверяется сервером.</p><h3>Шаг</h3><p>При выдаче создаётся issued, при работе используется running, при сдаче — submitted. Принятие переводит попытку в accepted. Возвраты, отмены и ошибки фиксируются в истории; точные допустимые значения перечислены в структуре run_steps.</p><p>Результат относится к паре «элемент — попытка» внутри прогона. Цикл и доработка могут увеличивать attempt, поэтому номер попытки не следует считать только номером круга.</p><h3>Завершение</h3><p>Движок проверяет отсутствие открытых шагов и свободных жетонов, наличие принятого терминального результата и состояние последних попыток. Тупик, ожидание человека и успешное завершение — разные исходы.</p>",
+    "references": [
+      "backend-resource-lib-engine-steps-php",
+      "backend-resource-lib-engine-finish-php",
+      "backend-resource-lib-engine-advance-php",
+      "backend-resource-table-runs",
+      "backend-resource-table-run_steps"
+    ],
+    "tags": [
+      "Состояния и попытки"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-graph",
+    "title": "Переходы, развилки и циклы",
+    "parent": "run",
+    "order": 40,
+    "summary_html": "<p>Исполняемый граф состоит из блоков, ромбов, шлюзов и соединяющих их стрелок. Его состояние определяется принятыми шагами и доступными входами.</p><p>Жетон на стрелке обозначает разрешение дальнейшего движения. Он выдаётся и потребляется сервером, что позволяет отличить доступный переход от уже использованного.</p>",
+    "body_html": "<h3>Выдача работы</h3><p>engineGraph собирает граф папки. ready определяет доступные элементы по входам; marks хранит, какой шаг выдал жетон и какой шаг его забрал. Повторное обращение не должно создавать второй шаг за счёт одного и того же входа.</p><h3>Развилка</h3><p>Ромб выбирает допустимый выход. Числовое условие разбирается кодом без eval; отсутствие нужной переменной не приравнивается к отрицательному ответу. Словесное условие может потребовать Jev или решения человека.</p><h3>Слияние и цикл</h3><p>При слиянии учитываются необходимые входы и происхождение жетонов. Значения переменных приходят от шагов, которые действительно открыли этот переход; конфликт значений одной переменной требует решения.</p><p>Обратные стрелки обозначают возврат. Попытки сохраняются отдельно, а жетоны отмечают проход стрелки. Отображаемый круг выполнения и число попыток могут различаться.</p><h3>Граница графа</h3><p>Группа, таблица, заметка и навигационный ярлык имеют собственное назначение в редакторе. Сам факт их присутствия на холсте не превращает их в исполняемый блок. Шлюз имеет специальные правила, включая связь с целевой папкой.</p>",
+    "references": [
+      "backend-resource-lib-engine-graph-php",
+      "backend-resource-lib-engine-ready-php",
+      "backend-resource-lib-engine-marks-php",
+      "backend-resource-lib-engine-vars-php",
+      "backend-resource-lib-engine-checks-cond-php",
+      "backend-resource-table-run_marks",
+      "backend-resource-table-elements"
+    ],
+    "tags": [
+      "Переходы, развилки и циклы"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-task",
+    "title": "Задание, входы и результат",
+    "parent": "run",
+    "order": 50,
+    "summary_html": "<p>Пакет шага объединяет ТЗ и данные, нужные для исполнения именно этой попытки. worker должен работать с выданным пакетом, сохраняя адрес задания.</p><p>Результат содержит выполненную работу и предусмотренные материалы. Сообщение о ходе работы, внешняя заявка и окончательная сдача учитываются отдельно.</p>",
+    "body_html": "<h3>Пакет</h3><p>stepPackage собирает задание и входы. В него входят материалы и результаты по фактическим зависимостям; judgePackage готовит данные для рассмотрения результата. spec_hash помогает связать выдачу с содержанием задания.</p><h3>Передача работы</h3><p>В простом пути task записывает пакет в файл и сообщает его путь. Вариант text=1 предназначен для текстовой передачи. Ответ вида «137.3: …» указывает блок 137, попытку 3; этот адрес нужно сохранить при передаче leader.</p><p>В полноценном API worker использует step.get, step.note и step.submit. Допустимые входы, материалы и формы ответа проверяются сервером в контексте его пропуска.</p><h3>Переменные</h3><p>vars разбирает числовые значения результата и объединяет их с входными переменными. Ромб и шлюз передают входные значения. Разбор числа ещё не подтверждает правильность вычисления: это задача проверок выражения и формы.</p>",
+    "references": [
+      "backend-resource-lib-engine-package-php",
+      "backend-resource-lib-engine-steps-php",
+      "backend-resource-lib-engine-vars-php",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-table-run_steps",
+      "backend-resource-table-assets",
+      "backend-resource-table-asset_links"
+    ],
+    "tags": [
+      "Задание, входы и результат"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-review",
+    "title": "Проверка и приёмка",
+    "parent": "run",
+    "order": 60,
+    "summary_html": "<p>Приёмка решает, можно ли использовать результат для дальнейшего движения. Система разделяет проверку допустимости результата и оценку того, выполнено ли задание по существу.</p><p>Базовый режим хранится в runs.judge, а участие Jev — в runs.jev. Решение относится к конкретной сдаче; новая сдача требует актуального решения.</p>",
+    "body_html": "<h3>Формальный проверяющий</h3><p>Код проверяет наличие результата, форму, значения переменных, арифметику, файлы и зарегистрированные заявки. Провал даёт основание для возврата с причиной.</p><p>Непустой файл и совпадение с простой формой ответа подтверждают техническую допустимость. Для самостоятельного принятия нужна содержательная проверка — например вычисления или форма с переменными. При её отсутствии формальный проверяющий возвращает unsure, кроме явно заданного trust_form=true.</p><h3>Человек и Jev</h3><p>human оставляет окончательное решение человеку и готовит подсказку по формальным проверкам. Jev оценивает смысловые критерии и словесные развилки по подготовленному пакету.</p><p>Сетевой запрос выполняется вне блокировки проекта. Перед сохранением решения движок сверяет актуальность исходного состояния. Неуверенность и недоступность оценки не должны превращаться в автоматическое согласие.</p><h3>Простой путь leader</h3><p>В коротком протоколе done означает решение leader принять работу: goDone сохраняет результат и вызывает stepAcceptDo. Нельзя считать такой ответ доказательством автоматической проверки всех условий полноценной сдачи step.submit.</p><p>Режимы и краткая инструкция: [[run-jev|Jev]].</p>",
+    "references": [
+      "backend-resource-lib-engine-judges-formal-php",
+      "backend-resource-lib-engine-judges-human-php",
+      "backend-resource-lib-engine-judges-jev-php",
+      "backend-resource-lib-engine-judges-review-php",
+      "backend-resource-lib-engine-advance-php",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-table-run_steps",
+      "backend-resource-table-runs",
+      "run-jev"
+    ],
+    "tags": [
+      "Проверка и приёмка"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-external",
+    "title": "Учёт вызовов и результатов",
+    "parent": "run-services",
+    "order": 0,
+    "summary_html": "<p>Если задание требует внешнего сервиса, фактический вызов выполняет worker. Goblin учитывает заявку и связывает полученный материал с попыткой.</p><p>Для платного действия сначала регистрируется намерение, затем сохраняются идентификатор внешнего задания и его итог. Это позволяет проследить происхождение результата.</p>",
+    "body_html": "<h3>Учёт заявки</h3><p>step.job сохраняет provider, tool, model, request и локальный ref. После ответа внешнего сервиса добавляются job_id, состояние, ошибка или response_asset_id. Повтор регистрации должен относиться к той же заявке, если повторяется доставка её результата.</p><h3>Сдача материала</h3><p>Исполнитель сохраняет выходной файл и связывает его с результатом шага. Проверки учитывают наличие и непустоту файла, происхождение и учёт заявки с учётом настроек проекта.</p><p>Регистрация job не запускает внешний сервис. Наличие строки или выданного job_id также не доказывает, что результат уже получен: состояние и материал должны соответствовать фактическому ответу.</p>",
+    "references": [
+      "backend-resource-lib-engine-jobs-php",
+      "backend-resource-lib-engine-checks-files-php",
+      "backend-resource-lib-assets-files-php",
+      "backend-resource-table-run_jobs",
+      "backend-resource-table-assets",
+      "backend-resource-table-asset_links"
+    ],
+    "tags": [
+      "Внешние сервисы и файлы результата"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-recovery",
+    "title": "Ожидание, остановка и восстановление",
+    "parent": "run",
+    "order": 80,
+    "summary_html": "<p>После ошибки доставки сначала читают состояние сервера: команда могла выполниться, даже если клиент не получил ответ. Следующее действие выбирают по сохранённому состоянию.</p><p>Продолжение, повторная выдача и сброс имеют разный смысл. Историю попыток следует сохранять, когда требуется разобраться в ходе выполнения.</p>",
+    "body_html": "<h3>Ожидание</h3><p>run.state поддерживает since и wait: запрос ждёт изменения версии, но не дольше установленного предела в 25 секунд и учитывает паузу показа. wait_for поясняет, почему движок не продвигается.</p><p>Пауза показа show_pause регулирует видимость последовательности на холсте. Она не заменяет деловую паузу прогона и не означает, что worker прекратил работу.</p><h3>Возврат и повтор</h3><p>Возврат запрашивает доработку результата. Повторная выдача управляет исполнением попытки в предусмотренном сервером состоянии. В простом протоколе again проверяет зависимости прежде, чем разрешить повтор.</p><p>Ответ со старым адресом попытки не должен закрывать новую попытку. Повтор уже принятого адресованного результата распознаётся; противоречащий текущей попытке ответ отклоняется.</p><h3>Сброс и подготовка</h3><p>run.reset удаляет историю шагов в пределах своей операции сброса. run.prepare сохраняет историю и подготавливает отображение и рабочие файлы к новому запуску. Эти операции нельзя использовать как взаимозаменяемые.</p><p>Во время активного engine2-прогона защищаются смысловые данные участвующих папок. Изменение расположения и оформления допускается в пределах правил обработчика; для изменения ТЗ или маршрута требуется остановить прогон.</p>",
+    "references": [
+      "backend-resource-lib-engine-state-php",
+      "backend-resource-lib-engine-steps-php",
+      "backend-resource-lib-engine-prepare-php",
+      "backend-resource-lib-engine-guard-php",
+      "backend-resource-lib-api-simple-php"
+    ],
+    "tags": [
+      "Ожидание, остановка и восстановление"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-observation",
+    "title": "Наблюдение и история",
+    "parent": "run",
+    "order": 90,
+    "summary_html": "<p>Холст, лента и журнал показывают разные стороны одного прогона. Источником состояния служит сервер, а визуальные эффекты отображают его ответ.</p><p>Для объяснения конкретного перехода нужны попытки и жетоны; для последовательности действий — события. Индикатор активности показывает работу участника, но не подтверждает успешный итог.</p>",
+    "body_html": "<h3>Холст</h3><p>run.paint вычисляет подсветку по шагам и жетонам. lit означает доступный жетон, done — уже использованный переход. Для повторных проходов стрелки показывается номер прохода, для блока — состояние последней попытки и круг выполнения.</p><h3>Лента и журнал</h3><p>run.timeline строит интервалы по шагам, у которых есть времена начала и завершения. run.log читает события, run.report собирает отчёт. События сохраняют автора, заголовок, текст и дополнительные данные.</p><h3>Активность</h3><p>pulse возвращает сведения о работающих участниках для индикаторов интерфейса. Эти сведения не заменяют состояния шага и решения проверяющего. Утилита watch наблюдает прогон; автономное продвижение выполняет другой режим.</p>",
+    "references": [
+      "backend-resource-lib-engine-paint-php",
+      "backend-resource-lib-engine-timeline-php",
+      "backend-resource-lib-engine-events-php",
+      "backend-resource-lib-engine-pulse-php",
+      "backend-resource-lib-cli-watch-php",
+      "backend-resource-table-run_events",
+      "backend-resource-table-run_steps",
+      "backend-resource-table-run_marks"
+    ],
+    "tags": [
+      "Наблюдение и история"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-protocols",
+    "title": "API, простой путь и CLI",
+    "parent": "run",
+    "order": 100,
+    "summary_html": "<p>Goblin предоставляет несколько способов взаимодействия с одним серверным прогоном. Полноценный API возвращает структурированные данные, простой путь — читаемые текстовые ответы, CLI оборачивает серверные операции.</p><p>Выбор протокола определяет способ получения задания и передачи результата. При переходе между способами нужно сохранить идентификаторы прогона и попытки, а также учитывать различие приёмки.</p>",
+    "body_html": "<h3>Простой путь</h3><p>scheme показывает схему, begin начинает прохождение, task выдаёт файл задания, work отмечает работу, done передаёт решение leader. fail, again и stop управляют ошибкой, повтором и остановкой.</p><p>where и wait используются для продолжения диалога с сервером и могут инициировать продвижение. Их не следует описывать как заведомо пассивный снимок. Ответ сервера содержит дальнейшие команды и адрес задания.</p><h3>CLI и окружение</h3><p>GOBLIN_URL и GOBLIN_PROJECT задают сервер и проект. GOBLIN_RUN содержит пропуск leader, GOBLIN_STEP — шага, GOBLIN_AGENT — постоянного worker. GOBLIN_WORKER_SESSION различает экземпляры исполнителей.</p><p>CLI не хранит собственную копию состояния исполнения. Права проверяет сервер. Справка goblin &lt;команда&gt; --help описывает аргументы; запуск справки не должен выполнять действие.</p><h3>Команды CLI</h3><table><thead><tr><th>Команда</th><th>Обработчик</th><th>Назначенная роль</th></tr></thead><tbody><tr><td>read</td><td>cmdRead</td><td>leader</td></tr><tr><td>check</td><td>cmdCheck</td><td>leader</td></tr><tr><td>prepare</td><td>cmdPrepare</td><td>leader</td></tr><tr><td>start</td><td>cmdStart</td><td>leader</td></tr><tr><td>next</td><td>cmdNext</td><td>leader</td></tr><tr><td>steps</td><td>cmdSteps</td><td>leader</td></tr><tr><td>log</td><td>cmdLog</td><td>leader</td></tr><tr><td>say</td><td>cmdSay</td><td>оба</td></tr><tr><td>status</td><td>cmdStatus</td><td>leader</td></tr><tr><td>open</td><td>cmdOpen</td><td>leader</td></tr><tr><td>launch</td><td>cmdLaunch</td><td>leader</td></tr><tr><td>wait</td><td>cmdWait</td><td>leader</td></tr><tr><td>accept</td><td>cmdAccept</td><td>leader</td></tr><tr><td>return</td><td>cmdReturn</td><td>leader</td></tr><tr><td>decide</td><td>cmdDecide</td><td>leader</td></tr><tr><td>jev</td><td>cmdJev</td><td>leader</td></tr><tr><td>pass</td><td>cmdPass</td><td>leader</td></tr><tr><td>cancel</td><td>cmdCancel</td><td>leader</td></tr><tr><td>reissue</td><td>cmdReissue</td><td>leader</td></tr><tr><td>reset</td><td>cmdReset</td><td>leader</td></tr><tr><td>pause</td><td>cmdPause</td><td>leader</td></tr><tr><td>resume</td><td>cmdResume</td><td>leader</td></tr><tr><td>stop</td><td>cmdStop</td><td>leader</td></tr><tr><td>attach</td><td>cmdAttach</td><td>leader</td></tr><tr><td>finish</td><td>cmdFinish</td><td>leader</td></tr><tr><td>drive</td><td>cmdDriveRoute</td><td>leader</td></tr><tr><td>drive1</td><td>cmdDrive</td><td>leader</td></tr><tr><td>state</td><td>cmdState</td><td>leader</td></tr><tr><td>go</td><td>cmdGo</td><td>leader</td></tr><tr><td>drive2</td><td>cmdDrive2</td><td>leader</td></tr><tr><td>pace</td><td>cmdPace</td><td>leader</td></tr><tr><td>history</td><td>cmdHistory</td><td>оба</td></tr><tr><td>report</td><td>cmdReport</td><td>leader</td></tr><tr><td>watch</td><td>cmdWatch</td><td>leader</td></tr><tr><td>token</td><td>cmdToken</td><td>leader</td></tr><tr><td>work</td><td>cmdWorkRoute</td><td>worker</td></tr><tr><td>work1</td><td>cmdWork</td><td>worker</td></tr><tr><td>work2</td><td>cmdWork2</td><td>worker</td></tr><tr><td>task</td><td>cmdTask</td><td>worker</td></tr><tr><td>note</td><td>cmdNote</td><td>worker</td></tr><tr><td>job</td><td>cmdJob</td><td>worker</td></tr><tr><td>submit</td><td>cmdSubmit</td><td>worker</td></tr><tr><td>fail</td><td>cmdFail</td><td>worker</td></tr><tr><td>help</td><td>cmdHelp</td><td>оба</td></tr></tbody></table><h3>Выбор движка</h3><p>drive и work маршрутизируются по версии движка. engine=2 использует сохранённые жетоны и server-side run.advance. В коде сохранены явные drive1/work1 и drive2/work2 для соответствующих вариантов.</p>",
+    "references": [
+      "backend-resource-bin-goblin-php",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-lib-cli-engine-php",
+      "backend-resource-lib-cli-lead-php",
+      "backend-resource-lib-cli-worker-php",
+      "backend-resource-lib-cli-net-php",
+      "backend-api"
+    ],
+    "tags": [
+      "API, простой путь и CLI"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-role-models",
+    "title": "Роли",
+    "parent": "run",
+    "order": 10,
+    "summary_html": "<p>Ролевая схема определяет, кто координирует работу, кто выполняет задания и кто участвует в принятии решений. В разных сценариях набор ролей и распределение ответственности могут различаться.</p><p>Каждая схема описывается в своей подрубрике. Сейчас подробно изложен вариант «leader — worker»; другие варианты, включая участие советника, будут описываться отдельно.</p>",
+    "body_html": "<h3>Общий принцип</h3><p>Описание ролевой схемы должно определять ответственность участников, передачу задания, результата и решения. Совмещение ролей одним агентом не отменяет различия этих действий.</p><p>Где запускаются участники и как они обмениваются сообщениями: [[run-environment|Среда выполнения]].</p>",
+    "references": [
+      "run-environment"
+    ],
+    "tags": [
+      "Роли",
+      "Прогон"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-environment",
+    "title": "Среда выполнения",
+    "parent": "run",
+    "order": 15,
+    "summary_html": "<p>Среда выполнения определяет, где работают агенты и каким способом leader передаёт задание и получает ответ. Она описывает организацию запуска и связи между участниками.</p><p>Goblin предусматривает варианты Orca, SendMessage и субагенты. Настройка папки должна соответствовать фактическим возможностям исполнителей; указанная в схеме среда сама по себе не запускает её.</p>",
+    "body_html": "<h3>Общий принцип</h3><p>Среда определяет способ запуска исполнителей и передачи сообщений. Распределение ответственности описывается отдельно в [[run-role-models|Ролях]]. Одна ролевая схема может использовать разные среды.</p><h3>Выбор среды</h3><p>Выбор хранится в <code>folders.run_env</code>. По нему Goblin подбирает инструкцию связи. До запуска leader сопоставляет настройку с реально доступными инструментами: название среды в папке не подтверждает её доступность в текущей сессии.</p><p>При несовпадении среды нужно согласовать способ выполнения до передачи зависимых заданий. Адрес задания и номер попытки сохраняются при любом способе обмена.</p>",
+    "references": [
+      "run-role-models",
+      "backend-resource-lib-folders-folders-php",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-table-folders"
+    ],
+    "tags": [
+      "Среда выполнения",
+      "Прогон"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-scenarios",
+    "title": "Сценарии",
+    "parent": "run",
+    "order": 110,
+    "summary_html": "<p>Сценарий описывает типовую блок-схему: какую задачу она решает, какие данные получает и как проходит от начала к результату. Такой пример помогает собрать собственный процесс из понятных этапов.</p><p>Здесь хранятся описания повторяемых решений и идей применения Goblin. Пример схемы — это образец построения; его наличие в документации не означает, что соответствующий прогон уже выполнен.</p>",
+    "body_html": "<h3>Принцип описания</h3><p>У каждого сценария указываются цель, входные данные, последовательность блоков, условия переходов и ожидаемый выход. Для развилки нужны понятные критерии выбора, для повторения — условие выхода и предел попыток.</p><p>Конкретные инструменты выбираются в заданиях блоков. Роли участников описываются в [[run-role-models|Ролях]], а доступные внешние возможности — в [[run-services|Сторонних сервисах]].</p>",
+    "references": [
+      "run-role-models",
+      "run-services",
+      "run-graph"
+    ],
+    "tags": [
+      "Сценарии",
+      "Прогон",
+      "Сценарии"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-scenario-cycle",
+    "title": "Цикл с условием завершения",
+    "parent": "run-scenarios",
+    "order": 10,
+    "summary_html": "<p>Цикл повторяет работу, пока не выполнено условие завершения. Он подходит для последовательного улучшения результата или обработки данных порциями.</p><p>У каждого повторения должны быть определены вход, проверяемый результат и предел продолжения. Неограниченное повторение не является готовым сценарием.</p>",
+    "body_html": "<h3>Назначение примера</h3><p>Это шаблон для составления задания и рисования схемы в Goblin. Он не создаёт схему и не запускает агентов. Пути приведены относительно рабочей папки; при запуске результаты помещаются в каталог текущего прогона out/rN.</p><h3>Исходные данные</h3><p>Файл <code>in/brief.txt</code> содержит факты о продукте. Нужно подготовить текст на 120–180 слов, используя только эти факты. Критерии: понятное назначение, три преимущества из исходника, отсутствие неподтверждённых обещаний. Разрешены три версии текста, включая первую.</p><h3>Блок-схема</h3><figure class=\"scenario-diagram\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 620\" role=\"img\" aria-labelledby=\"run-scenario-cycle-title\"><title id=\"run-scenario-cycle-title\">Пример блок-схемы: Цикл с условием завершения</title><defs><marker id=\"run-scenario-cycle-arrow\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#28624e\"/></marker></defs><polyline points=\"400,100 400,140\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><polyline points=\"400,220 400,260\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><polyline points=\"400,340 400,380\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><polyline points=\"290,420 240,420\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><text x=\"265\" y=\"410\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Да</text><polyline points=\"400,460 400,510\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><text x=\"420\" y=\"490\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Нет</text><polyline points=\"290,550 260,550 260,180 290,180\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><text x=\"245\" y=\"350\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Да: замечания</text><polyline points=\"510,550 550,550\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-cycle-arrow)\"/><text x=\"530\" y=\"540\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Нет</text><rect x=\"290\" y=\"20\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"54\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B1 · Подготовка</text><text x=\"400\" y=\"74\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">критериев</text><rect x=\"290\" y=\"140\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"174\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B2 · Написать</text><text x=\"400\" y=\"194\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">или доработать</text><rect x=\"290\" y=\"260\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"294\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B3 · Проверить</text><text x=\"400\" y=\"314\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">текущую версию</text><polygon points=\"400,380 510,420 400,460 290,420\" fill=\"#fff6df\" stroke=\"#a66a12\"/><text x=\"400\" y=\"414\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">D1 · Всё</text><text x=\"400\" y=\"434\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">выполнено?</text><rect x=\"20\" y=\"380\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"130\" y=\"414\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B4 · Сохранить</text><text x=\"130\" y=\"434\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">принятый текст</text><polygon points=\"400,510 510,550 400,590 290,550\" fill=\"#fff6df\" stroke=\"#a66a12\"/><text x=\"400\" y=\"544\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">D2 · Попыток</text><text x=\"400\" y=\"564\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">меньше трёх?</text><rect x=\"550\" y=\"510\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"660\" y=\"544\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B5 · Передать</text><text x=\"660\" y=\"564\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">человеку</text></svg><figcaption>Обозначения B и D — номера узлов примера, а не идентификаторы базы Goblin. Стрелки показывают порядок и условия перехода.</figcaption></figure><h3>ТЗ по узлам</h3><table><thead><tr><th>Узел</th><th>Техническое задание / условие</th><th>Выход и приёмка</th></tr></thead><tbody><tr><td>B1 · Подготовка</td><td>Прочитать brief.txt. Выписать подтверждённые факты и критерии. Зафиксировать лимит: 3 версии.</td><td>criteria.md содержит исходные факты, диапазон слов и проверяемые требования.</td></tr><tr><td>B2 · Работа</td><td>Для первой попытки написать текст. Для следующих исправить замечания B3, сохранив соблюдённые требования. Сохранить каждую версию отдельно.</td><td>draft-vK.md; K — счётчик версий сценария. Текст не подменяет предыдущий файл.</td></tr><tr><td>B3 · Проверка</td><td>Сопоставить текущую версию с каждым критерием, посчитать слова и отметить неподтверждённые утверждения.</td><td>review-vK.md: критерий, результат проверки, замечание. Счётчик K берётся из версии текста.</td></tr><tr><td>D1 · Качество</td><td>Выбрать «да», только если все критерии выполнены. Если качество требует человеческой оценки, запросить решение проверяющего.</td><td>«Да» → B4; «нет» → D2. Неопределённость не приравнивается к успеху.</td></tr><tr><td>D2 · Лимит</td><td>Сравнить число подготовленных версий K с 3.</td><td>K &lt; 3 → B2 с замечаниями; иначе → B5.</td></tr><tr><td>B4 · Итог</td><td>Скопировать принятую версию в final.md и приложить её проверку.</td><td>final.md и итоговая проверка; это успешный результат задания.</td></tr><tr><td>B5 · Разбор</td><td>Сохранить последнюю версию, оставшиеся замечания и причину исчерпания лимита. Передать решение человеку.</td><td>handoff.md. Требования к тексту ещё не выполнены; передача человеку не выдаётся за успешную приёмку.</td></tr></tbody></table><h3>Правила выполнения</h3><p>Обратная стрелка D2 → B2 должна быть помечена как возврат. Счётчик версии сценария не следует подменять attempt: повторная выдача шага может увеличить attempt без выпуска новой версии текста.</p><p>Принятие B3 означает, что отчёт проверки составлен корректно; оно не означает положительной оценки самого текста. Переход выбирается по содержимому отчёта.</p><p>Для B2 дополнительно задаётся поддерживаемый движком предел выдач. Полезно различать бизнес-лимит версий и технический предел повторных выдач.</p>",
+    "references": [
+      "run-graph",
+      "run-recovery",
+      "run-review",
+      "run-task"
+    ],
+    "tags": [
+      "Цикл с условием завершения",
+      "Прогон",
+      "Сценарии"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-scenario-branch",
+    "title": "Ветвление по условию",
+    "parent": "run-scenarios",
+    "order": 20,
+    "summary_html": "<p>Ветвление выбирает дальнейшую работу по условию. В отличие от параллельной выдачи нескольких задач, развилка определяет, какой маршрут подходит текущему входу.</p><p>Условие должно опираться на доступные данные. Если данных недостаточно, это повод получить уточнение, а не автоматически выбрать отрицательную ветку.</p>",
+    "body_html": "<h3>Назначение примера</h3><p>Это шаблон для составления задания и рисования схемы в Goblin. Он не создаёт схему и не запускает агентов. Пути приведены относительно рабочей папки; при запуске результаты помещаются в каталог текущего прогона out/rN.</p><h3>Исходные данные</h3><p>Вход: <code>in/photo.png</code>. Задача — подготовить квадратное изображение 1024 × 1024 пикселя без обрезки содержимого. Если исходник уже соответствует размеру, его нужно сохранить без переработки.</p><h3>Блок-схема</h3><figure class=\"scenario-diagram\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 550\" role=\"img\" aria-labelledby=\"run-scenario-branch-title\"><title id=\"run-scenario-branch-title\">Пример блок-схемы: Ветвление по условию</title><defs><marker id=\"run-scenario-branch-arrow\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#28624e\"/></marker></defs><polyline points=\"400,100 400,140\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-branch-arrow)\"/><polyline points=\"290,180 140,180 140,290\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-branch-arrow)\"/><text x=\"205\" y=\"170\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Да</text><polyline points=\"510,180 660,180 660,290\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-branch-arrow)\"/><text x=\"590\" y=\"170\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Нет</text><polyline points=\"140,370 140,440\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-branch-arrow)\"/><polyline points=\"660,370 660,440\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-branch-arrow)\"/><rect x=\"290\" y=\"20\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"54\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B1 · Прочитать</text><text x=\"400\" y=\"74\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">размер изображения</text><polygon points=\"400,140 510,180 400,220 290,180\" fill=\"#fff6df\" stroke=\"#a66a12\"/><text x=\"400\" y=\"174\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">D1 · Размер</text><text x=\"400\" y=\"194\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">1024 × 1024?</text><rect x=\"30\" y=\"290\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"140\" y=\"324\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B2 · Копировать</text><text x=\"140\" y=\"344\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">исходник</text><rect x=\"550\" y=\"290\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"660\" y=\"324\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B3 · Подготовить</text><text x=\"660\" y=\"344\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">размер и поля</text><rect x=\"30\" y=\"440\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"140\" y=\"474\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B4 · Сдать</text><text x=\"140\" y=\"494\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">оригинал</text><rect x=\"550\" y=\"440\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"660\" y=\"474\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B5 · Сдать</text><text x=\"660\" y=\"494\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">обработанный файл</text></svg><figcaption>Обозначения B и D — номера узлов примера, а не идентификаторы базы Goblin. Стрелки показывают порядок и условия перехода.</figcaption></figure><h3>ТЗ по узлам</h3><table><thead><tr><th>Узел</th><th>Техническое задание / условие</th><th>Выход и приёмка</th></tr></thead><tbody><tr><td>B1 · Анализ</td><td>Открыть файл и определить ширину, высоту и формат. При повреждении или отсутствии файла сообщить ошибку; размеры не выдумывать.</td><td>metadata.json с width, height и format.</td></tr><tr><td>D1 · Выбор</td><td>Проверить одновременное равенство width=1024 и height=1024.</td><td>«Да» → B2; «нет» → B3. При отсутствии размеров дождаться исправления B1.</td></tr><tr><td>B2 · Исходник</td><td>Скопировать подходящий PNG в каталог результатов без изменения пикселей.</td><td>original.png, совпадающий с входным файлом.</td></tr><tr><td>B3 · Обработка</td><td>Вписать изображение в квадрат 1024 × 1024 с сохранением пропорций. Добавить белые поля; не обрезать и не дорисовывать содержимое.</td><td>processed.png размером 1024 × 1024. Содержание исходника полностью сохранено.</td></tr><tr><td>B4 · Выход исходника</td><td>Прикрепить original.png к результату и сообщить: обработка не требовалась.</td><td>Файл доступен как материал результата активной ветки.</td></tr><tr><td>B5 · Выход обработки</td><td>Проверить размер processed.png, отсутствие обрезки и прикрепить его к результату.</td><td>Материал и краткий отчёт о преобразовании.</td></tr></tbody></table><h3>Правила выполнения</h3><p>У веток в примере отдельные конечные блоки. Так не требуется ждать результата невыбранной ветки. Если добавляется общая точка продолжения, её правило входа должно явно соответствовать альтернативным маршрутам.</p><p>Этот пример требует изменения размера, а не генеративной обработки. Внешний сервис выбирается только тогда, когда он действительно нужен заданию.</p>",
+    "references": [
+      "run-graph",
+      "run-review",
+      "run-task"
+    ],
+    "tags": [
+      "Ветвление по условию",
+      "Прогон",
+      "Сценарии"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-scenario-images",
+    "title": "Обработка изображений",
+    "parent": "run-scenarios",
+    "order": 30,
+    "summary_html": "<p>Сценарий превращает исходное изображение в материал с заданными свойствами: например, нужным размером, улучшенной детализацией или изменённым содержимым.</p><p>Обработка выполняется агентом с подходящим инструментом. Krea — один из возможных сервисов; конкретный инструмент выбирается по заданию и доступным возможностям.</p>",
+    "body_html": "<h3>Назначение примера</h3><p>Это шаблон для составления задания и рисования схемы в Goblin. Он не создаёт схему и не запускает агентов. Пути приведены относительно рабочей папки; при запуске результаты помещаются в каталог текущего прогона out/rN.</p><h3>Исходные данные</h3><p>Вход: фотография товара <code>in/product.png</code> размером 1024 × 1024. Требуется подготовить PNG 2048 × 2048, сохранить форму, цвета, логотип и надписи. Внешний сервис для этого примера — [[run-service-krea|Krea]].</p><h3>Блок-схема</h3><figure class=\"scenario-diagram\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 610\" role=\"img\" aria-labelledby=\"run-scenario-images-title\"><title id=\"run-scenario-images-title\">Пример блок-схемы: Обработка изображений</title><defs><marker id=\"run-scenario-images-arrow\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#28624e\"/></marker></defs><polyline points=\"400,100 400,140\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-images-arrow)\"/><polyline points=\"400,220 400,260\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-images-arrow)\"/><polyline points=\"400,340 400,380\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-images-arrow)\"/><polyline points=\"290,420 130,420 130,510\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-images-arrow)\"/><text x=\"215\" y=\"410\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Да</text><polyline points=\"510,420 660,420 660,510\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-images-arrow)\"/><text x=\"580\" y=\"410\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Нет</text><rect x=\"290\" y=\"20\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"54\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B1 · Подготовить</text><text x=\"400\" y=\"74\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">исходник и требования</text><rect x=\"290\" y=\"140\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"174\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B2 · Обработать</text><text x=\"400\" y=\"194\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">через Krea</text><rect x=\"290\" y=\"260\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"294\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B3 · Проверить</text><text x=\"400\" y=\"314\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">полученный материал</text><polygon points=\"400,380 510,420 400,460 290,420\" fill=\"#fff6df\" stroke=\"#a66a12\"/><text x=\"400\" y=\"414\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">D1 · Результат</text><text x=\"400\" y=\"434\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">соответствует ТЗ?</text><rect x=\"20\" y=\"510\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"130\" y=\"544\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B4 · Сохранить</text><text x=\"130\" y=\"564\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">готовый материал</text><rect x=\"550\" y=\"510\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"660\" y=\"544\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B5 · Передать</text><text x=\"660\" y=\"564\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">замечания</text></svg><figcaption>Обозначения B и D — номера узлов примера, а не идентификаторы базы Goblin. Стрелки показывают порядок и условия перехода.</figcaption></figure><h3>ТЗ по узлам</h3><table><thead><tr><th>Узел</th><th>Техническое задание / условие</th><th>Выход и приёмка</th></tr></thead><tbody><tr><td>B1 · Подготовка</td><td>Проверить читаемость исходника. Зафиксировать размер, важные надписи и детали, которые нельзя менять. Подготовить запрос на увеличение разрешения.</td><td>request.md и исходный файл как вход следующего блока.</td></tr><tr><td>B2 · Krea</td><td>Выбрать доступный инструмент увеличения разрешения. До платного обращения зарегистрировать заявку, затем выполнить вызов и сохранить внешний идентификатор. Дождаться результата по той же заявке.</td><td>candidate.png и сведения о provider, tool, model и job_id. Не заменять реальный вызов локальной имитацией.</td></tr><tr><td>B3 · Проверка</td><td>Определить размер и формат. Сравнить форму, цвет, логотип и надписи с исходником; отметить артефакты.</td><td>review.md: технические параметры и заключение по каждому требованию.</td></tr><tr><td>D1 · Приёмка</td><td>Выбрать «да» при подтверждённом соответствии всех требований. Неуверенную смысловую оценку передать человеку.</td><td>«Да» → B4; «нет» → B5.</td></tr><tr><td>B4 · Итог</td><td>Сохранить принятый файл как product-final.png и прикрепить к шагу вместе с отчётом.</td><td>PNG 2048 × 2048 и подтверждённая связь с внешней заявкой.</td></tr><tr><td>B5 · Замечания</td><td>Сохранить отклонённый кандидат и причины. Подготовить предложение следующего действия без нового платного вызова.</td><td>issues.md; доработка требует отдельного решения.</td></tr></tbody></table><h3>Правила выполнения</h3><p>Параметры инструмента берутся из актуальной схемы доступного подключения Krea. Если нужный режим или размер недоступен, исполнитель сообщает об этом, а не обещает несуществующую возможность.</p><p>После сетевого сбоя нужно выяснить состояние сохранённого job_id. Повторная отправка нового платного задания не является способом опроса старого.</p><p>Этот пример не задаёт автоматических платных повторов. При необходимости его можно дополнить [[run-scenario-cycle|циклом]] с явно ограниченным числом обработок.</p>",
+    "references": [
+      "run-service-krea",
+      "run-external",
+      "run-review",
+      "run-scenario-cycle"
+    ],
+    "tags": [
+      "Обработка изображений",
+      "Прогон",
+      "Сценарии"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-scenario-retouch",
+    "title": "Ретушь изображения",
+    "parent": "run-scenarios",
+    "order": 40,
+    "summary_html": "<p>Ретушь — обработка изображения с явно заданными локальными или общими изменениями. Сценарий должен объяснять, что исправить и какие особенности исходника сохранить.</p><p>Задание на ретушь формулируется точнее, чем «сделать лучше»: в нём указываются область обработки, желаемый эффект и признаки приемлемого результата.</p>",
+    "body_html": "<h3>Назначение примера</h3><p>Это шаблон для составления задания и рисования схемы в Goblin. Он не создаёт схему и не запускает агентов. Пути приведены относительно рабочей папки; при запуске результаты помещаются в каталог текущего прогона out/rN.</p><h3>Исходные данные</h3><p>Вход: <code>in/portrait.png</code> и <code>in/retouch-brief.txt</code> с отмеченными временными дефектами кожи. Нужно убрать только указанные дефекты и немного уменьшить блики, сохранив родинки, текстуру кожи, пропорции лица, выражение и фон.</p><h3>Блок-схема</h3><figure class=\"scenario-diagram\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 610\" role=\"img\" aria-labelledby=\"run-scenario-retouch-title\"><title id=\"run-scenario-retouch-title\">Пример блок-схемы: Ретушь изображения</title><defs><marker id=\"run-scenario-retouch-arrow\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#28624e\"/></marker></defs><polyline points=\"400,100 400,140\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-retouch-arrow)\"/><polyline points=\"400,220 400,260\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-retouch-arrow)\"/><polyline points=\"400,340 400,380\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-retouch-arrow)\"/><polyline points=\"290,420 130,420 130,510\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-retouch-arrow)\"/><text x=\"215\" y=\"410\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Да</text><polyline points=\"510,420 660,420 660,510\" fill=\"none\" stroke=\"#28624e\" stroke-width=\"2\" marker-end=\"url(#run-scenario-retouch-arrow)\"/><text x=\"580\" y=\"410\" text-anchor=\"middle\" font-size=\"14\" fill=\"#24312d\" stroke=\"white\" stroke-width=\"5\" paint-order=\"stroke\">Нет</text><rect x=\"290\" y=\"20\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"54\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B1 · Согласовать</text><text x=\"400\" y=\"74\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">карту правок</text><rect x=\"290\" y=\"140\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"174\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B2 · Выполнить</text><text x=\"400\" y=\"194\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">ретушь</text><rect x=\"290\" y=\"260\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"400\" y=\"294\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B3 · Сравнить</text><text x=\"400\" y=\"314\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">с исходником</text><polygon points=\"400,380 510,420 400,460 290,420\" fill=\"#fff6df\" stroke=\"#a66a12\"/><text x=\"400\" y=\"414\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">D1 · Правки</text><text x=\"400\" y=\"434\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">приемлемы?</text><rect x=\"20\" y=\"510\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"130\" y=\"544\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B4 · Выдать</text><text x=\"130\" y=\"564\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">итог</text><rect x=\"550\" y=\"510\" width=\"220\" height=\"80\" rx=\"10\" fill=\"#f0f5ef\" stroke=\"#28624e\"/><text x=\"660\" y=\"544\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">B5 · Описать</text><text x=\"660\" y=\"564\" text-anchor=\"middle\" font-size=\"15\" fill=\"#24312d\">доработку</text></svg><figcaption>Обозначения B и D — номера узлов примера, а не идентификаторы базы Goblin. Стрелки показывают порядок и условия перехода.</figcaption></figure><h3>ТЗ по узлам</h3><table><thead><tr><th>Узел</th><th>Техническое задание / условие</th><th>Выход и приёмка</th></tr></thead><tbody><tr><td>B1 · Карта правок</td><td>Прочитать перечень дефектов. Описать разрешённые изменения и сохраняемые детали. При неоднозначной области запросить уточнение до ретуши.</td><td>retouch-plan.md с перечнем конкретных правок.</td></tr><tr><td>B2 · Ретушь</td><td>Применить только согласованные правки подходящим инструментом. Не менять геометрию лица, возраст, выражение, фон и постоянные особенности. При внешнем вызове вести учёт заявки.</td><td>retouched-candidate.png исходного размера и changelog.md. Исходник сохранён отдельно.</td></tr><tr><td>B3 · Сравнение</td><td>Сравнить оригинал и кандидат целиком и по изменённым областям. Отметить выполнение правок, сохранение деталей и возможные артефакты.</td><td>comparison.md со статусом каждого требования; при необходимости сравнительное изображение.</td></tr><tr><td>D1 · Решение</td><td>Принять только подтверждённые правки. Если нельзя уверенно оценить сохранение внешности и деталей, запросить решение человека.</td><td>«Да» → B4; «нет» → B5. Неопределённость означает ожидание решения.</td></tr><tr><td>B4 · Итог</td><td>Сохранить portrait-final.png и приложить список выполненных правок.</td><td>Итоговый PNG исходного размера, отчёт и ссылка на исходный материал.</td></tr><tr><td>B5 · Доработка</td><td>Перечислить нарушения и предлагаемые исправления. Сохранить текущую версию, не запускать новую обработку без решения leader.</td><td>retouch-issues.md; результат ещё не принят.</td></tr></tbody></table><h3>Правила выполнения</h3><p>Для внешней обработки допустима [[run-service-krea|Krea]], если подключённый инструмент поддерживает нужное редактирование. Простое увеличение разрешения не заменяет ретушь.</p><p>Техническая проверка размера и наличия файла выполняется отдельно от визуальной приёмки. Положительный технический результат не подтверждает сохранение лица и текстуры.</p><p>При добавлении цикла доработки требуется определить предел версий и внешних вызовов. Результат каждой версии сохраняется отдельно.</p>",
+    "references": [
+      "run-service-krea",
+      "run-external",
+      "run-review",
+      "run-scenario-cycle",
+      "run-task"
+    ],
+    "tags": [
+      "Ретушь изображения",
+      "Прогон",
+      "Сценарии"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-services",
+    "title": "Сторонние сервисы",
+    "parent": "run",
+    "order": 120,
+    "summary_html": "<p>Сторонние сервисы предоставляют возможности, которые агент может вызвать при выполнении задания: обработку материалов, генерацию и другие операции вне Goblin.</p><p>Этот раздел содержит краткие справки для исполнителя. Доступ к конкретному сервису зависит от подключённых инструментов и учётной записи агента; наличие справки не означает, что интеграция уже доступна каждому исполнителю.</p>",
+    "body_html": "<h3>Место в прогоне</h3><p>В ТЗ блока указываются задача, необходимые входы и ожидаемый результат. Агент выбирает допустимый инструмент, выполняет внешний вызов и возвращает результат в контекст шага.</p><p>Goblin сохраняет сведения о заявке и материале. Сам механизм учёта не выполняет запрос к поставщику за агента.</p><h3>Принцип справки</h3><p>Карточка сервиса объясняет назначение, входные данные, порядок вызова и получения результата. Конкретные модели, параметры и ограничения нужно брать из актуальной документации доступного подключения.</p><p>Ролевое распределение и [[run-environment|среда выполнения]] описываются отдельно: сервис — это вызываемая возможность, а не роль участника.</p>",
+    "references": [
+      "run-environment",
+      "run-external"
+    ],
+    "tags": [
+      "Сторонние сервисы",
+      "Прогон",
+      "Сторонние сервисы"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-service-krea",
+    "title": "Krea",
+    "parent": "run-services",
+    "order": 10,
+    "summary_html": "<p>Krea предоставляет инструменты генерации и обработки изображений, увеличения разрешения и работы с видео. Агент может использовать подходящую возможность сервиса внутри задания Goblin.</p><p>Пример применения — обработка исходного изображения с последующим сохранением результата в материалы шага. Для ретуши нужно выбрать поддерживающую требуемое редактирование модель, а не считать любое улучшение изображения ретушью.</p>",
+    "body_html": "<h3>Входные данные</h3><p>В зависимости от операции нужны текстовое задание, исходное изображение или другие материалы и параметры результата. Агент уточняет доступные модели и схему параметров через документацию или средства подключённого инструмента.</p><h3>Порядок работы</h3><p>Подготовить входы → зарегистрировать внешнюю заявку → отправить запрос через доступный API или инструмент → сохранить идентификатор задания → дождаться завершения → получить файл → приложить его к результату шага.</p><p>API Krea поддерживает отслеживание заданий; доступный способ ожидания зависит от используемого подключения. Принятый запрос ещё не означает готовый материал.</p><h3>Источники</h3><p>Возможности сервиса: <a href=\"https://www.krea.ai/features/api\">официальная страница Krea API</a>. Параметры конкретных операций: <a href=\"https://docs.krea.ai/\">документация Krea</a>. Тарифы и числовые ограничения в этой краткой справке не фиксируются.</p>",
+    "references": [
+      "run-external",
+      "run-scenario-images",
+      "run-scenario-retouch"
+    ],
+    "tags": [
+      "Krea",
+      "Прогон",
+      "Сторонние сервисы"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-service-kling",
+    "title": "Kling",
+    "parent": "run-services",
+    "order": 20,
+    "summary_html": "<p>Kling — сервис для работы с генеративными визуальными материалами, в том числе создания видео по изображению или текстовому заданию. В прогоне он может выполнять отдельный этап подготовки материала.</p><p>Агент обращается через доступное подключение: API, CLI или другой предоставленный инструмент. Поддерживаемые режимы зависят от этого подключения и выбранной модели.</p>",
+    "body_html": "<h3>Вход и результат</h3><p>Для анимации изображения нужны исходный кадр и описание движения; для генерации по тексту — описание сцены. Длительность, формат и дополнительные параметры выбираются по фактической схеме инструмента. Выходом служит полученный материал, а не только номер запроса.</p><h3>Порядок работы</h3><p>Проверить доступность нужной операции → подготовить материалы → зарегистрировать заявку → вызвать сервис → сохранить внешний идентификатор → получить итоговый файл → сдать результат шага.</p><p>Если модель Kling вызывается через другого поставщика, в учёте нужно различать фактического поставщика и название модели. Это важно для повторного получения результата и учёта вызова.</p><h3>Источники</h3><p>Обзор платформы и маршруты интеграции: <a href=\"https://app.klingai.com/global/dev/document-api/quickStart/productIntroduction/overview\">официальная документация Kling</a>. Возможность создания видео по изображению также описана в <a href=\"https://ir.kuaishou.com/node/10401/pdf\">материале Kuaishou о Kling</a>.</p>",
+    "references": [
+      "run-external",
+      "run-services"
+    ],
+    "tags": [
+      "Kling",
+      "Прогон",
+      "Сторонние сервисы"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-service-other",
+    "title": "Другие сервисы",
+    "parent": "run-services",
+    "order": 30,
+    "summary_html": "<p>Каталог может дополняться другими сервисами, которые понадобятся агентам для выполнения задач. Новая карточка описывает конкретную внешнюю возможность и способ её использования в прогоне.</p><p>До выбора сервиса здесь не предполагается существующая интеграция. Название будущего инструмента и обещание его результата не заменяют доступный способ вызова.</p>",
+    "body_html": "<h3>Что указывать в карточке</h3><p>Назначение сервиса, поддерживаемые задачи, входы, выходы, способ подключения и официальный источник документации. Отдельно описываются внешний идентификатор задания и получение результата после ожидания.</p><h3>Связь с Goblin</h3><p>Заявка связывается с конкретной попыткой. Файлы сохраняются как материалы результата. Если в задании требуется определённый сервис, замену другим инструментом нужно согласовать в рамках задания.</p>",
+    "references": [
+      "run-external"
+    ],
+    "tags": [
+      "Другие сервисы",
+      "Прогон",
+      "Сторонние сервисы"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-environment-orca",
+    "title": "Orca",
+    "parent": "run-environment",
+    "order": 10,
+    "summary_html": "<p>leader и worker работают в отдельных терминалах Orca. Задания и ответы передаются командой orca terminal send; карточки агентов на блоках определяют исполнителей.</p><p>Для связи нужны точные адреса терминалов. Инструкция Goblin требует передавать сообщение одной строкой и сохранять адрес задания в ответе.</p>",
+    "body_html": "<h3>Краткая инструкция leader</h3><ol><li>Получить адрес worker из задания или у человека. Свой адрес взять из <code>ORCA_TERMINAL_HANDLE</code>; адреса не угадывать по названиям.</li><li>После начала прогона передать вводную, полученную через <code>op=invite</code> с адресом для ответа, затем точную строку «задание в файле …».</li><li>Дождаться адресованного ответа и передать его в <code>done</code> дословно. После отправки закончить ход и ждать входящего сообщения.</li></ol><h3>Краткая инструкция worker</h3><p>Прочитать файл задания целиком, выполнить работу и отправить leader одну строку по образцу из задания. Префикс ответа: <code>ОТВЕТ worker:</code>. После отправки закончить ход.</p><h3>Доставка</h3><p>Инструкция Goblin использует <code>--enter --wait-submit 4 --json</code>. Если квитанция сообщает, что ввод принят, но начало хода не наблюдалось, допускается один повтор с тем же <code>--retry-request</code>. Новую копию сообщения отправлять не нужно. При <code>agent_prompt_blocked</code> требуется помощь человека с открытым окном CLI.</p><h3>Источник инструкции</h3><p><code>instructions/связь-орка.md</code>. Это краткое изложение принятого в Goblin протокола; доступность команд определяется установленной средой.</p>",
+    "references": [
+      "run-role-models",
+      "run-roles",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-lib-folders-folders-php"
+    ],
+    "tags": [
+      "Orca",
+      "Среда выполнения",
+      "Прогон"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-environment-sendmessage",
+    "title": "SendMessage",
+    "parent": "run-environment",
+    "order": 20,
+    "summary_html": "<p>В принятом протоколе Goblin leader и worker — отдельные сессии Claude Code на одной машине. Для обнаружения участников и обмена используются инструменты ListAgents и SendMessage, если они доступны в этой среде.</p><p>worker определяет выбранная сессия, а не карточка агента на блоке. Имя получателя должно точно совпадать с именем, которое вернула среда.</p>",
+    "body_html": "<h3>Краткая инструкция leader</h3><ol><li>Получить список участников через <code>ListAgents</code>. Использовать worker из задания; если нужная сессия не найдена или выбор неоднозначен — уточнить у человека.</li><li>Передать ответ <code>op=invite</code> дословно через <code>SendMessage</code>, затем строку «задание в файле …».</li><li>Прочитать ответ, при наличии уведомления — через предусмотренный средой <code>ReadNotifications</code>. Последнюю строку результата передать в <code>done</code> без изменения.</li></ol><h3>Краткая инструкция worker</h3><p>Прочитать задание и выполнить его. Отправить одну строку по образцу через <code>SendMessage</code> тому, кто прислал задание. Сохранить адрес блока и попытки; один ответ отправляется один раз.</p><h3>Источник инструкции</h3><p><code>instructions/связь-sendmessage.md</code>. Имена инструментов описывают протокол данного проекта и не означают, что эти инструменты есть у любого агента или в любой установке Claude Code.</p>",
+    "references": [
+      "run-role-models",
+      "run-roles",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-lib-folders-folders-php"
+    ],
+    "tags": [
+      "SendMessage",
+      "Среда выполнения",
+      "Прогон"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-environment-subagents",
+    "title": "Субагенты",
+    "parent": "run-environment",
+    "order": 30,
+    "summary_html": "<p>leader запускает исполнителей средствами своей агентской среды. Отдельные терминалы worker не требуются; итог субагента возвращается leader через механизм делегирования.</p><p>Карточки агентов на блоках не определяют отдельный терминал: запуском управляет среда leader. Можно создавать исполнителя на каждое задание или продолжать одного, если инструмент это поддерживает.</p>",
+    "body_html": "<h3>Краткая инструкция leader</h3><ol><li>Получить вводную через <code>op=invite</code> один раз для текущего прогона.</li><li>Передать новому субагенту вводную дословно и следующей строкой — «задание в файле …». При продолжении того же исполнителя передать следующее задание.</li><li>Если сервер выдал несколько независимых блоков, можно назначить отдельного субагента каждому из них.</li><li>Получить итоговое сообщение и передать его последнюю адресованную строку в <code>done</code> дословно.</li></ol><h3>Краткая инструкция worker</h3><p>Выполнить выданное задание. Последней строкой итогового сообщения вернуть ответ по образцу с адресом задания. Отдельно никому его не отправлять: leader получит итог через среду запуска.</p><p>В этом простом протоколе субагент не ведёт прогон и не обращается к серверу Goblin самостоятельно.</p><h3>Источник инструкции</h3><p><code>instructions/связь-субагенты.md</code>. Конкретный инструмент запуска выбирается по возможностям среды leader.</p>",
+    "references": [
+      "run-role-models",
+      "run-roles",
+      "backend-resource-lib-api-simple-php",
+      "backend-resource-lib-folders-folders-php"
+    ],
+    "tags": [
+      "Субагенты",
+      "Среда выполнения",
+      "Прогон"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-jev",
+    "title": "Jev",
+    "parent": "run",
+    "order": 65,
+    "summary_html": "<p>Jev используется в Goblin для смысловой оценки результата и выбора ветки по словесному условию. Он получает подготовленные данные и возвращает оценку, которую сервер обрабатывает по правилам прогона.</p><p>Jev может работать советником или участвовать в автоматическом решении. Точные проверки выполняются кодом, а недостаточная уверенность, неполные данные и ошибка сервиса не означают успешную приёмку.</p>",
+    "body_html": "<h3>Назначение</h3>\n<p>Jev помогает ответить на вопросы, которые трудно свести к проверке формата: выполнено ли смысловое требование, присутствует ли запрещённое утверждение, какая ветка соответствует полученному ответу. Он не выполняет задание worker и не заменяет leader.</p>\n<h3>Режимы</h3>\n<table><thead><tr><th>runs.jev</th><th>Поведение</th></tr></thead><tbody>\n<tr><td><code>off</code></td><td>Смысловая оценка Jev отключена; действуют остальные правила проверки.</td></tr>\n<tr><td><code>advisor</code></td><td>Jev даёт совет. При базовом проверяющем human решение остаётся человеку; при formal сохраняется результат формальной проверки, а оценка Jev дополняет его.</td></tr>\n<tr><td><code>judge</code></td><td>Оценка Jev используется механизмом принятия решения по предусмотренным правилам. Для словесного ромба этот режим позволяет выбрать ветку при достаточной уверенности.</td></tr>\n</tbody></table>\n<p>Режим Jev хранится отдельно от <code>runs.judge</code>, где заданы human или formal. Явное свойство блока <code>judge=human</code> оставляет приёмку человеку.</p>\n<h3>Что передаётся на проверку</h3>\n<p>Сервер собирает ТЗ, вход шага, текст работы или содержимое сданного текстового файла, критерии принятия <code>accept</code> и отклонения <code>reject</code>. Критерии должны быть понятными и проверяемыми по переданным данным.</p>\n<p>Например: принять текст, если он описывает три преимущества из исходного задания; отклонить, если он содержит неподтверждённые обещания. Для изображения одной текстовой декларации «ретушь выполнена» недостаточно: текущий текстовый пакет проверки не доказывает визуальное качество файла.</p>\n<h3>Порядок решения</h3>\n<ol><li>Код выполняет формальные проверки. Jev не отменяет найденную ошибку формы, вычислений или исходных данных.</li><li>Если смысловая оценка допустима, сервер готовит неизменяемый пакет и вызывает Jev вне блокировки проекта.</li><li>Ответ по критериям преобразуется в решение: <code>accept</code>, <code>return</code> или <code>unsure</code>. При недоступности сервиса фиксируется <code>unavailable</code>.</li><li>Перед применением проверяется актуальность сдачи. Ответ на уже изменённые данные отбрасывается; переход состояния выполняет движок Goblin.</li></ol>\n<p>Для критерия принятия высокая оценка поддерживает принятие, низкая — возврат. Для критерия отклонения высокая оценка, наоборот, указывает на обнаруженное нарушение. Промежуточные и отсутствующие оценки означают сомнение. Пороги задаются реализацией и настройками; вероятность не является гарантией правильности.</p>\n<h3>Словесные развилки</h3>\n<p>Для ромба готовятся условие и данные входа. Jev выбирает <code>yes</code>, <code>no</code> или <code>unclear</code>. Движок использует определённую ветку только при достаточной уверенности; иначе ждёт решения. Отсутствие данных не превращается в «нет».</p>\n<h3>Краткая инструкция leader</h3>\n<ol><li>Определить, нужна рекомендация или автоматическая смысловая оценка, и выбрать соответствующий режим.</li><li>Указать критерии в задании блока и обеспечить доступность входных данных и результата.</li><li>Рассмотреть причину возврата или сомнения. При недостатке данных уточнить задание либо передать решение человеку.</li><li>Сохранять различие между советом Jev, формальной проверкой и окончательной приёмкой.</li></ol>\n<h3>Связь с другими механизмами</h3>\n<p>Общие правила изложены в [[run-review|Проверке и приёмке]]. Операция <code>step.jev</code> — отдельный сигнальный путь: она даёт оценку и сама не принимает результат. Команда <code>done</code> простого протокола подтверждает решение leader; её нельзя считать свидетельством выполненной проверки Jev.</p>\n<p>Описание основано на текущих модулях Goblin. Наличие статьи не означает, что доступ к сервису настроен в конкретной установке.</p><p>Создание развилки и её свойства в редакторе: [[frontend-tool-decision|Ромб]].</p>",
+    "references": [
+      "run-review",
+      "run-graph",
+      "run-role-models",
+      "run-services",
+      "backend-resource-lib-engine-judges-jev-php",
+      "backend-resource-lib-ai-jev-verdict-php",
+      "backend-resource-lib-ai-jev-client-php",
+      "backend-resource-lib-ai-jev-state-php",
+      "backend-resource-lib-ai-jev-questions-php",
+      "backend-resource-lib-ai-jev-php",
+      "backend-resource-lib-engine-advance-php",
+      "backend-resource-table-runs",
+      "backend-resource-table-run_steps",
+      "frontend-tool-decision"
+    ],
+    "tags": [
+      "Jev",
+      "Прогон",
+      "Проверка",
+      "Советник",
+      "Развилки"
+    ],
+    "resource_type": "related",
+    "status": null,
+    "reviewed_at": null,
+    "source_note": ""
+  },
+  {
+    "slug": "run-recovery-network",
+    "title": "Обрыв связи и неизвестный результат команды",
+    "parent": "run-recovery",
+    "order": 10,
+    "summary_html": "<p>Если ответ не пришёл, нельзя считать команду ни выполненной, ни отменённой. Сначала нужно восстановить связь и прочитать состояние того же прогона.</p><p>Новый запуск или сброс не являются способом проверить прежнюю команду. Они могут создать другую работу или удалить историю.</p>",
+    "body_html": "<h3>Порядок действий</h3><ol><li>Записать проект, идентификатор прогона, шаг и попытку, имя команды и ключ повтора, если он был.</li><li>После восстановления связи прочитать <code>run.state</code> с точным run и <code>full=1</code>; историю уточнить через <code>run.log</code>. В простом пути использовать <code>where</code> для того же прогона.</li><li>Сопоставить результат и состояние шага. Для внешнего сервиса дополнительно узнать состояние сохранённого job ID, прежде чем повторять платный вызов.</li><li>Если команда поддерживает повтор и её исход ещё требуется получить, использовать прежний ключ и прежнее тело. Не подменять ключ новым.</li><li>При неоднозначности остановить дальнейшую выдачу и передать ситуацию человеку.</li></ol><p>run.state — чтение состояния; run.advance может продвинуть выполнение. Для первичного выяснения результата используйте чтение.</p><p>Не вызывайте begin, run.reset или run.prepare как средство диагностики существующего прогона.</p>",
+    "references": [
+      "run-protocols",
+      "run-external",
+      "backend-resource-lib-engine-state-php",
+      "backend-resource-lib-api-simple-php"
+    ],
+    "tags": [
+      "Обрыв связи и неизвестный результат команды",
+      "архитектура Goblin"
+    ],
+    "resource_type": "related",
+    "status": "implemented",
+    "reviewed_at": "2026-09-23",
+    "source_note": "lib/engine/state.php; lib/api/simple.php; lib/engine/lock.php."
+  },
+  {
+    "slug": "run-recovery-repeat",
+    "title": "Повтор команды без повторного выполнения",
+    "parent": "run-recovery",
+    "order": 20,
+    "summary_html": "<p>Повтор доставки и новая команда — разные события. Для операций через engineCommand используется commandId; для пачек правок — opId и область opScope.</p><p>Защита действует только в обработчиках, которые используют соответствующий механизм. Нельзя переносить её автоматически на любой адрес API.</p>",
+    "body_html": "<h3>Команды прогона</h3><p>Сохраните commandId до первой отправки. Повторяйте то же тело с тем же ключом и тем же контекстом доступа. Другие аргументы под прежним ключом вызывают конфликт.</p><p>Для worker с агентным пропуском нужно указывать точный step. Область повтора учитывает участника и целевой шаг/прогон.</p><p>Если ответ содержит replay_secret_unavailable и committed=true, команда уже зафиксирована, но секрет повторно не выдаётся. Используйте recovery из ответа; не считайте эту ошибку отменой команды.</p><h3>Пачки и простой путь</h3><p>Для пачки сохраняются opId, opScope и исходный список ops. Новое содержимое требует нового ключа.</p><p>В простом пути сохраняйте адрес ответа «блок.попытка» и передавайте ответ worker без пересказа. Его защита от устаревшего результата не является универсальным commandId для всех GET-команд.</p>",
+    "references": [
+      "backend-consistency",
+      "backend-resource-lib-engine-lock-php",
+      "backend-resource-lib-api-batch-php",
+      "run-protocols"
+    ],
+    "tags": [
+      "Повтор команды без повторного выполнения",
+      "архитектура Goblin"
+    ],
+    "resource_type": "related",
+    "status": "implemented",
+    "reviewed_at": "2026-09-23",
+    "source_note": "lib/engine/lock.php; lib/api/batch.php; lib/api/simple.php."
+  },
+  {
+    "slug": "run-recovery-token",
+    "title": "Потерянный или отозванный пропуск",
+    "parent": "run-recovery",
+    "order": 30,
+    "summary_html": "<p>Пропуск определяет полномочия и контекст участника. Ошибка доступа не означает, что прогон нужно запускать заново.</p><p>Перед восстановлением необходимо выяснить, открыт ли прогон и какая попытка сейчас действует. Прежние пропуска после перевыдачи использовать нельзя.</p>",
+    "body_html": "<h3>leader</h3><ol><li>Получить состояние прогона через разрешённый доступ к проекту.</li><li>Для running или paused пользователь с правом записи вызывает <code>run.attach</code>. Операция разрешена роли human; административный доступ регулируется общими правилами.</li><li>Сохранить новый секрет и открытые шаги из ответа. Прежний run-пропуск отзывается; состояние прогона не меняется.</li><li>Для закрытого прогона читать результат, а не перевыпускать сессию.</li></ol><h3>worker</h3><p>leader или человек вызывает step.reissue только для issued/running. Выдаётся новый step-пропуск, старый отзывается и снимается прежняя session. Это та же попытка, а не новая выдача задания.</p><p>Перед продолжением прекратите работу старого процесса, чтобы два worker не меняли один выходной файл. Сам отзыв пропуска не завершает внешний процесс. Секреты передавайте по выбранному каналу среды, не публикуйте в документации.</p>",
+    "references": [
+      "run-environment",
+      "backend-access",
+      "backend-resource-lib-engine-runs-php",
+      "backend-resource-lib-engine-steps-php"
+    ],
+    "tags": [
+      "Потерянный или отозванный пропуск",
+      "архитектура Goblin"
+    ],
+    "resource_type": "related",
+    "status": "implemented",
+    "reviewed_at": "2026-09-23",
+    "source_note": "lib/engine/runs.php::runAttach; lib/engine/steps.php::stepReissue; lib/api/router.php."
+  },
+  {
+    "slug": "run-recovery-jev",
+    "title": "Jev недоступен или не уверен",
+    "parent": "run-recovery",
+    "order": 40,
+    "summary_html": "<p>Отсутствие ответа Jev и недостаточная уверенность не являются положительной проверкой результата. Причину нужно прочитать в состоянии и истории прогона.</p><p>Продолжение зависит от режима проверки и фактического состояния шага. Решение человека должно быть явным и относиться к текущей попытке.</p>",
+    "body_html": "<h3>Порядок действий</h3><ol><li>Прочитать run.state и журнал: различить сеть, таймаут, лимит запросов, ошибку ключа и недостаточную уверенность.</li><li>При проблеме ключа исправить настройки доступа; при временном сбое восстановить сервис. Не отправлять быстрые бесконечные повторы.</li><li>Убедиться, что результат worker и попытка не изменились. При восстановлении сервиса запросить следующий ход через run.advance, если это допускает выбранный способ ведения.</li><li>Если требуется человек, проверить сам результат и принять/вернуть его; для ромба выбрать ветку через предусмотренную команду step.decide.</li></ol><p>step.jev выдаёт оценку, но не является командой приёмки. Отключение Jev не подтверждает качество работы. Формальная ошибка результата не должна считаться устранённой после смены режима.</p><p>Если требуется визуальная оценка изображения, текстовый отчёт агента не заменяет просмотра изображения.</p>",
+    "references": [
+      "run-jev",
+      "run-review",
+      "backend-resource-lib-engine-judges-jev-php"
+    ],
+    "tags": [
+      "Jev недоступен или не уверен",
+      "архитектура Goblin"
+    ],
+    "resource_type": "related",
+    "status": "implemented",
+    "reviewed_at": "2026-09-23",
+    "source_note": "lib/engine/judges/jev.php; lib/engine/advance.php; lib/ai/jev.php."
+  }
+]

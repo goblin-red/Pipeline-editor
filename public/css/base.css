@@ -1,0 +1,108 @@
+/* Основа: сброс, типографика, кнопки и поля. Один вид на весь интерфейс. */
+*{box-sizing:border-box}
+/* Скрытое скрыто всегда: класс с display не должен это отменять. */
+[hidden]{display:none !important}
+/* Смахивание двумя пальцами по трекпаду браузер понимает как «назад» и
+   «вперёд» — и редактор без спроса уезжал в прежний адрес, бывало, что и в
+   другой проект. Здесь такой жест ничего не листает. */
+html,body{height:100%;overscroll-behavior:none}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--f-md)/1.45 var(--sans);overflow:hidden}
+h1,h2,h3{margin:0;font-weight:600}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#dialog-asset:focus-visible,#dialog-asset-view:focus-visible{outline:none}
+/* В окнах текст правят подолгу, и подсветка поля только мозолит глаза:
+   и обводки, и цветной рамки у полей окна нет — видно и так, куда пишешь. */
+.dialog :is(textarea,input,select):focus,
+.dialog :is(textarea,input,select):focus-visible{outline:none;border-color:var(--line)}
+
+.btn{display:inline-flex;align-items:center;gap:var(--gap-xs);height:30px;padding:0 12px;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
+  color:var(--ink);cursor:pointer;transition:background var(--fast),border-color var(--fast)}
+.btn:hover{border-color:var(--ink-faint)}
+.btn:active{transform:translateY(1px)}
+.btn-accent{background:var(--accent);border-color:transparent;color:var(--accent-ink);font-weight:600}
+.btn-quiet{background:transparent}
+.btn-danger:hover{border-color:var(--bad);color:var(--bad)}
+.btn-icon{width:30px;padding:0;justify-content:center}
+.btn-wide{width:100%;justify-content:center;margin-top:var(--gap-sm)}
+.btn[disabled]{opacity:.45;cursor:default}
+
+.field{display:block;margin:0 0 var(--gap-sm)}
+.field > span{display:block;font-size:var(--f-xs);letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ink-dim);margin-bottom:3px}
+.input,textarea.input,select.input{width:100%;padding:6px 9px;border:1px solid var(--line);
+  border-radius:var(--r-sm);background:var(--surface-2)}
+textarea.input{resize:vertical;min-height:62px;font:var(--f-sm)/1.5 var(--sans)}
+.row{display:flex;gap:var(--gap-sm);align-items:center}
+.muted{color:var(--ink-dim)}
+.mono{font-family:var(--mono);font-size:var(--f-sm)}
+
+/* Сообщение — у самого низа экрана: посреди холста оно закрывало схему. */
+.toast{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:60;
+  background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:var(--r-sm);padding:9px 14px;box-shadow:var(--shadow-2);max-width:60ch;
+  color:var(--ink-dim)}
+.toast.bad{border-left-color:var(--bad)}
+
+.dialog{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);
+  color:var(--ink);padding:18px;width:min(720px,92vw);box-shadow:var(--shadow-2)}
+.dialog::backdrop{background:rgba(0,0,0,.5)}
+.dialog-title{font-size:var(--f-lg);margin-bottom:var(--gap-md)}
+.dialog-title-context{color:var(--c-blue);font-weight:400}
+#dialog-asset-title{flex-shrink:0;padding-right:24px}
+/* Крестик окна: в правом верхнем углу, как у любого окна. */
+.dialog-x{position:absolute;right:12px;top:10px;width:30px;height:30px;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
+  color:var(--ink-dim);cursor:pointer;font-size:18px;line-height:1}
+.dialog-x:hover{color:var(--ink);border-color:var(--ink-faint)}
+.dialog{position:relative}
+.dialog-textarea{width:100%;height:46vh;padding:12px;border:1px solid var(--line);
+  border-radius:var(--r-sm);background:var(--surface-2);font:var(--f-sm)/1.55 var(--mono);resize:none}
+.dialog-foot{display:flex;justify-content:flex-end;gap:var(--gap-sm);margin-top:var(--gap-md);flex-wrap:wrap}
+.dialog-wide{width:min(1180px,96vw)}
+.dialog-hint{font-size:var(--f-sm);margin:-6px 0 var(--gap-sm)}
+.dialog-note{margin-right:auto;font-size:var(--f-xs);align-self:center}
+
+/* Полосы прокрутки в тон интерфейсу: светлая полоса в тёмной теме бросалась в глаза. */
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-faint)}
+
+/* Правка элемента текстом: что можно трогать — зелёным, что нельзя — серым. */
+#dialog-text-hint{display:flex;flex-wrap:wrap;gap:4px 14px}
+
+/* Цветной JSON: под прозрачным полем лежит зеркало с тем же текстом. */
+.code-box{position:relative}
+.code-mirror{position:absolute;inset:0;margin:0;overflow:auto;pointer-events:none;
+  padding:12px;border:1px solid transparent;border-radius:var(--r-sm);
+  font:var(--f-sm)/1.55 var(--mono);white-space:pre-wrap;word-break:break-word;color:var(--ink-dim)}
+.dialog-textarea.code-on{position:relative;z-index:1;background:transparent;
+  color:transparent;caret-color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.code-line{display:inline}
+/* Красным — только то, что править нельзя: остальное обычный цветной JSON. */
+.code-line.line-off{opacity:1}
+.j-key{color:color-mix(in srgb,var(--c-blue) 70%,var(--ink));font-weight:400}
+.j-str{color:color-mix(in srgb,var(--c-green) 62%,var(--ink));font-weight:400}
+.j-num{color:color-mix(in srgb,var(--c-orange) 70%,var(--ink));font-weight:400}
+.j-word{color:color-mix(in srgb,var(--c-purple) 70%,var(--ink));font-weight:400}
+.code-line.line-off,
+/* Markdown: заголовки, списки, код и ссылки — своими цветами. */
+/* Размер букв в зеркале менять нельзя — оно разъедется с полем, поэтому
+   уровни заголовков различаются цветом, а не кеглем. */
+.m-head{font-weight:600}
+.m-h1{color:color-mix(in srgb,var(--c-blue) 85%,var(--ink))}
+.m-h2{color:color-mix(in srgb,var(--c-cyan) 78%,var(--ink))}
+.m-h3{color:color-mix(in srgb,var(--c-teal) 72%,var(--ink))}
+.m-h4,.m-h5,.m-h6{color:color-mix(in srgb,var(--c-blue) 45%,var(--ink-dim))}
+.m-quote{color:color-mix(in srgb,var(--c-teal) 60%,var(--ink-dim))}
+.m-mark{color:color-mix(in srgb,var(--c-orange) 75%,var(--ink));font-weight:600}
+.m-code,.m-fence{color:color-mix(in srgb,var(--c-green) 62%,var(--ink))}
+.m-strong{color:var(--ink);font-weight:600}
+.m-em{color:color-mix(in srgb,var(--c-purple) 62%,var(--ink))}
+.m-link{color:color-mix(in srgb,var(--c-cyan) 70%,var(--ink))}
+
+.line-off :is(.j-key,.j-str,.j-num,.j-word){color:color-mix(in srgb,var(--c-red) 62%,var(--ink-dim))}

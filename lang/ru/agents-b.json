@@ -1,0 +1,10 @@
+{
+ "agents.go.server_failed": "сервер не смог выполнить запрос",
+ "agents.go.too_long": "Ответ не принят: {bytes} байт, а в шаг помещается {max}. Положи полный текст в файл в out/r{run}/ и сдай короткий ответ с путём к нему",
+ "agents.go.repeat_decision": "повтор: ромб {no} уже решён → {branch} — ничего не меняю",
+ "agents.go.decided_other": "Ромб {no} уже решён → {branch}; другую ветку не ставлю — посмотри op=where",
+ "agents.task.context_head": "Контекст — группы и области, в которых лежит блок, от внешней к внутренней (ТЗ самого блока — ниже):",
+ "agents.task.context_row": "{what} {no} «{title}»",
+ "agents.task.context_about": " — описание: ",
+ "agents.docs.bad_role": "У docs.run нет роли «{role}»: role=lead — вести прогон, role=draw — рисовать схему. worker ссылку не получает — вводную ему даёт ведущий"
+}

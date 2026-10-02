@@ -1,0 +1,39 @@
+/* Токены: единственный список цветов, размеров и скоростей.
+   Меняешь тему — меняешь только здесь. */
+:root{
+  /* поверхности */
+  --bg:#14151a; --surface:#1b1d24; --surface-2:#22252e; --line:#2d313c;
+  --ink:#e8e9ee; --ink-dim:#9aa0ad; --ink-faint:#666d7c;
+  /* смысл */
+  --accent:#f59f4a; --accent-ink:#1b1206;
+  --ok:#4ade80; --warn:#facc15; --bad:#f87171; --info:#8ab4ff;
+  /* состояния шага: одна таблица на весь редактор — css/run.css; wait — «ждёт команды» */
+  --step-issued:#8ab4ff; --step-running:#f59f4a; --step-submitted:#facc15;
+  --step-accepted:#4ade80; --step-returned:#c084fc; --step-failed:#f87171; --step-none:#4a5060;
+  --step-cancelled:#94a3b8; --step-wait:#f472b6;
+  /* палитра элементов: 12 ключей, других способов покрасить нет */
+  --c-blue:#7d9ad6; --c-green:#79b98c; --c-teal:#6cbdb0; --c-purple:#a091cf;
+  --c-red:#d08585; --c-orange:#d9975f; --c-yellow:#d6bc63; --c-pink:#cd88ab;
+  --c-cyan:#77aed3; --c-lime:#a4bd6f; --c-brown:#a58a72; --c-gray:#8d94a2;
+  /* размеры */
+  --f-xs:11px; --f-sm:12.5px; --f-md:14px; --f-lg:16px; --f-xl:20px; --f-xxl:26px;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --gap-xs:4px; --gap-sm:8px; --gap-md:14px; --gap-lg:22px;
+  --shadow-1:0 1px 2px rgba(0,0,0,.35);
+  --shadow-2:0 6px 18px rgba(0,0,0,.35);
+  --fast:120ms; --slow:280ms;
+  --rail-w:220px; --panel-w:330px; --topbar-h:52px; --runbar-h:64px;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",sans-serif;
+}
+:root[data-theme="light"]{
+  --bg:#f4f4f2; --surface:#ffffff; --surface-2:#f0f0ee; --line:#e0e0dc;
+  --ink:#1c1e24; --ink-dim:#5f6572; --ink-faint:#8b92a0;
+  --accent:#c2410c; --accent-ink:#ffffff;
+  --shadow-1:0 1px 2px rgba(0,0,0,.08); --shadow-2:0 8px 20px rgba(0,0,0,.10);
+  /* На белом пастель тёмной темы не читается: смысл и состояния — насыщенней. */
+  --ok:#16a34a; --warn:#ca8a04; --bad:#dc2626; --info:#2563eb;
+  --step-issued:#2563eb; --step-running:#ea580c; --step-submitted:#ca8a04;
+  --step-accepted:#16a34a; --step-returned:#9333ea; --step-failed:#dc2626; --step-none:#c6cad4;
+  --step-cancelled:#64748b; --step-wait:#db2777;
+}

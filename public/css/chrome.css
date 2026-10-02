@@ -1,0 +1,329 @@
+/* Каркас: шапка, рейка, рабочая область. */
+/* Ширины сторон живут переменными: их же читают ярлычки, чтобы стоять ровно
+   у края плашки — и когда она на месте, и когда уехала. */
+/* Левая плашка одной ширины во всех скинах и видах: --rail-w из tokens.css. */
+body{--rail-now:var(--rail-w);--panel-now:var(--panel-w)}
+body.rail-off{--rail-now:0px}
+body.panel-off{--panel-now:0px}
+body.rail-off .rail{display:none}
+body.panel-off .panel{display:none}
+
+.workspace{display:grid;grid-template-columns:var(--rail-now) minmax(0,1fr) var(--panel-now);
+  height:calc(100vh - var(--topbar-h));transition:grid-template-columns var(--slow)}
+/* Каждая плашка знает свою колонку. Без этого спрятанная рейка выпадает
+   из потока, и рабочая область съезжает на её место — в нулевую ширину. */
+.workspace > .rail{grid-column:1}
+.workspace > .panel{grid-column:3}
+.workspace > :not(.rail,.panel){grid-column:2}
+
+/* Ярлычок стороны: узкая полоска у края плашки, на уровне кнопок масштаба. */
+.side-toggle{position:fixed;bottom:14px;z-index:35;width:20px;height:38px;padding:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--line) 70%,transparent);
+  background:color-mix(in srgb,var(--surface) 70%,transparent);color:var(--ink-dim);
+  font-size:13px;line-height:1;transition:left var(--slow),right var(--slow),color var(--fast)}
+.side-toggle:hover{color:var(--ink);background:var(--surface)}
+.side-left{left:var(--rail-now);border-radius:0 var(--r-sm) var(--r-sm) 0;border-left:none}
+.side-right{right:var(--panel-now);border-radius:var(--r-sm) 0 0 var(--r-sm);border-right:none}
+body.view-only .side-toggle{display:none}
+/* Пока открыт помощник, правый ярлычок не мешается под его окном. */
+body.ai-open .side-right{display:none}
+body.view-only .workspace{grid-template-columns:0 minmax(0,1fr) 0}
+body.view-only .rail,body.view-only .panel{display:none}
+body.run-open .workspace{height:calc(100vh - var(--topbar-h) - var(--runbar-h))}
+
+.topbar{--topbar-pad:var(--gap-md);display:flex;align-items:center;gap:var(--gap-md);height:var(--topbar-h);
+  padding:0 var(--topbar-pad);background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-left,.topbar-right{display:flex;align-items:center;gap:var(--gap-sm)}
+/* Зона над левой плашкой: шириной с плашку, внутри — её вкладки. Поэтому поиск,
+   отмена и всё дальше в любом скине начинаются справа от плашки. Ширина — за вычетом
+   отступа шапки, промежутка и полей черты: черта встаёт ровно над краем плашки, а не
+   правее него. Плашку убрали (или её нет в режиме показа) — зона ужимается до своих значков. */
+.topbar-rail{display:flex;align-items:center;gap:var(--gap-sm);
+  width:calc(var(--rail-now) - var(--topbar-pad) - var(--gap-sm) - 10px);min-width:max-content}
+.topbar-rail #rail-tabs-slot{flex:1 1 auto}
+body.view-only .topbar-rail{width:auto}
+/* Черта за зоной плашки и запас по бокам: лупа отходит от края плашки. */
+.topbar-split.topbar-split-rail{margin:0 10px}
+/* Вкладок в шапке нет, а плашка убрана — черте нечего отделять. */
+body:not([data-left="tabs"]):is(.rail-off,.view-only) .topbar-split-rail{display:none}
+
+/* Скины без вкладок в шапке: над плашкой в шапке пусто, поэтому плашка встаёт
+   на всю высоту экрана и закрывает этот угол. Колонка сетки под ней остаётся —
+   холст не сдвигается. Край плашки сам делит шапку, черта не нужна, но место
+   держит: лупа стоит там же, где в скинах с вкладками. */
+body:not([data-left="tabs"]) .workspace > .rail{position:fixed;top:0;bottom:0;left:0;
+  width:var(--rail-now);z-index:30}
+body:not([data-left="tabs"]) .topbar-split-rail{visibility:hidden}
+/* Слева много значков, и на узком экране они не должны выдавливать вкладки
+   панели: левая половина ужимается и при нужде прокручивается, правая — нет. */
+.topbar-left{min-width:0;flex:1 1 auto;overflow-x:auto;scrollbar-width:none}
+.topbar-left::-webkit-scrollbar{display:none}
+/* Вкладки панели стоят ровно над самой панелью и делят её ширину поровну:
+   значок оказывается там же, где ищет его глаз, когда панель уже открыта. */
+.topbar-right{flex:0 0 var(--panel-now);min-width:0;position:relative;
+  margin-right:calc(var(--gap-md) * -1)}
+/* Короткая черта ровно над границей панели: шапка и панель делятся в одном
+   и том же месте, и глаз видит одну линию, а не две в разных местах. */
+.topbar-right::before{content:"";position:absolute;left:0;top:50%;
+  width:1px;height:20px;margin-top:-10px;background:var(--line)}
+body.panel-off .topbar-right::before{display:none}
+body.panel-off .topbar-right{flex:0 0 auto;margin-right:0}
+.topbar-right > *{width:100%}
+.topbar-right .panel-tabs{display:flex;justify-content:space-evenly;gap:0;
+  padding:0;border:0;background:none}
+.topbar-left > *{flex:none}
+.save-state{white-space:nowrap}
+.brand{font-weight:700;letter-spacing:.08em;font-size:var(--f-sm);color:var(--accent)}
+.topbar-left{position:relative}
+/* Середина только распирает шапку, а правая группа прижата к краю: без этого
+   у неё оставался пустой хвост справа. */
+.topbar-right{margin-left:auto}
+/* Окошко поиска: выпадает под лупой и ничего не двигает в шапке. fixed, как у окна
+   ссылки: левая группа шапки прокручивается (overflow-x) и обрезала бы список найденного.
+   Место под лупой считает showSearch() (shell/topbar.js). */
+.search-box{position:fixed;z-index:60;width:min(420px,60vw);
+  padding:6px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
+  box-shadow:var(--shadow-2)}
+.search-box[hidden]{display:none}
+/* Окно ссылки 🔗: fixed — шапка режет всё, что выпадает из её левой группы. */
+.link-box{position:fixed;z-index:60;display:flex;flex-direction:column;gap:2px;width:min(340px,90vw);
+  padding:6px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
+  box-shadow:var(--shadow-2)}
+.link-box[hidden]{display:none}
+.link-pick{display:block;width:100%;text-align:left;padding:8px 10px;background:none;border:none;
+  border-radius:var(--r-sm);color:var(--ink);cursor:pointer}
+.link-pick:hover{background:var(--surface-2)}
+.link-pick small{display:block;margin-top:2px;font-size:var(--f-xs);color:var(--ink-dim)}
+.search{width:100%;height:30px;padding:0 10px;border:1px solid var(--line);
+  border-radius:var(--r-sm);background:var(--surface-2)}
+.search-drop{position:absolute;top:42px;left:6px;right:6px;z-index:40;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--shadow-2);max-height:50vh;overflow:auto}
+.search-drop button{display:block;width:100%;text-align:left;padding:7px 10px;background:none;border:none;cursor:pointer}
+.search-drop button:hover{background:var(--surface-2)}
+.save-state{font-size:var(--f-xs);color:var(--ink-dim);min-width:74px;text-align:right}
+.save-state.dirty{color:var(--warn)}
+
+.rail{background:var(--surface);border-right:1px solid var(--line);overflow:auto;padding:var(--gap-md)}
+/* Разделитель в шапке: слева работа со схемой, дальше — виды и прогон. */
+.topbar-split{width:1px;height:20px;background:var(--line);margin:0 4px;flex:none}
+/* Виды карточек и переключатели темы жмутся к правому краю левой половины:
+   рядом с ними вкладки панели, и между двумя группами нужен зазор. */
+.switch.looks{margin-left:auto}
+/* Скины — выпадающим списком (shell/topbar.js): кнопка — значок, название и стрелка вниз. */
+.look-trigger{gap:6px;padding:4px 10px}
+.look-trigger svg{width:18px;height:18px;flex:none}
+.look-name{font-size:var(--f-sm);font-weight:500;white-space:nowrap}
+.look-caret{width:6px;height:6px;margin:0 0 3px 2px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg)}
+.look-menu{position:fixed;z-index:300;display:flex;flex-direction:column;gap:2px;width:300px;max-height:calc(100vh - 80px);overflow:auto;
+  padding:6px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow-2)}
+.look-option{display:grid;grid-template-columns:22px 1fr;column-gap:10px;row-gap:2px;align-items:center;padding:8px 10px;
+  border:0;border-radius:var(--r-sm);background:none;color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+.look-option svg{grid-row:span 2;width:20px;height:20px;color:var(--ink-dim)}
+.look-option b{font-size:var(--f-sm);font-weight:600}
+.look-option small{color:var(--ink-dim);font-size:var(--f-xs);line-height:1.3}
+.look-option:hover{background:var(--surface-2)}
+.look-option.on,.look-option.on svg{color:var(--accent)}
+.look-option.on{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.look-option:disabled{opacity:.4;cursor:default}
+/* Погашенная группа значков: место занимает, но не работает. */
+.switch.dimmed{opacity:.4}
+.switch.dimmed .switch-item{cursor:default}
+.topbar-left{padding-right:var(--gap-lg)}
+
+.rail-block{margin-bottom:var(--gap-lg)}
+.rail-title{font-size:var(--f-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:var(--gap-sm)}
+
+/* Разделы рейки сворачиваются: дизайнеру нужен холст, а не список кнопок. */
+.rail-fold{display:flex;align-items:center;justify-content:space-between;width:100%;
+  background:none;border:0;padding:3px 0;cursor:pointer;font:inherit;letter-spacing:inherit;
+  text-transform:inherit;color:inherit}
+.rail-fold:hover{color:var(--ink)}
+.rail-arrow{font-size:10px;opacity:.6;transition:transform .12s ease}
+/* Сворачиваются только разделы; вкладками раздел виден целиком. */
+.rail[data-layout="sections"] .rail-block.folded .rail-arrow{transform:rotate(-90deg)}
+.rail[data-layout="sections"] .rail-block.folded > *:not(.rail-title){display:none}
+/* Свёрнутые разделы не слипаются: между заголовками заметный зазор. */
+.rail[data-layout="sections"] .rail-block.folded{margin-bottom:var(--gap-md)}
+.tree{display:flex;flex-direction:column;gap:2px}
+.tree-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:var(--r-sm);
+  cursor:pointer;background:none;border:none;text-align:left;width:100%;color:var(--ink)}
+.tree-item:hover{background:var(--surface-2)}
+.tree-item.on{background:var(--surface-2);box-shadow:inset 2px 0 0 var(--accent)}
+.tree-item small{margin-left:auto;color:var(--ink-faint);font-size:var(--f-xs)}
+.tree-count{font-style:normal;color:var(--ink-faint);white-space:nowrap}
+/* Проект, чьи свойства сейчас в панели (один щелчок). */
+.tree-item.picked{background:var(--surface-2)}
+/* Дерево папок: стрелка ветки внутри значка (свернуть, развернуть) и перетаскивание папки в папку. */
+.tree-fold{display:inline-block;width:12px;margin-right:2px;font:normal 9px/1 system-ui,sans-serif;color:var(--ink-faint);text-align:center;transition:transform .12s}
+.tree-fold.kids{cursor:pointer}
+.tree-fold.kids::before{content:"▸"}
+.tree-fold.kids:hover{color:var(--ink)}
+.tree-fold.open{transform:rotate(90deg)}
+.tree-item.dragging{opacity:.45}
+.tree-item.drop-in{background:color-mix(in srgb,var(--accent) 16%,transparent);box-shadow:inset 0 0 0 1px var(--accent)}
+body[data-look="mobile"] .tree-fold{display:none}
+/* Значок «на уровень выше» у вложенной папки: виден при наведении и у открытой. */
+.tree-lift{display:inline-flex;margin-left:auto;padding:2px;border-radius:4px;color:var(--ink-faint);opacity:0;transition:opacity .12s}
+.tree-lift svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tree-item:hover .tree-lift,.tree-item.on .tree-lift{opacity:1}
+.tree-lift:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.tree-lift + small{margin-left:4px}
+@media (hover:none){.tree-lift{opacity:1}}
+body[data-look="mobile"] .tree-lift{display:none}
+/* Вложенность: уголок «└» от родителя к вложенной папке; длинное имя — троеточием, значок не съезжает. */
+.tree-item > span:first-child{flex:none;white-space:nowrap}
+body:not([data-look="mobile"]) #folder-tree .tree-item > span:nth-child(2){flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-item.nested{position:relative;padding-left:calc(8px + var(--depth) * 16px)}
+.tree-item.nested::before,.folder-tiles .tile.nested::before{content:"";position:absolute;width:9px;pointer-events:none;
+  border:solid var(--ink-faint);border-width:0 0 1.5px 1.5px;border-bottom-left-radius:5px;opacity:.75}
+/* Строки: уголок — под стрелкой родителя. */
+.tree-item.nested::before{left:calc(var(--depth) * 16px - 2px);top:-3px;height:calc(50% + 3px)}
+/* Плитки («Классика», «Студия»): вложенная — под своей папкой, со сдвигом и уголком слева. */
+.folder-tiles .tile.nested{position:relative;margin-left:calc(var(--depth) * 20px)}
+.folder-tiles .tile.nested::before{left:-13px;top:-7px;height:calc(50% + 7px)}
+.tile.dragging{opacity:.45}
+.tile.drop-in{background:color-mix(in srgb,var(--accent) 16%,transparent);border-color:var(--accent)}
+/* Значок «на уровень выше» у вложенной плитки: в «Студии» — справа в строке, в «Классике» — в углу плитки. */
+.folder-tiles .tile{position:relative}
+.tile:hover .tree-lift,.tile.on .tree-lift{opacity:1}
+.folder-tiles .tile > span:has(.tree-fold){display:inline-flex;align-items:center}
+body[data-look="classic"] .folder-tiles .tile .tree-lift{position:absolute;top:3px;right:3px}
+/* «Классика» уровнями: у папки с подпапками — «›»; сверху — папка, внутри которой стоим. */
+.tile.has-kids small::after{content:" ›";color:var(--ink-faint)}
+.tile-here{border-bottom-color:var(--line)!important}
+.tile-here small{color:var(--accent)!important}
+.folders-hint{margin:8px 4px 0;font-size:var(--f-xs);line-height:1.35;color:var(--ink-faint)}
+body[data-look="mobile"] .folders-hint{display:none}
+.tools{display:flex;flex-direction:column;gap:2px}
+.tool{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid transparent;
+  border-radius:var(--r-sm);background:none;cursor:pointer;color:var(--ink);text-align:left}
+.tool b{font-size:var(--f-lg);width:20px;text-align:center}
+.tool span{margin-left:auto;color:var(--ink-faint);font-size:var(--f-xs)}
+.tool:hover{background:var(--surface-2)}
+.tool.on{border-color:var(--accent);background:var(--surface-2)}
+/* Образцы цвета — мелкими шариками: на всю ширину панели они лезли в глаза
+   сильнее, чем сама схема. */
+.colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(26px,1fr));gap:6px;
+  justify-items:stretch;margin-bottom:var(--gap-md)}
+/* Шарик тянется по колонке, но не больше 26px: с рамкой в общий счёт входит
+   толщина обводки, иначе ряд вылезал за край рейки. */
+.swatch{width:26px;box-sizing:border-box}
+/* Своя обводка образца приходит переменной, а не inline-стилем: иначе она
+   перебивала отметку выбранного, и понять, какой цвет стоит, было нельзя. */
+/* Под образцом — подложка карточки: у прозрачных градиентов иначе не видно,
+   где заливка, а где дырка. Кольцо цвета показывает обводку. */
+.swatch{aspect-ratio:1;border-radius:50%;border:2px solid var(--swatch-edge,var(--line));
+  cursor:pointer;position:relative;background-color:var(--surface-2);
+  background-origin:border-box;background-clip:padding-box,border-box}
+.swatch.on{border-color:var(--ink);
+  box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+/* Отметка выбранного — нарисованная галка, а не буква из шрифта: та зависела
+   от начертания и выглядела по-разному в разных темах. */
+.swatch.on::after{content:"";position:absolute;inset:0;
+  background:center/13px 13px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.8l4.6 4.6L19 7'/%3E%3C/svg%3E");
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}
+
+/* Своя подсказка: системная ждёт секунду и встаёт у курсора, а эта выходит
+   сразу под значком. Текст ей даёт shell/tips.js. */
+.tip{position:fixed;z-index:80;max-width:260px;padding:5px 8px;
+  border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--surface-2);color:var(--ink);
+  font-size:var(--f-xs);line-height:1.3;box-shadow:var(--shadow-2);
+  pointer-events:none}
+.tip[hidden]{display:none}
+
+/* Переключатель вида: холст, список, прогон. */
+.switch{display:flex;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.switch-item{background:transparent;border:none;color:var(--ink-dim);padding:5px 11px;cursor:pointer;font-size:var(--f-sm)}
+.switch-item:hover{background:var(--surface-2);color:var(--ink)}
+.switch-item.on{background:var(--surface-2);color:var(--ink);font-weight:600}
+/* Виды работы — значками: подпись ушла в подсказку, шапка стала короче. */
+.switch-icon-item{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px}
+.switch-icon-item svg{width:18px;height:18px;display:block}
+.switch-icon-item.on{color:var(--accent)}
+.look-pick{height:30px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--surface-2);color:var(--ink);padding:0 8px;font-size:var(--f-sm)}
+/* Палитра целиком: пастель, контрастные, именованные, узоры. */
+/* Во всех скинах одинаково: 6 в ряд, шарик 26px — при смене скина не прыгает. */
+#colors{grid-template-columns:repeat(6,1fr);gap:6px;justify-items:center}
+/* display здесь не задавать: правило по id перебьёт сворачивание раздела
+   «Цвет» (.rail-block.folded), сетку и так даёт класс .colors. */
+.swatch{background-size:cover;border-width:1px}
+.btn.on{border-color:var(--accent);color:var(--accent)}
+
+.rail-row{margin-top:var(--gap-sm)}
+.rail-row .btn{flex:1;justify-content:center}
+
+/* Имя исполнителя в полосе прогона: кто держит этот шаг. */
+.run-step-who{margin-left:6px;padding:0 5px;border-radius:999px;font-style:normal;
+  font-size:10px;color:var(--ink-dim);background:var(--surface);border:1px solid var(--line)}
+
+/* Одна плашка — две формы: скин ставит классы на #rail (left/left.js),
+   здесь решается, какая форма видна. Какие разделы открыты — тоже left.js. */
+.rail[data-folders="rows"] :is(#left-folders,#left-projects) > .left-tiles,
+.rail[data-folders="tiles"] :is(#left-folders,#left-projects) > .left-rows,
+.rail[data-tools="rows"] #tools > .left-grid,
+.rail[data-tools="grid"] #tools > .left-rows,
+.rail:not([data-layout="tabs"]) :is(.left-tabs-only,.rail-logo,.rail-version){display:none}
+/* Логотип goblin dot red: светлая надпись — на тёмной теме, тёмная — на светлой (img/logo-vertical*.svg). */
+:root[data-theme="light"] .logo-on-dark,:root:not([data-theme="light"]) .logo-on-light{display:none !important}
+/* «…» над папками — уровнем выше, к проектам. */
+.tree-up{color:var(--ink-dim);font-size:var(--f-lg);line-height:1;letter-spacing:.12em}
+.rail-menu{display:flex;flex-direction:column;gap:2px}
+.rail-menu .menu-title:first-child{margin-top:0}
+.lang-switch{margin:2px 0 4px}
+.lang-switch .switch-item{flex:1}
+.rail.rail-runs-only .run-archive{max-height:none}
+
+/* Архив прогонов в левой плашке: строки узкие, итог под названием. */
+.run-archive{display:flex;flex-direction:column;gap:1px;max-height:320px;overflow:auto}
+.run-archive .runs-item{padding:5px 8px}
+.run-archive .runs-item b{font-size:var(--f-xs)}
+.run-archive .runs-item span{font-size:var(--f-xs)}
+
+
+/* ── Пульс в шапке ────────────────────────────────────────────── */
+/* Кружок на каждого, кто может работать: worker, круг leader, Джев,
+   помощник. Гаснет — тихо, мигает — работа идёт прямо сейчас. */
+.pulse{display:flex;align-items:center;gap:6px;padding:0 2px}
+.pulse-dot{width:8px;height:8px;border-radius:50%;
+  background:color-mix(in srgb,var(--ink) 18%,transparent);cursor:default;
+  transition:background .2s,box-shadow .2s}
+.pulse-dot.on{animation:pulse-beat 1.4s ease-in-out infinite}
+.pulse-workers.on{background:var(--c-green,#5aa469);box-shadow:0 0 6px var(--c-green,#5aa469)}
+.pulse-script.on{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.pulse-jev.on{background:var(--c-violet,#a78bfa);box-shadow:0 0 6px var(--c-violet,#a78bfa)}
+.pulse-ai.on{background:var(--c-blue,#6aa9f0);box-shadow:0 0 6px var(--c-blue,#6aa9f0)}
+@keyframes pulse-beat{0%,100%{opacity:1}50%{opacity:.25}}
+/* Где работают агенты: значок; «локально» — тихо, «веб» — цветом акцента. */
+.mode-chip{display:inline-flex;align-items:center;margin-left:6px;color:var(--ink-dim);cursor:default}
+.mode-chip svg{display:block}
+.mode-chip.web{color:var(--accent)}
+
+/* Вход — значком первым в зоне над плашкой: «Войти» — тихо, «Мой кабинет» — цветом акцента. */
+.topbar-left .account-btn{flex:0 0 auto}
+.topbar-left .account-btn.in{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.pulse-dot.on{animation:none}}
+
+/* Левая плашка: где идёт прогон — значок папки и проекта зелёный и дышит
+   (state.runFolders / runProjects из pulse). Строки и плитки, все скины. */
+.tree-item.live > span:first-child,
+.tile.live > span:first-child{color:var(--ok)!important;
+  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--ok) 70%,transparent));
+  animation:run-live 1.6s ease-in-out infinite}
+.tile.live{border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+@keyframes run-live{0%,100%{opacity:1}50%{opacity:.45}}
+/* Приветствие гостя (shell/welcome.js): картинка, пара строк и два пути — пустой холст или каталог. */
+.welcome-dialog{width:min(560px,94vw);padding:22px 22px 20px;text-align:center}
+.welcome-art{display:block;width:min(380px,82%);height:auto;margin:0 auto 4px}
+.welcome-title{margin-bottom:6px}
+.welcome-text{max-width:430px;margin:0 auto 18px;color:var(--ink-dim);line-height:1.5}
+.welcome-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.welcome-choice{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 12px;
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.welcome-choice:hover,.welcome-choice:focus-visible{border-color:var(--accent);outline:none}
+.welcome-choice svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.welcome-choice b{font-size:var(--f-md)}
+.welcome-choice small{font-size:var(--f-xs);line-height:1.4;color:var(--ink-faint)}
+@media (max-width:480px){.welcome-choices{grid-template-columns:1fr}}

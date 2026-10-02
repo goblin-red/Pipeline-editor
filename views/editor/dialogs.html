@@ -1,0 +1,155 @@
+<section class="screen" id="screen-ai" hidden>
+  <div class="ai-log" id="ai-log"></div>
+  <div class="ai-foot">
+    <textarea id="ai-input" class="input" rows="2" placeholder="{{t:editor.ai.placeholder}}"></textarea>
+    <!-- Ряд значков под полем — как было в прежнем Гоблине: частые команды,
+         новый разговор, прошлые разговоры, ссылка и конструктор; рядом — охват «Папка | Проект». -->
+    <div class="ai-tools">
+      <div class="ai-icons">
+        <button class="ai-icon" id="ai-quick" type="button" title="{{t:editor.ai.quick}}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <button class="ai-icon" id="ai-new" type="button" title="{{t:editor.ai.new}}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4zM8 9h8M12 5v8"/></svg></button>
+        <button class="ai-icon" id="ai-history" type="button" title="{{t:editor.ai.history}}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11a8 8 0 1 1 2 6M4 5v6h6M12 7v5l3 2"/></svg></button>
+        <button class="ai-icon" id="ai-link" type="button" title="{{t:editor.ai.link}}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg></button>
+        <button class="ai-icon" id="ai-build" type="button" title="{{t:editor.ai.build}}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="6" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/><path d="M6.5 9v9H14M16 6h6M19 3v6"/></svg></button>
+      </div>
+      <!-- Что видит помощник: открытую папку или весь проект. -->
+      <div class="switch switch-small ai-scope" id="ai-scope">
+        <button class="switch-item" type="button" data-scope="folder">{{t:editor.ai.scope_folder}}</button>
+        <button class="switch-item" type="button" data-scope="project">{{t:editor.ai.scope_project}}</button>
+      </div>
+      <div class="row">
+        <!-- Голос: диктовка по ходу речи; по «стоп» текст остаётся в поле, отправляет «Спросить» (panel/voice.js). -->
+        <button class="btn btn-quiet ai-mic" id="ai-mic" type="button" aria-label="{{t:editor.ai.mic}}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></button>
+        <!-- Читать ответы вслух: своя опция, не зависит от микрофона; по умолчанию выключена. -->
+        <!-- Ключевое слово в конце диктовки («Приём» в русской версии, «Roger» в английской) — отправить вопрос голосом; по умолчанию включены. -->
+        <button class="btn btn-quiet ai-mic ai-read ai-words" id="ai-words" type="button" aria-label="{{t:editor.ai.words}}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="8" width="10" height="13" rx="2"/><path d="M10 8V3M10 12.5h4M10 15.5h4"/><path class="read-off" d="M3 4l18 17"/></svg></button>
+        <button class="btn btn-quiet ai-mic ai-read" id="ai-read" type="button" aria-label="{{t:editor.ai.read_aloud}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="read-on" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="read-off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>
+        <button class="btn btn-accent" id="ai-send">{{t:editor.ai.send}}</button>
+        <button class="btn btn-quiet btn-danger" id="ai-stop" hidden title="{{t:editor.ai.stop_title}}">{{t:editor.runbar.stop}}</button>
+      </div>
+    </div>
+    <span class="ai-hint">{{t:editor.ai.hint}}</span>
+    <span class="ai-hint ai-words-hint" id="ai-words-hint">{{t:editor.ai.words_hint}}</span>
+    <div class="ai-usage" id="ai-usage">{{t:editor.ai.usage}}</div>
+    <div class="ai-drop" id="ai-drop" hidden></div>
+  </div>
+</section>
+
+<!-- Окно текста: им правятся ТЗ и любые заметки. -->
+<dialog class="dialog" id="dialog-text">
+  <h3 class="dialog-title" id="dialog-text-title">{{t:editor.dialog.text_title}}</h3>
+  <p class="dialog-hint muted" id="dialog-text-hint" hidden></p>
+  <textarea id="dialog-text-body" class="dialog-textarea" spellcheck="false"></textarea>
+  <div class="dialog-foot">
+    <button class="btn btn-quiet btn-danger" id="dialog-text-drop" hidden>{{t:editor.dialog.text_drop}}</button>
+    <span class="dialog-note muted">{{t:editor.dialog.text_note}}</span>
+    <button class="btn btn-accent" id="dialog-text-save">{{t:common.done}}</button>
+  </div>
+</dialog>
+
+<!-- Агент: кто он и чем работает. Списки — из config.txt. -->
+<dialog class="dialog" id="dialog-agent">
+  <button class="dialog-x" data-close title="{{t:common.close}}">×</button>
+  <h3 class="dialog-title" id="dialog-agent-title">{{t:editor.dialog.agent_title}}</h3>
+  <div class="agent-form" id="dialog-agent-body"></div>
+  <div class="dialog-foot" id="dialog-agent-foot"></div>
+</dialog>
+
+<!-- Открыть и сохранить: список способов, у каждого своя строка. -->
+<dialog class="dialog" id="dialog-files">
+  <h3 class="dialog-title" id="dialog-files-title">{{t:editor.dialog.files_title}}</h3>
+  <div class="file-list" id="dialog-files-body"></div>
+  <div class="dialog-foot"><button class="btn btn-quiet" data-close>{{t:common.close}}</button></div>
+</dialog>
+
+<!-- Окно материала: картинка или файл крупно, тут же правка и замена. -->
+<dialog class="dialog dialog-wide" id="dialog-asset">
+  <h3 class="dialog-title" id="dialog-asset-title">{{t:editor.dialog.asset_title}}</h3>
+  <div class="asset-window" id="dialog-asset-view"></div>
+  <div class="dialog-foot" id="dialog-asset-foot"></div>
+</dialog>
+
+<!-- Настройки холста: всё, что человек включает под себя. -->
+<dialog class="dialog" id="dialog-settings">
+  <h3 class="dialog-title">{{t:editor.settings.canvas_settings}}</h3>
+  <!-- Справка к холсту: пункты переехали сюда из меню «Настройки» (src/left/settings.js). -->
+  <div class="settings-links">
+    <button class="btn btn-quiet btn-small" id="cl-help" type="button">{{t:editor.settings.help}}</button>
+    <button class="btn btn-quiet btn-small" id="cl-docs" type="button">{{t:editor.settings.leader_guide}}</button>
+    <button class="btn btn-quiet btn-small" id="cl-lists" type="button">{{t:editor.settings.lists}}</button>
+  </div>
+  <div class="settings-list" id="dialog-settings-body"></div>
+  <div class="dialog-foot">
+    <button class="btn btn-quiet" id="dialog-settings-reset">{{t:editor.dialog.reset_settings}}</button>
+    <button class="btn btn-accent" data-close>{{t:common.done}}</button>
+  </div>
+</dialog>
+
+<!-- Новая схема: каталог готовых схем и конструктор по опросу (src/shell/newscheme.js). -->
+<dialog class="dialog dialog-wide ns-dialog" id="dialog-newscheme">
+  <div class="ns-top">
+    <h3 class="dialog-title">{{t:editor.dialog.new_scheme}}</h3>
+    <div class="switch ns-tabs">
+      <button class="switch-item" data-ns-tab="catalog" type="button">{{t:editor.dialog.ns_catalog}}</button>
+      <button class="switch-item" data-ns-tab="builder" type="button">{{t:editor.dialog.ns_builder}}</button>
+    </div>
+  </div>
+  <button class="dialog-x" data-close type="button" aria-label="{{t:common.close}}">×</button>
+  <div class="ns-body" id="ns-body"></div>
+</dialog>
+
+<!-- Материалы папки: отметить нужные и прикрепить к блок-схеме. -->
+<dialog class="dialog dialog-wide" id="dialog-pick-asset">
+  <h3 class="dialog-title" id="dialog-pick-asset-title">{{t:editor.dialog.pick_asset_title}}</h3>
+  <div class="switch switch-small pick-scope" id="dialog-pick-asset-scope"></div>
+  <div id="dialog-pick-asset-body"></div>
+  <div class="dialog-foot">
+    <button class="btn btn-quiet" data-close>{{t:common.close}}</button>
+    <button class="btn btn-accent" id="btn-pick-asset">{{t:editor.dialog.pick_asset}}</button>
+  </div>
+</dialog>
+
+<!-- Приветствие: первый заход гостя на пустой холст — с чего начать (shell/welcome.js). -->
+<dialog class="dialog welcome-dialog" id="dialog-welcome">
+  <button class="dialog-x" data-close type="button" aria-label="{{t:common.close}}">×</button>
+  <img class="welcome-art" src="img/welcome.png" alt="" width="768" height="512">
+  <h3 class="dialog-title welcome-title">{{t:editor.welcome.title}}</h3>
+  <p class="welcome-text">{{t:editor.welcome.text}}</p>
+  <div class="welcome-choices">
+    <button class="welcome-choice" id="welcome-blank" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8.5v7M8.5 12h7"/></svg>
+      <b>{{t:editor.welcome.blank}}</b><small>{{t:editor.welcome.blank_hint}}</small>
+    </button>
+    <button class="welcome-choice" id="welcome-catalog" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+      <b>{{t:editor.welcome.catalog}}</b><small>{{t:editor.welcome.catalog_hint}}</small>
+    </button>
+  </div>
+</dialog>
+<!-- «Начать прогон»: ссылки-задания агенту — прогон и рисование — с пояснением, куда их отдать (run/start.js). -->
+<dialog class="dialog" id="dialog-run">
+  <h3 class="dialog-title">{{t:editor.start.title}}</h3>
+  <div id="run-check" class="run-check"></div>
+  <div class="dialog-foot">
+    <button class="btn btn-quiet" data-close>{{t:common.close}}</button>
+  </div>
+</dialog>
+<!-- Обзор папок на сервере: рабочая папка прогона (shell/dirpick.js). -->
+<dialog class="dialog" id="dialog-dir">
+  <h3 class="dialog-title">{{t:editor.dirpick.title}}</h3>
+  <div class="dir-head">
+    <button class="btn btn-quiet" id="dialog-dir-up" title="{{t:editor.dirpick.up}}">↑</button>
+    <span class="dir-path mono" id="dialog-dir-path"></span>
+  </div>
+  <div class="file-list dir-list" id="dialog-dir-list"></div>
+  <div class="dialog-foot">
+    <button class="btn btn-quiet" data-close>{{t:common.cancel}}</button>
+    <button class="btn btn-accent" id="dialog-dir-choose">{{t:editor.dirpick.choose}}</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" hidden></div>

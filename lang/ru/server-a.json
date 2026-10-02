@@ -1,0 +1,7 @@
+{
+  "server.props.start_values": "start — флажок: true или false",
+  "server.timeline.lead": "ведущий",
+  "server.timeline.worker": "worker",
+  "server.timeline.jev": "Jev",
+  "server.timeline.engine": "движок"
+}

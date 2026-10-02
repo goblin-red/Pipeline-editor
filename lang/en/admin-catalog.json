@@ -1,0 +1,10 @@
+{
+ "admin.templates.en_col": "English",
+ "admin.templates.en_full": "done",
+ "admin.templates.en_part": "partial",
+ "admin.templates.lang_hint": "English version: whatever you leave empty is shown in Russian. The section, order and marks are shared — edit them on the first tab (Russian).",
+ "admin.templates.en_body_yes": "The English scheme body exists.",
+ "admin.templates.en_body_no": "There is no English body yet — projects with English agents get the Russian scheme.",
+ "admin.templates.replace_text_lang": "The English scheme body will be replaced with the contents of the folder. The Russian body, passport and marks stay as they are.",
+ "admin.err.bad_lang": "There is no such language"
+}

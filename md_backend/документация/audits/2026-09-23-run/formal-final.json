@@ -1,0 +1,135 @@
+{
+  "ok": true,
+  "run": {
+    "id": 1982,
+    "no": 1,
+    "label": "r1",
+    "folder": 10751,
+    "title": "Аудит: цикл, развилка, слияние",
+    "state": "done",
+    "lead": null,
+    "workDir": "/Applications/XAMPP/xamppfiles/htdocs/goblin/public/workfiles/Аудит_ цикл_ развилка_ слияние",
+    "summary": "пройден: принято шагов 10",
+    "stopAsked": false,
+    "seenAt": null,
+    "startedAt": "2026-09-23 17:35:02.259",
+    "finished": "2026-09-23 17:35:35.097",
+    "rev": 41,
+    "engine": 2,
+    "version": 39,
+    "driver": "utility",
+    "judge": "formal",
+    "jev": "off",
+    "showPause": 0,
+    "waitFor": ""
+  },
+  "open": [],
+  "ready": [],
+  "wakeIn": null,
+  "needsAdvance": false,
+  "now": "2026-09-23 17:35:35.119",
+  "steps": [
+    {
+      "id": 6888,
+      "no": 10,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "старт",
+      "via": null,
+      "chosen": null
+    },
+    {
+      "id": 6889,
+      "no": 11,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "n=0",
+      "via": 16386,
+      "chosen": null
+    },
+    {
+      "id": 6890,
+      "no": 12,
+      "attempt": 1,
+      "state": "returned",
+      "result": "n=99",
+      "via": 16387,
+      "chosen": null
+    },
+    {
+      "id": 6891,
+      "no": 12,
+      "attempt": 2,
+      "state": "accepted",
+      "result": "n=1",
+      "via": 16387,
+      "chosen": null
+    },
+    {
+      "id": 6892,
+      "no": 13,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "ветка ДА",
+      "via": 16388,
+      "chosen": 16389
+    },
+    {
+      "id": 6893,
+      "no": 12,
+      "attempt": 3,
+      "state": "accepted",
+      "result": "n=2",
+      "via": 16389,
+      "chosen": null
+    },
+    {
+      "id": 6894,
+      "no": 13,
+      "attempt": 2,
+      "state": "accepted",
+      "result": "ветка НЕТ",
+      "via": 16388,
+      "chosen": 16390
+    },
+    {
+      "id": 6895,
+      "no": 14,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "n=2",
+      "via": 16390,
+      "chosen": null
+    },
+    {
+      "id": 6896,
+      "no": 15,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "a=12",
+      "via": 16391,
+      "chosen": null
+    },
+    {
+      "id": 6897,
+      "no": 16,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "b=22",
+      "via": 16392,
+      "chosen": null
+    },
+    {
+      "id": 6898,
+      "no": 17,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "c=34",
+      "via": 16393,
+      "chosen": null
+    }
+  ],
+  "lastEvent": 24615,
+  "hasMoreEvents": false,
+  "did": []
+}

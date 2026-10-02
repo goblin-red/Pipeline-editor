@@ -1,0 +1,1497 @@
+{
+    "runs": {
+        "1982": {
+            "run": {
+                "id": 1982,
+                "no": 1,
+                "folder_id": 10751,
+                "state": "done",
+                "engine": 2,
+                "driver": "utility",
+                "judge": "formal",
+                "jev": "off",
+                "started_at": "2026-09-23 17:35:02.259",
+                "finished_at": "2026-09-23 17:35:35.097",
+                "summary": "пройден: принято шагов 10"
+            },
+            "steps": [
+                {
+                    "id": 6888,
+                    "element_no": 10,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "старт",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6889,
+                    "element_no": 11,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "n=0",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (n=0)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (n=0)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"n=0\",\"got\":\"n=0\",\"why\":\"арифметика — да (n=0)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:34.353\",\"submitted\":\"2026-09-23 17:35:34.339\"}"
+                },
+                {
+                    "id": 6890,
+                    "element_no": 12,
+                    "attempt": 1,
+                    "state": "returned",
+                    "result": "n=99",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"return\",\"reasons\":[\"арифметика не сходится с входом\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":false,\"say\":\"арифметика — нет\"}],\"detail\":{\"expr\":{\"status\":\"fail\",\"expected\":\"n=1\",\"got\":\"n=99\",\"why\":\"ожидалось n=1, сдано n=99\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:34.493\",\"submitted\":\"2026-09-23 17:35:34.488\"}"
+                },
+                {
+                    "id": 6891,
+                    "element_no": 12,
+                    "attempt": 2,
+                    "state": "accepted",
+                    "result": "n=1",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (n=1)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (n=1)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"n=1\",\"got\":\"n=1\",\"why\":\"арифметика — да (n=1)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:34.576\",\"submitted\":\"2026-09-23 17:35:34.566\"}"
+                },
+                {
+                    "id": 6892,
+                    "element_no": 13,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "ветка ДА",
+                    "chosen_edge_id": 16389,
+                    "verdict": null
+                },
+                {
+                    "id": 6893,
+                    "element_no": 12,
+                    "attempt": 3,
+                    "state": "accepted",
+                    "result": "n=2",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (n=2)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (n=2)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"n=2\",\"got\":\"n=2\",\"why\":\"арифметика — да (n=2)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:34.665\",\"submitted\":\"2026-09-23 17:35:34.656\"}"
+                },
+                {
+                    "id": 6894,
+                    "element_no": 13,
+                    "attempt": 2,
+                    "state": "accepted",
+                    "result": "ветка НЕТ",
+                    "chosen_edge_id": 16390,
+                    "verdict": null
+                },
+                {
+                    "id": 6895,
+                    "element_no": 14,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "n=2",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (n=2)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (n=2)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"n=2\",\"got\":\"n=2\",\"why\":\"арифметика — да (n=2)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:34.753\",\"submitted\":\"2026-09-23 17:35:34.743\"}"
+                },
+                {
+                    "id": 6896,
+                    "element_no": 15,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "a=12",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (a=12)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (a=12)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"a=12\",\"got\":\"a=12\",\"why\":\"арифметика — да (a=12)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:34.864\",\"submitted\":\"2026-09-23 17:35:34.858\"}"
+                },
+                {
+                    "id": 6897,
+                    "element_no": 16,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "b=22",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (b=22)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (b=22)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"b=22\",\"got\":\"b=22\",\"why\":\"арифметика — да (b=22)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:35.012\",\"submitted\":\"2026-09-23 17:35:35.002\"}"
+                },
+                {
+                    "id": 6898,
+                    "element_no": 17,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "c=34",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (c=34)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (c=34)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"c=34\",\"got\":\"c=34\",\"why\":\"арифметика — да (c=34)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:35:35.089\",\"submitted\":\"2026-09-23 17:35:35.083\"}"
+                }
+            ],
+            "marks": [
+                {
+                    "id": 4361,
+                    "edge_id": 16386,
+                    "from_step_id": 6888,
+                    "taken_by_step_id": 6889,
+                    "pass": 1
+                },
+                {
+                    "id": 4362,
+                    "edge_id": 16387,
+                    "from_step_id": 6889,
+                    "taken_by_step_id": 6891,
+                    "pass": 1
+                },
+                {
+                    "id": 4363,
+                    "edge_id": 16388,
+                    "from_step_id": 6891,
+                    "taken_by_step_id": 6892,
+                    "pass": 1
+                },
+                {
+                    "id": 4364,
+                    "edge_id": 16389,
+                    "from_step_id": 6892,
+                    "taken_by_step_id": 6893,
+                    "pass": 1
+                },
+                {
+                    "id": 4365,
+                    "edge_id": 16388,
+                    "from_step_id": 6893,
+                    "taken_by_step_id": 6894,
+                    "pass": 2
+                },
+                {
+                    "id": 4366,
+                    "edge_id": 16390,
+                    "from_step_id": 6894,
+                    "taken_by_step_id": 6895,
+                    "pass": 1
+                },
+                {
+                    "id": 4367,
+                    "edge_id": 16391,
+                    "from_step_id": 6895,
+                    "taken_by_step_id": 6896,
+                    "pass": 1
+                },
+                {
+                    "id": 4368,
+                    "edge_id": 16392,
+                    "from_step_id": 6895,
+                    "taken_by_step_id": 6897,
+                    "pass": 1
+                },
+                {
+                    "id": 4369,
+                    "edge_id": 16393,
+                    "from_step_id": 6896,
+                    "taken_by_step_id": 6898,
+                    "pass": 1
+                },
+                {
+                    "id": 4370,
+                    "edge_id": 16394,
+                    "from_step_id": 6897,
+                    "taken_by_step_id": 6898,
+                    "pass": 1
+                }
+            ],
+            "events": [
+                {
+                    "id": 24571,
+                    "kind": "start",
+                    "actor": "human",
+                    "element_no": null,
+                    "title": "прогон r1 начат · папка «Аудит: цикл, развилка, слияние» · старт с блока 10",
+                    "took_ms": null,
+                    "meta": "{\"folder\":10751,\"workDir\":\"\\\/Applications\\\/XAMPP\\\/xamppfiles\\\/htdocs\\\/goblin\\\/public\\\/workfiles\\\/Аудит_ цикл_ развилка_ слияние\"}"
+                },
+                {
+                    "id": 24572,
+                    "kind": "accept",
+                    "actor": "script",
+                    "element_no": 10,
+                    "title": "стартер 10 пройден — прогон начат",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24573,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 11,
+                    "title": "выдан шаг 11.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24574,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 11,
+                    "title": "пакет задания · 2,3 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24575,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 11,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24576,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 11,
+                    "title": "сдан 11.1: n=0",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24577,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 11,
+                    "title": "принят 11.1 · арифметика — да (n=0)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24578,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "выдан шаг 12.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24579,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "пакет задания · 2,5 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24580,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24581,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "сдан 12.1: n=99",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24582,
+                    "kind": "return",
+                    "actor": "judge",
+                    "element_no": 12,
+                    "title": "возвращён 12.1: арифметика не сходится с входом",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24583,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "выдан шаг 12.2 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24584,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "пакет задания · 2,6 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24585,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24586,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "сдан 12.2: n=1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24587,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 12,
+                    "title": "принят 12.2 · арифметика — да (n=1)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24588,
+                    "kind": "decide",
+                    "actor": "script",
+                    "element_no": 13,
+                    "title": "ромб 13 → да · n=1: «n < 2» верно",
+                    "took_ms": null,
+                    "meta": "{\"branch\":\"yes\"}"
+                },
+                {
+                    "id": 24589,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "выдан шаг 12.3 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24590,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "пакет задания · 2,7 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24591,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24592,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "сдан 12.3: n=2",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24593,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 12,
+                    "title": "принят 12.3 · арифметика — да (n=2)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24594,
+                    "kind": "decide",
+                    "actor": "script",
+                    "element_no": 13,
+                    "title": "ромб 13 → нет · n=2: «n < 2» неверно",
+                    "took_ms": null,
+                    "meta": "{\"branch\":\"no\"}"
+                },
+                {
+                    "id": 24595,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 14,
+                    "title": "выдан шаг 14.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24596,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 14,
+                    "title": "пакет задания · 2,8 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24597,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 14,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24598,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 14,
+                    "title": "сдан 14.1: n=2",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24599,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 14,
+                    "title": "принят 14.1 · арифметика — да (n=2)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24600,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 15,
+                    "title": "выдан шаг 15.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24601,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 15,
+                    "title": "пакет задания · 2,8 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24602,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 16,
+                    "title": "выдан шаг 16.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24603,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 16,
+                    "title": "пакет задания · 2,8 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24604,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 15,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24605,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 15,
+                    "title": "сдан 15.1: a=12",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24606,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 15,
+                    "title": "принят 15.1 · арифметика — да (a=12)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24607,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 16,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24608,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 16,
+                    "title": "сдан 16.1: b=22",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24609,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 16,
+                    "title": "принят 16.1 · арифметика — да (b=22)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24610,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 17,
+                    "title": "выдан шаг 17.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24611,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 17,
+                    "title": "пакет задания · 3,1 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24612,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 17,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24613,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 17,
+                    "title": "сдан 17.1: c=34",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24614,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 17,
+                    "title": "принят 17.1 · арифметика — да (c=34)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24615,
+                    "kind": "finish",
+                    "actor": "script",
+                    "element_no": null,
+                    "title": "прогон закрыт: дошёл до конца · пройден: принято шагов 10",
+                    "took_ms": null,
+                    "meta": "{\"accepted\":10,\"failed\":false}"
+                }
+            ]
+        },
+        "1983": {
+            "run": {
+                "id": 1983,
+                "no": 2,
+                "folder_id": 10751,
+                "state": "done",
+                "engine": 2,
+                "driver": "lead",
+                "judge": "human",
+                "jev": "judge",
+                "started_at": "2026-09-23 17:35:53.183",
+                "finished_at": "2026-09-23 17:36:19.149",
+                "summary": "пройден: принято шагов 10"
+            },
+            "steps": [
+                {
+                    "id": 6899,
+                    "element_no": 10,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "старт",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6900,
+                    "element_no": 11,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "n=0",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6901,
+                    "element_no": 12,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "n=1",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6902,
+                    "element_no": 13,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "ветка ДА",
+                    "chosen_edge_id": 16389,
+                    "verdict": null
+                },
+                {
+                    "id": 6903,
+                    "element_no": 12,
+                    "attempt": 2,
+                    "state": "accepted",
+                    "result": "n=2",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6904,
+                    "element_no": 13,
+                    "attempt": 2,
+                    "state": "accepted",
+                    "result": "ветка НЕТ",
+                    "chosen_edge_id": 16390,
+                    "verdict": null
+                },
+                {
+                    "id": 6905,
+                    "element_no": 14,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "n=2",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6906,
+                    "element_no": 15,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "a=12",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6907,
+                    "element_no": 16,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "b=22",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                },
+                {
+                    "id": 6908,
+                    "element_no": 17,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "c=34",
+                    "chosen_edge_id": null,
+                    "verdict": null
+                }
+            ],
+            "marks": [
+                {
+                    "id": 4371,
+                    "edge_id": 16386,
+                    "from_step_id": 6899,
+                    "taken_by_step_id": 6900,
+                    "pass": 1
+                },
+                {
+                    "id": 4372,
+                    "edge_id": 16387,
+                    "from_step_id": 6900,
+                    "taken_by_step_id": 6901,
+                    "pass": 1
+                },
+                {
+                    "id": 4373,
+                    "edge_id": 16388,
+                    "from_step_id": 6901,
+                    "taken_by_step_id": 6902,
+                    "pass": 1
+                },
+                {
+                    "id": 4374,
+                    "edge_id": 16389,
+                    "from_step_id": 6902,
+                    "taken_by_step_id": 6903,
+                    "pass": 1
+                },
+                {
+                    "id": 4375,
+                    "edge_id": 16388,
+                    "from_step_id": 6903,
+                    "taken_by_step_id": 6904,
+                    "pass": 2
+                },
+                {
+                    "id": 4376,
+                    "edge_id": 16390,
+                    "from_step_id": 6904,
+                    "taken_by_step_id": 6905,
+                    "pass": 1
+                },
+                {
+                    "id": 4377,
+                    "edge_id": 16391,
+                    "from_step_id": 6905,
+                    "taken_by_step_id": 6906,
+                    "pass": 1
+                },
+                {
+                    "id": 4378,
+                    "edge_id": 16392,
+                    "from_step_id": 6905,
+                    "taken_by_step_id": 6907,
+                    "pass": 1
+                },
+                {
+                    "id": 4379,
+                    "edge_id": 16393,
+                    "from_step_id": 6906,
+                    "taken_by_step_id": 6908,
+                    "pass": 1
+                },
+                {
+                    "id": 4380,
+                    "edge_id": 16394,
+                    "from_step_id": 6907,
+                    "taken_by_step_id": 6908,
+                    "pass": 1
+                }
+            ],
+            "events": [
+                {
+                    "id": 24616,
+                    "kind": "start",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "прогон r2 начат · папка «Аудит: цикл, развилка, слияние» · старт с блока 10",
+                    "took_ms": null,
+                    "meta": "{\"folder\":10751}"
+                },
+                {
+                    "id": 24617,
+                    "kind": "accept",
+                    "actor": "script",
+                    "element_no": 10,
+                    "title": "стартер 10 пройден — прогон начат",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24618,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 11,
+                    "title": "выдан шаг 11.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24619,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ begin  ← ПРОГОН r2 НАЧАТ · папка «Аудит: цикл, развилка, слияние»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24620,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 11,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24621,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 11,
+                    "title": "задание worker · текстом · 535 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24622,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=11 · text=1  ← Блок 11 «Начальное значение» · задание 11.1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24623,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 11,
+                    "title": "ответ 11.1: n=0",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24624,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 11,
+                    "title": "принят 11.1 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24625,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "выдан шаг 12.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24626,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=11 · 11.1: n=0  ← ok: блок 11 принят · задание 11.1 · ответ «11.1: n=0»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24627,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 12,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24628,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "задание worker · текстом · 604 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24629,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=12 · text=1  ← Блок 12 «Увеличить n» · задание 12.1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24630,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "ответ 12.1: n=1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24631,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 12,
+                    "title": "принят 12.1 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24632,
+                    "kind": "jev-ask",
+                    "actor": "judge",
+                    "element_no": 13,
+                    "title": "Jev ← ромб 13",
+                    "took_ms": null,
+                    "meta": "{\"source\":\"engine-jev-branch-v1\",\"status\":\"pending\",\"fingerprint\":\"86035b5561849642cc9a61c8e784674a7c8fd0e41bdfb8c7c46d89f1158de789\",\"nonce\":\"28279546fc2d03d78d3b1ac5\",\"until\":1790174174}"
+                },
+                {
+                    "id": 24633,
+                    "kind": "jev-say",
+                    "actor": "judge",
+                    "element_no": 13,
+                    "title": "Jev → ромб 13: yes",
+                    "took_ms": 842,
+                    "meta": "{\"source\":\"engine-jev-branch-v1\",\"status\":\"done\",\"fingerprint\":\"86035b5561849642cc9a61c8e784674a7c8fd0e41bdfb8c7c46d89f1158de789\",\"verdict\":\"yes\",\"reason\":\"Jev: да 0,98\",\"nonce\":\"28279546fc2d03d78d3b1ac5\",\"resolvesEvent\":24632}"
+                },
+                {
+                    "id": 24634,
+                    "kind": "decide",
+                    "actor": "judge",
+                    "element_no": 13,
+                    "title": "ромб 13 → да · Jev: да 0,98",
+                    "took_ms": null,
+                    "meta": "{\"branch\":\"yes\"}"
+                },
+                {
+                    "id": 24635,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "выдан шаг 12.2 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24636,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=12 · 12.1: n=1  ← ok: блок 12 принят · задание 12.1 · ответ «12.1: n=1»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24637,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=12 · 12.1: n=1  ← повтор: задание 12.1 уже принято с этим ответом — ничего не меняю",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24638,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=12 · 12.1: n=999  ← Ответ на задание 12.1 не принят: сейчас открыто задание 12.2. Это ответ на другой круг — дождись ответа на отк",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24639,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 12,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24640,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 12,
+                    "title": "задание worker · текстом · 589 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24641,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=12 · text=1  ← Блок 12 «Увеличить n» · задание 12.2",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24642,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 12,
+                    "title": "ответ 12.2: n=2",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24643,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 12,
+                    "title": "принят 12.2 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24644,
+                    "kind": "jev-ask",
+                    "actor": "judge",
+                    "element_no": 13,
+                    "title": "Jev ← ромб 13",
+                    "took_ms": null,
+                    "meta": "{\"source\":\"engine-jev-branch-v1\",\"status\":\"pending\",\"fingerprint\":\"fa44a508136ec0b37dadaa716187ae4f20eb31d5f9026d570b2ec3f900980ca9\",\"nonce\":\"15ce68eb057b834deb8859c0\",\"until\":1790174188}"
+                },
+                {
+                    "id": 24645,
+                    "kind": "jev-say",
+                    "actor": "judge",
+                    "element_no": 13,
+                    "title": "Jev → ромб 13: no",
+                    "took_ms": 621,
+                    "meta": "{\"source\":\"engine-jev-branch-v1\",\"status\":\"done\",\"fingerprint\":\"fa44a508136ec0b37dadaa716187ae4f20eb31d5f9026d570b2ec3f900980ca9\",\"verdict\":\"no\",\"reason\":\"Jev: нет 1,00\",\"nonce\":\"15ce68eb057b834deb8859c0\",\"resolvesEvent\":24644}"
+                },
+                {
+                    "id": 24646,
+                    "kind": "decide",
+                    "actor": "judge",
+                    "element_no": 13,
+                    "title": "ромб 13 → нет · Jev: нет 1,00",
+                    "took_ms": null,
+                    "meta": "{\"branch\":\"no\"}"
+                },
+                {
+                    "id": 24647,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 14,
+                    "title": "выдан шаг 14.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24648,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=12 · 12.2: n=2  ← ok: блок 12 принят · задание 12.2 · ответ «12.2: n=2»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24649,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 14,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24650,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 14,
+                    "title": "задание worker · текстом · 582 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24651,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=14 · text=1  ← Блок 14 «Подготовить две ветви» · задание 14.1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24652,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 14,
+                    "title": "ответ 14.1: n=2",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24653,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 14,
+                    "title": "принят 14.1 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24654,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 15,
+                    "title": "выдан шаг 15.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24655,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 16,
+                    "title": "выдан шаг 16.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24656,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=14 · 14.1: n=2  ← ok: блок 14 принят · задание 14.1 · ответ «14.1: n=2»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24657,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 15,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24658,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 15,
+                    "title": "задание worker · текстом · 578 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24659,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=15 · text=1  ← Блок 15 «Левая ветвь» · задание 15.1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24660,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 15,
+                    "title": "ответ 15.1: a=12",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24661,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 15,
+                    "title": "принят 15.1 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24662,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=15 · 15.1: a=12  ← ok: блок 15 принят · задание 15.1 · ответ «15.1: a=12»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24663,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 16,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24664,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 16,
+                    "title": "задание worker · текстом · 580 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24665,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=16 · text=1  ← Блок 16 «Правая ветвь» · задание 16.1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24666,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 16,
+                    "title": "ответ 16.1: b=22",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24667,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 16,
+                    "title": "принят 16.1 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24668,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 17,
+                    "title": "выдан шаг 17.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24669,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=16 · 16.1: b=22  ← ok: блок 16 принят · задание 16.1 · ответ «16.1: b=22»",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24670,
+                    "kind": "task",
+                    "actor": "lead",
+                    "element_no": 17,
+                    "title": "задание отдано worker",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24671,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 17,
+                    "title": "задание worker · текстом · 652 Б",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24672,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ task · block=17 · text=1  ← Блок 17 «Сумма ветвей» · задание 17.1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24673,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 17,
+                    "title": "ответ 17.1: c=34",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24674,
+                    "kind": "accept",
+                    "actor": "lead",
+                    "element_no": 17,
+                    "title": "принят 17.1 · принято leader",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24675,
+                    "kind": "finish",
+                    "actor": "script",
+                    "element_no": null,
+                    "title": "прогон закрыт: дошёл до конца · пройден: принято шагов 10",
+                    "took_ms": null,
+                    "meta": "{\"accepted\":10,\"failed\":false}"
+                },
+                {
+                    "id": 24676,
+                    "kind": "message",
+                    "actor": "lead",
+                    "element_no": null,
+                    "title": "→ done · block=17 · 17.1: c=34  ← ok: блок 17 принят · задание 17.1 · ответ «17.1: c=34»",
+                    "took_ms": null,
+                    "meta": null
+                }
+            ]
+        },
+        "1984": {
+            "run": {
+                "id": 1984,
+                "no": 3,
+                "folder_id": 10752,
+                "state": "done",
+                "engine": 2,
+                "driver": "utility",
+                "judge": "formal",
+                "jev": "off",
+                "started_at": "2026-09-23 17:37:20.765",
+                "finished_at": "2026-09-23 17:37:20.945",
+                "summary": "пройден: принято шагов 2"
+            },
+            "steps": [
+                {
+                    "id": 6909,
+                    "element_no": 27,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "x=1",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (x=1)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (x=1)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"x=1\",\"got\":\"x=1\",\"why\":\"арифметика — да (x=1)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:37:20.873\",\"submitted\":\"2026-09-23 17:37:20.863\"}"
+                },
+                {
+                    "id": 6910,
+                    "element_no": 28,
+                    "attempt": 1,
+                    "state": "accepted",
+                    "result": "x=1",
+                    "chosen_edge_id": null,
+                    "verdict": "{\"verdict\":\"accept\",\"reasons\":[\"арифметика — да (x=1)\"],\"checks\":[{\"name\":\"арифметика\",\"ok\":true,\"say\":\"арифметика — да (x=1)\"}],\"detail\":{\"expr\":{\"status\":\"ok\",\"expected\":\"x=1\",\"got\":\"x=1\",\"why\":\"арифметика — да (x=1)\"}},\"by\":\"formal\",\"at\":\"2026-09-23 17:37:20.937\",\"submitted\":\"2026-09-23 17:37:20.928\"}"
+                }
+            ],
+            "marks": [],
+            "events": [
+                {
+                    "id": 24677,
+                    "kind": "start",
+                    "actor": "human",
+                    "element_no": null,
+                    "title": "прогон r3 начат · папка «Аудит: выбор стартового блока» · старт с блока 27",
+                    "took_ms": null,
+                    "meta": "{\"folder\":10752,\"workDir\":\"\\\/Applications\\\/XAMPP\\\/xamppfiles\\\/htdocs\\\/goblin\\\/public\\\/workfiles\\\/Аудит_ выбор стартового блока\"}"
+                },
+                {
+                    "id": 24678,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 27,
+                    "title": "выдан шаг 27.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24679,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 27,
+                    "title": "пакет задания · 2,1 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24680,
+                    "kind": "open",
+                    "actor": "script",
+                    "element_no": 28,
+                    "title": "выдан шаг 28.1 · агент Аудит — исполнитель в текущем терминале",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24681,
+                    "kind": "package",
+                    "actor": "script",
+                    "element_no": 28,
+                    "title": "пакет задания · 2,1 КБ",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24682,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 27,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24683,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 27,
+                    "title": "сдан 27.1: x=1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24684,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 27,
+                    "title": "принят 27.1 · арифметика — да (x=1)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24685,
+                    "kind": "task",
+                    "actor": "worker",
+                    "element_no": 28,
+                    "title": "worker взял задание",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24686,
+                    "kind": "submit",
+                    "actor": "worker",
+                    "element_no": 28,
+                    "title": "сдан 28.1: x=1",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24687,
+                    "kind": "accept",
+                    "actor": "judge",
+                    "element_no": 28,
+                    "title": "принят 28.1 · арифметика — да (x=1)",
+                    "took_ms": null,
+                    "meta": null
+                },
+                {
+                    "id": 24688,
+                    "kind": "finish",
+                    "actor": "script",
+                    "element_no": null,
+                    "title": "прогон закрыт: дошёл до конца · пройден: принято шагов 2",
+                    "took_ms": null,
+                    "meta": "{\"accepted\":2,\"failed\":false}"
+                }
+            ]
+        }
+    },
+    "schema": {
+        "runs": {
+            "Table": "runs",
+            "Create Table": "CREATE TABLE `runs` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `project_id` bigint(20) unsigned NOT NULL,\n  `folder_id` bigint(20) unsigned NOT NULL,\n  `no` int(10) unsigned NOT NULL,\n  `title` varchar(255) NOT NULL DEFAULT '',\n  `state` enum('running','paused','stopped','done','failed') NOT NULL DEFAULT 'running',\n  `lead_agent_id` bigint(20) unsigned DEFAULT NULL,\n  `started_by` bigint(20) unsigned DEFAULT NULL,\n  `work_dir` varchar(1024) NOT NULL DEFAULT '',\n  `work_url` varchar(1024) NOT NULL DEFAULT '',\n  `summary` varchar(500) NOT NULL DEFAULT '',\n  `tokens_in` bigint(20) unsigned DEFAULT NULL,\n  `tokens_out` bigint(20) unsigned DEFAULT NULL,\n  `stop_at` datetime(3) DEFAULT NULL,\n  `seen_at` datetime(3) DEFAULT NULL,\n  `started_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),\n  `finished_at` datetime(3) DEFAULT NULL,\n  `rev` bigint(20) unsigned NOT NULL DEFAULT 0,\n  `engine` tinyint(3) unsigned NOT NULL DEFAULT 1,\n  `driver` enum('manual','utility','lead') NOT NULL DEFAULT 'manual',\n  `judge` enum('human','formal') NOT NULL DEFAULT 'human',\n  `jev` enum('off','advisor','judge') NOT NULL DEFAULT 'off',\n  `version` bigint(20) unsigned NOT NULL DEFAULT 0,\n  `show_pause` decimal(4,1) NOT NULL DEFAULT 0.0,\n  `next_move_at` datetime(3) DEFAULT NULL,\n  `wait_for` varchar(255) NOT NULL DEFAULT '',\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `uq_runs_no` (`project_id`,`no`),\n  KEY `ix_runs_folder` (`folder_id`,`started_at`),\n  KEY `ix_runs_rev` (`project_id`,`rev`),\n  KEY `fk_runs_lead` (`lead_agent_id`),\n  KEY `fk_runs_user` (`started_by`),\n  CONSTRAINT `fk_runs_folder` FOREIGN KEY (`folder_id`) REFERENCES `folders` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_runs_lead` FOREIGN KEY (`lead_agent_id`) REFERENCES `agents` (`id`) ON DELETE SET NULL,\n  CONSTRAINT `fk_runs_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_runs_user` FOREIGN KEY (`started_by`) REFERENCES `users` (`id`) ON DELETE SET NULL\n) ENGINE=InnoDB AUTO_INCREMENT=1985 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        },
+        "run_steps": {
+            "Table": "run_steps",
+            "Create Table": "CREATE TABLE `run_steps` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `project_id` bigint(20) unsigned NOT NULL,\n  `run_id` bigint(20) unsigned NOT NULL,\n  `element_id` bigint(20) unsigned DEFAULT NULL,\n  `element_no` int(10) unsigned NOT NULL,\n  `element_title` varchar(512) NOT NULL DEFAULT '',\n  `attempt` smallint(5) unsigned NOT NULL DEFAULT 1,\n  `state` enum('issued','running','submitted','accepted','returned','failed','cancelled') NOT NULL DEFAULT 'issued',\n  `via_edge_id` bigint(20) unsigned DEFAULT NULL,\n  `chosen_edge_id` bigint(20) unsigned DEFAULT NULL,\n  `agent_id` bigint(20) unsigned DEFAULT NULL,\n  `spec_hash` char(64) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,\n  `note` varchar(500) NOT NULL DEFAULT '',\n  `result` text DEFAULT NULL,\n  `error` text DEFAULT NULL,\n  `ran_on` varchar(120) NOT NULL DEFAULT '',\n  `session` varchar(120) NOT NULL DEFAULT '',\n  `tokens_in` bigint(20) unsigned DEFAULT NULL,\n  `tokens_out` bigint(20) unsigned DEFAULT NULL,\n  `tokens_shared` bigint(20) unsigned DEFAULT NULL,\n  `notes` longtext DEFAULT NULL CHECK (`notes` is null or json_valid(`notes`)),\n  `opened_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),\n  `started_at` datetime(3) DEFAULT NULL,\n  `submitted_at` datetime(3) DEFAULT NULL,\n  `finished_at` datetime(3) DEFAULT NULL,\n  `rev` bigint(20) unsigned NOT NULL DEFAULT 0,\n  `vars` longtext DEFAULT NULL,\n  `verdict` longtext DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `uq_steps_attempt` (`run_id`,`element_no`,`attempt`),\n  KEY `ix_steps_rev` (`project_id`,`rev`),\n  KEY `ix_steps_element` (`element_id`),\n  KEY `ix_steps_agent` (`agent_id`),\n  KEY `ix_steps_state` (`run_id`,`state`),\n  KEY `fk_steps_via` (`via_edge_id`),\n  KEY `fk_steps_chosen` (`chosen_edge_id`),\n  CONSTRAINT `fk_steps_agent` FOREIGN KEY (`agent_id`) REFERENCES `agents` (`id`) ON DELETE SET NULL,\n  CONSTRAINT `fk_steps_chosen` FOREIGN KEY (`chosen_edge_id`) REFERENCES `elements` (`id`) ON DELETE SET NULL,\n  CONSTRAINT `fk_steps_element` FOREIGN KEY (`element_id`) REFERENCES `elements` (`id`) ON DELETE SET NULL,\n  CONSTRAINT `fk_steps_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_steps_run` FOREIGN KEY (`run_id`) REFERENCES `runs` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_steps_via` FOREIGN KEY (`via_edge_id`) REFERENCES `elements` (`id`) ON DELETE SET NULL\n) ENGINE=InnoDB AUTO_INCREMENT=6911 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        },
+        "run_marks": {
+            "Table": "run_marks",
+            "Create Table": "CREATE TABLE `run_marks` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `project_id` bigint(20) unsigned NOT NULL,\n  `run_id` bigint(20) unsigned NOT NULL,\n  `edge_id` bigint(20) unsigned NOT NULL,\n  `from_step_id` bigint(20) unsigned NOT NULL,\n  `pass` int(10) unsigned NOT NULL DEFAULT 1,\n  `taken_by_step_id` bigint(20) unsigned DEFAULT NULL,\n  `taken_at` datetime(3) DEFAULT NULL,\n  `created_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `uq_marks_once` (`run_id`,`edge_id`,`from_step_id`),\n  KEY `ix_marks_free` (`run_id`,`taken_by_step_id`),\n  KEY `ix_marks_project` (`project_id`),\n  KEY `fk_marks_edge` (`edge_id`),\n  KEY `fk_marks_from` (`from_step_id`),\n  KEY `fk_marks_by` (`taken_by_step_id`),\n  CONSTRAINT `fk_marks_by` FOREIGN KEY (`taken_by_step_id`) REFERENCES `run_steps` (`id`) ON DELETE SET NULL,\n  CONSTRAINT `fk_marks_edge` FOREIGN KEY (`edge_id`) REFERENCES `elements` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_marks_from` FOREIGN KEY (`from_step_id`) REFERENCES `run_steps` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_marks_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_marks_run` FOREIGN KEY (`run_id`) REFERENCES `runs` (`id`) ON DELETE CASCADE\n) ENGINE=InnoDB AUTO_INCREMENT=4381 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+        },
+        "run_events": {
+            "Table": "run_events",
+            "Create Table": "CREATE TABLE `run_events` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `project_id` bigint(20) unsigned NOT NULL,\n  `run_id` bigint(20) unsigned NOT NULL,\n  `step_id` bigint(20) unsigned DEFAULT NULL,\n  `element_no` int(10) unsigned DEFAULT NULL,\n  `attempt` smallint(5) unsigned DEFAULT NULL,\n  `at` datetime(3) NOT NULL DEFAULT current_timestamp(3),\n  `kind` varchar(24) NOT NULL,\n  `actor` enum('lead','worker','human','script','judge') NOT NULL DEFAULT 'script',\n  `agent_id` bigint(20) unsigned DEFAULT NULL,\n  `title` varchar(255) NOT NULL DEFAULT '',\n  `body` longtext DEFAULT NULL,\n  `meta` longtext DEFAULT NULL,\n  `took_ms` int(10) unsigned DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_events_run` (`run_id`,`id`),\n  KEY `idx_events_step` (`step_id`),\n  KEY `idx_events_kind` (`run_id`,`kind`)\n) ENGINE=InnoDB AUTO_INCREMENT=24689 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        },
+        "run_jobs": {
+            "Table": "run_jobs",
+            "Create Table": "CREATE TABLE `run_jobs` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `project_id` bigint(20) unsigned NOT NULL,\n  `run_id` bigint(20) unsigned NOT NULL,\n  `step_id` bigint(20) unsigned NOT NULL,\n  `ref` varchar(32) NOT NULL,\n  `provider` varchar(64) NOT NULL DEFAULT '',\n  `tool` varchar(64) NOT NULL DEFAULT '',\n  `model` varchar(64) NOT NULL DEFAULT '',\n  `request` longtext DEFAULT NULL CHECK (`request` is null or json_valid(`request`)),\n  `job_id` varchar(128) NOT NULL DEFAULT '',\n  `state` enum('sent','done','failed','rejected') NOT NULL DEFAULT 'sent',\n  `response_asset_id` bigint(20) unsigned DEFAULT NULL,\n  `paid` tinyint(1) NOT NULL DEFAULT 1,\n  `error` varchar(500) NOT NULL DEFAULT '',\n  `created_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),\n  `updated_at` datetime(3) NOT NULL DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `uq_jobs_ref` (`step_id`,`ref`),\n  KEY `ix_jobs_job` (`run_id`,`job_id`),\n  KEY `fk_jobs_project` (`project_id`),\n  KEY `fk_jobs_response` (`response_asset_id`),\n  CONSTRAINT `fk_jobs_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_jobs_response` FOREIGN KEY (`response_asset_id`) REFERENCES `assets` (`id`) ON DELETE SET NULL,\n  CONSTRAINT `fk_jobs_run` FOREIGN KEY (`run_id`) REFERENCES `runs` (`id`) ON DELETE CASCADE,\n  CONSTRAINT `fk_jobs_step` FOREIGN KEY (`step_id`) REFERENCES `run_steps` (`id`) ON DELETE CASCADE\n) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        }
+    }
+}

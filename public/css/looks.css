@@ -1,0 +1,127 @@
+/* Виды карточки: рабочий, классика, дизайнер, разработчик, leader, показ, минимальный.
+   Разметка одна (css/elements.css), меняется только подача.
+
+   Классика повторяет прежний Гоблин: заголовок капсом на цветной шапке,
+   картинка секцией, номер и MD справа, скины и статусы поверх цвета. */
+
+/* ── Классика ───────────────────────────────────────────────── */
+/* В «Классике» рамка карточки — тонкая и приглушённая: карточки и так стоят
+   на тёмном фоне, а жирная обводка превращала схему в решётку. Выделение,
+   наведение и полоса состояния шага остаются заметными — у них свои правила. */
+body[data-look="classic"] .node-card{border-radius:10px;border-width:1px;
+  border-color:color-mix(in srgb,var(--card-edge,var(--line)) 45%,transparent)}
+body[data-look="classic"] .node.block[data-step] .node-card{border-left-width:5px}
+body[data-look="classic"] .node-inner{padding:0;gap:0}
+/* Шапка с названием — повыше: в неё часто пишут в две строки, и раньше
+   текст упирался в края. */
+body[data-look="classic"] .node-title{
+  text-transform:uppercase;letter-spacing:.03em;font:700 14px/1.3 var(--sans);
+  display:flex;align-items:center;min-height:52px;padding:12px 14px;
+  background:color-mix(in srgb,var(--card-edge,var(--line)) 20%,var(--surface));
+  border-bottom:1px solid color-mix(in srgb,var(--card-edge,var(--line)) 45%,transparent)}
+body[data-look="classic"] .node-desc{flex:0 0 auto;padding:8px 14px;font-size:13px;color:var(--ink);max-height:38%}
+body[data-look="classic"] .node-image-section{width:100%;margin:0;height:auto;flex:1 1 auto;min-height:60px;max-height:none;object-fit:cover}
+/* В «Классике» картинка тоже фон карточки: полосы названия и описания лежат
+   поверх неё, а описание — по нижнему краю. */
+body[data-look="classic"] .node.has-image .node-image-section{position:absolute;inset:0;height:100%}
+body[data-look="classic"] .node.has-image .node-desc{margin-top:auto}
+body[data-look="classic"] .node-badges,
+body[data-look="classic"] .node-data{padding:0 14px 8px}
+body[data-look="classic"] .node-result{margin:0 14px 10px}
+body[data-look="classic"] .node-review{margin:0 14px 8px}
+body[data-look="classic"] .node-brick{margin:auto 0 10px 14px}
+body[data-look="classic"] .node-seq-badge{background:var(--surface-2);font-weight:700}
+body[data-look="classic"] .arrow-label{font-family:var(--mono);letter-spacing:.02em;
+  font-size:var(--label-size,11px)}
+body[data-look="classic"] .node.has-image .node-title{background:rgb(38,41,48);color:#fff}
+body[data-look="classic"] .node.has-image .node-desc{background:rgba(38,41,48,.7);color:#fff}
+/* У ромба и области плашки заголовка нет ни в одном виде — даже с картинкой. */
+body[data-look="classic"] .node.decision .node-title{background:none;border-bottom:none;padding:6px 0 0}
+/* Подпись области. */
+body[data-look="classic"] .node.area .node-title{background:none;border-bottom:none;
+  padding:0 18px;font:400 34px/1.1 var(--sans)}
+/* Подпись сверху или снизу — с тем же отступом от края, что и без скина (css/elements.css). */
+body[data-look="classic"] .node.area[data-valign="top"] .node-title{padding-top:18px}
+body[data-look="classic"] .node.area[data-valign="bottom"] .node-title{padding-bottom:18px}
+
+/* Скины прежнего Гоблина: они одевают карточку, но не спорят со статусом. */
+.node.skin-card .node-card::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;
+  background:var(--accent);opacity:.9;z-index:2}
+.node.skin-card .node-inner{padding-left:18px}
+.node.skin-accent .node-card{border-color:var(--accent);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent),var(--shadow-2)}
+.node.skin-accent .node-title{color:var(--accent)}
+.node.skin-service .node-card{box-shadow:var(--shadow-2)}
+.node.skin-outline .node-card{background:transparent}
+.node.skin-basic .node-card{box-shadow:none}
+
+/* ── Дизайнер: картинка главная ─────────────────────────────── */
+body[data-look="design"] .node-card{border-radius:16px;border-width:1px}
+body[data-look="design"] .node-inner{padding:0}
+body[data-look="design"] .node-image-section{width:100%;margin:0;height:auto;flex:1;max-height:none}
+body[data-look="design"] .node-title{position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:24px 14px 10px;color:#fff;font-size:15px;
+  background:linear-gradient(transparent,rgba(0,0,0,.75));text-shadow:0 1px 3px rgba(0,0,0,.6)}
+body[data-look="design"] .node:not(.has-image) .node-title{position:static;background:none;
+  color:var(--ink);text-shadow:none;padding:12px 14px}
+body[data-look="design"] .node-seq-badge{background:rgba(0,0,0,.5);border-color:transparent;color:#fff}
+
+/* ── Разработчик: плотно и по делу ──────────────────────────── */
+body[data-look="dev"] .node-card{border-radius:4px;border-width:1px;box-shadow:none}
+body[data-look="dev"] .node-inner{padding:7px 9px;gap:3px}
+body[data-look="dev"] .node-title{font:600 13px/1.25 var(--mono)}
+body[data-look="dev"] .node-desc{font:12px/1.4 var(--mono)}
+body[data-look="dev"] .node-badges span{font-size:10px;padding:0 5px}
+body[data-look="dev"] .node-seq-badge,body[data-look="dev"] .node-md-badge{height:18px;min-width:24px;font-size:9px}
+body[data-look="dev"] .arrow-label{font-family:var(--mono);
+  font-size:calc(var(--label-size,11px) * .9)}
+
+/* ── Формы прежнего Гоблина ─────────────────────────────────── */
+.node.shape-circle .node-card,.node.shape-oval .node-card{border-radius:50%/40%}
+.node.shape-rect .node-card{border-radius:2px}
+.node.shape-rounded .node-card{border-radius:var(--r-md)}
+.node.shape-hex .node-card{clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%)}
+
+/* leader: на карточке важно одно — кто делает и где мы стоим. */
+body[data-look="lead"] .node-card{border-width:2px}
+body[data-look="lead"] .node-title{font-size:15px}
+body[data-look="lead"] .node-brick{font-size:11px;background:var(--surface);border-color:var(--ink-faint)}
+body[data-look="lead"] .node.block[data-step] .node-card{border-left-width:7px}
+body[data-look="lead"] .node[data-step="none"]{opacity:.45}
+body[data-look="lead"] .node-step{font-size:12px;padding:3px 10px;font-weight:600}
+body[data-look="lead"] .arrow{stroke-width:2.4}
+
+/* Показ: крупно и чисто — для снимков и проектора. */
+body[data-look="show"] .node-title{font-size:20px;line-height:1.2;font-weight:700}
+body[data-look="show"] .node-card{border-width:3px;box-shadow:var(--shadow-2)}
+body[data-look="show"] .node-inner{padding:16px 18px;justify-content:center}
+body[data-look="show"] .node-image-section{max-height:60%}
+body[data-look="show"] .arrow{stroke-width:3}
+body[data-look="show"] .arrow-label{font-weight:700}
+body[data-look="show"] .node-fold,body[data-look="show"] .node-count{opacity:.35}
+
+/* ── Минимальный и Мобильный: рамка, название и стрелки ─────────
+   Номер, значки, исполнитель, ответ, бирки ярлыков — вторичное, их нет.
+   Минимальный — для компьютера (точки для стрелок и уголок размера — как везде),
+   мобильное сверх этого — в css/mobile.css. */
+body:is([data-look="minimal"],[data-look="mobile"]) .el :is(.node-marks,.node-seq-badge,.node-brick,
+  .node-agent,.node-result,.node-review,.node-data,.node-badges,.node-count){display:none!important}
+body:is([data-look="minimal"],[data-look="mobile"]) .link-stubs{display:none!important}
+/* Подписи стрелок («ДА», «НЕТ», «×N») — крупнее: 15 точек вместо 11. */
+body:is([data-look="minimal"],[data-look="mobile"]) :is(.arrow-label,.arrow-pass){font-size:calc(var(--label-size,11px) * 1.35);font-weight:700}
+/* Прогон: у карточки красится вся рамка цветом состояния (--run, css/run.css),
+   а не полоска слева; отменённый — пунктиром. Шлюз и ромб — своей формой. */
+body:is([data-look="minimal"],[data-look="mobile"]) .node.block:not(.starter)[data-step]:not([data-step="none"]) .node-card{
+  border:3px solid var(--run)}
+body:is([data-look="minimal"],[data-look="mobile"]) .node.block:not(.starter)[data-step="cancelled"]:not([data-step="none"]) .node-card{border-style:dashed}
+/* Название — всё, что есть на карточке: крупно и по центру. */
+body:is([data-look="minimal"],[data-look="mobile"]) .node:is(.block,.gateway,.note):not(.starter) .node-inner{justify-content:center;align-items:center;text-align:center}
+body:is([data-look="minimal"],[data-look="mobile"]) .node:is(.block,.decision,.gateway,.note) .node-title{font-size:19px;line-height:1.25}
+/* У ромба описания нет — название в самом центре фигуры, а не у верхнего среза;
+   поля по бокам шире, чтобы длинное название не наезжало на ярлыки «ДА» и «НЕТ». */
+body:is([data-look="minimal"],[data-look="mobile"]) .node.decision .node-title{top:50%;transform:translateY(-50%);
+  left:52px;right:52px;width:auto;padding-left:0;padding-right:0;max-height:70%;overflow:hidden}
+
+/* Место под кнопку сворачивания на плашке группы во всех оформлениях. */
+body[data-look] .node.group .node-title{padding-right:44px;min-height:30px}
+body[data-look="design"] .node.group:not(.has-image) .node-title{position:relative}

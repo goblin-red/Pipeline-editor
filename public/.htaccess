@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteRule ^run-comparison\.html$ /goblin/documentation-file.php?file=run-comparison.html [R=302,L]
+RewriteRule ^run-improvements\.html$ /goblin/documentation-file.php?file=run-improvements.html [R=302,L]
+AddDefaultCharset utf-8
+AddType text/markdown .md
+php_value upload_max_filesize 100M
+php_value post_max_size 105M
+
+# Каталог без индексного файла не должен показывать список файлов.
+Options -Indexes
+
+# Служебные точечные файлы (.DS_Store и прочие) наружу не отдаём.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

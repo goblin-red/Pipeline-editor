@@ -1,0 +1,151 @@
+/* Левая плашка вкладками («Классика», «Студия»): плитки папок, инструменты
+   значками. Включается атрибутом #rail[data-layout="tabs"] (left/left.js),
+   тот же атрибут на body — для шапки и панели. */
+
+/* Между блоками — тот же шаг, что внутри: «Инструменты» и «Цвет» — одна вкладка. */
+.rail[data-layout="tabs"]{display:flex;flex-direction:column;padding:8px 8px 14px;gap:6px}
+.rail[data-layout="tabs"] .rail-title{display:none}
+.rail[data-layout="tabs"] .rail-block{display:flex;flex-direction:column;gap:6px;margin:0}
+.rail[data-layout="tabs"] :is(.left-tiles,.left-grid){display:flex;flex-direction:column;gap:6px}
+
+.railbar-tabs{display:flex;gap:4px;justify-content:center;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.menu-title{font-size:var(--f-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-top:6px}
+/* Строка меню: значок в своей колонке, подпись одной строкой. Плашка шире —
+   подписи перестали ломаться пополам. */
+.menu-item{display:flex;align-items:center;gap:10px;padding:7px 9px;border:none;border-radius:var(--r-sm);
+  background:none;color:var(--ink);cursor:pointer;text-align:left;font-size:var(--f-sm);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.menu-item > span:first-child{flex:0 0 18px;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--ink-faint);font-size:13px;line-height:1}
+.menu-item > span:first-child svg{width:17px;height:17px}
+.menu-item:hover{background:var(--surface-2)}
+.menu-item:hover > span:first-child{color:var(--ink-dim)}
+.menu-title{margin-top:10px}
+
+/* Папки плитками — как было. */
+.folder-tiles{display:flex;flex-direction:column;gap:6px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;
+  border:1px solid transparent;border-radius:var(--r-md);background:transparent;cursor:pointer;color:var(--ink)}
+.tile > span{font-size:20px;line-height:1}
+.tile small{font-size:var(--f-xs);color:var(--ink-dim);text-align:center;line-height:1.25;word-break:break-word}
+.tile:hover{background:var(--surface-2)}
+.tile.on{background:var(--surface-2);border-color:var(--accent)}
+.tile.on small{color:var(--ink)}
+.tile-new{border-style:dashed;border-color:var(--line)}
+/* Проект — уровень выше папки, поэтому и цвет другой: холоднее и заметнее,
+   чтобы список проектов не путался со списком папок. */
+.tile-project > span{color:var(--info)}
+.tile-project.on{border-color:var(--info)}
+.tile-project:hover > span{color:var(--info)}
+/* Выбранный щелчком (его свойства в панели) — фоном, открытый — рамкой. */
+.tile-project.picked{background:var(--surface-2)}
+.tile-project.picked small{color:var(--ink)}
+/* Выход к проектам стоит первым в списке папок — как «наверх» в проводнике. */
+.tile-up{flex-direction:row;justify-content:center;gap:8px;padding:7px 6px;
+  border-style:dashed;color:var(--info)}
+.tile-up span::before{content:"↑";font-size:14px;line-height:1}
+.tile-up small{color:var(--info)}
+/* Шапка списка: слева выход к проектам, справа порядок — одной строкой,
+   между ними черта, чтобы это читалось как две разные вещи. */
+.rail-head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.rail-head .tile-up{flex:1;margin:0}
+/* Надпись «Проекты» над списком проектов: та же плашка, но не кнопка.
+   Размер и место — как у «↑ Проекты» над папками; стрелка прячется, но место
+   держит, поэтому надпись не сдвигается при переходе проекты ⇄ папки. */
+.tile-here{cursor:default}
+.tile-here:hover{background:transparent}
+.tile-here > span{visibility:hidden}
+.tile-here small{color:var(--ink-faint)}
+.rail-head-sep{flex:none;width:1px;height:20px;background:var(--line)}
+
+/* Порядок списка — двумя значками: выбранный горит акцентом. */
+.tile-sort{display:flex;justify-content:center;gap:4px;margin-bottom:2px}
+.rail-head .tile-sort{margin:0}
+/* Значки порядка — того же вида, что значки шапки и вкладок панели:
+   без своей подложки, выбранный — подложка и акцентная рамка. */
+.tile-sort-btn{width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+  padding:0;border:1px solid transparent;border-radius:var(--r-sm);
+  background:none;color:var(--ink-dim);cursor:pointer;line-height:1}
+.tile-sort-btn:hover{background:var(--surface-2);color:var(--ink)}
+.tile-sort-btn.on{background:var(--surface-2);border-color:var(--accent);color:var(--ink)}
+.tile-sort-btn svg{display:block;width:18px;height:18px}
+/* Сколько папок в проекте — в скобках сразу за названием. */
+.tile-count{color:var(--ink-faint);white-space:nowrap}
+.rail-tab-projects.on{color:var(--info)}
+
+/* Инструменты сеткой значков. */
+.tool-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.tool-icon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:58px;padding:8px 4px;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);cursor:pointer;color:var(--ink)}
+.tool-icon b{font-size:16px;line-height:1}
+.tool-icon small{font-size:10px;color:var(--ink-dim)}
+.tool-icon:hover{border-color:var(--ink-faint)}
+.tool-icon.on{border-color:var(--accent)}
+
+/* Изометрия: холст ложится на бок, текст на карточках остаётся прямым. */
+body.iso .canvas{transform-origin:0 0}
+body.iso .node-card{box-shadow:0 14px 26px rgba(0,0,0,.45)}
+body.iso .node-inner{transform:none}
+.tile > span svg{display:block;margin:0 auto}
+.tile.on > span{color:var(--accent)}
+
+/* Правая панель в классике: вкладки значками сверху, как было. */
+/* Вкладки панели есть во всех видах и скинах: прогон, материалы, проекты и
+   помощник нужны и на «Списке», и на «Прогоне», а не только на холсте. */
+.panel-tabs{display:flex;gap:4px;justify-content:center;
+  padding:8px;border-bottom:1px solid var(--line);background:var(--surface)}
+/* Вкладки панели — тот же набор значков, что и в шапке. */
+.panel-tabs .icon-btn svg{width:18px;height:18px;display:block}
+.panel-tabs .icon-btn{width:38px;height:30px;border:1px solid transparent;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:var(--r-sm);background:transparent;color:var(--ink-dim);cursor:pointer;font-size:14px}
+.panel-tabs .icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.panel-tabs .icon-btn.on{background:var(--surface-2);border-color:var(--accent);color:var(--ink)}
+body[data-left="tabs"] .panel{order:3}
+body[data-left="tabs"] .panel-head{background:var(--surface-2)}
+
+/* Шапка в классике: кнопки значками, без слов. */
+body[data-left="tabs"] .topbar .btn{font-size:13px}
+body[data-left="tabs"] #btn-run{padding:0 12px}
+
+
+/* Вкладки левой плашки переехали в шапку: там они стоят в строку и видны
+   всегда, даже когда сама плашка убрана с экрана. Вид — как у прочих значков
+   шапки: правила плашки сюда не достают. */
+.topbar-left .railbar-tabs{display:flex;gap:4px;padding:0;border:none;background:none}
+body:not([data-left="tabs"]) .topbar-left .railbar-tabs{display:none}
+.topbar-left .icon-btn{width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+  padding:0;border:1px solid transparent;border-radius:var(--r-sm);
+  background:none;color:var(--ink-dim);cursor:pointer;font-size:14px;line-height:1}
+.topbar-left .icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.topbar-left .icon-btn[disabled]{opacity:.35;cursor:default;background:none}
+.topbar-left .icon-btn.on{background:var(--surface-2);border-color:var(--accent);color:var(--ink)}
+.topbar-left .icon-btn svg{display:block;width:18px;height:18px}
+
+/* Логотип в самом низу плашки: маленький, приглушённый и молчаливый —
+   это подпись, а не кнопка. */
+.rail-logo{display:block;width:64px;height:auto;margin:48px auto 14px;pointer-events:none}
+/* Выпуск системы под логотипом (файл VERSION). */
+.rail-version{margin:-6px 0 14px;text-align:center;font-size:11px;letter-spacing:.04em;color:var(--ink-faint)}
+
+/* «Классика»: плашка на четверть уже (220 → 165) — плитки и значки поджаты под неё.
+   --rail-now пересчитываем здесь же: правило скина сильнее общего body.rail-off. */
+body[data-look="classic"]{--rail-w:165px;--rail-now:var(--rail-w)}
+body[data-look="classic"].rail-off{--rail-now:0px}
+body[data-look="classic"] .rail[data-layout="tabs"]{padding:6px 6px 12px;gap:5px}
+body[data-look="classic"] .tile{padding:7px 4px;gap:3px}
+body[data-look="classic"] .tile > span{font-size:17px}
+body[data-look="classic"] .tool-grid{gap:4px}
+body[data-look="classic"] .tool-icon{height:46px;padding:5px 3px;gap:2px}
+body[data-look="classic"] .tool-icon b{font-size:14px}
+body[data-look="classic"] .tool-icon small{font-size:9.5px}
+/* В узкой плашке кружки цвета — по ширине колонки, а не свои 26 точек: иначе крайний вылезал вбок. */
+body[data-look="classic"] .colors{grid-template-columns:repeat(auto-fill,minmax(22px,1fr));gap:5px}
+body[data-look="classic"] .swatch{width:100%}
+/* «↑ Проекты» и сортировка — в одну строку. */
+body[data-look="classic"] .rail-head{gap:5px}
+body[data-look="classic"] .rail-head .tile-up{gap:5px;padding:6px 4px}
+body[data-look="classic"] .rail-head .tile-up small{white-space:nowrap}
+body[data-look="classic"] .tile-sort-btn{width:28px}
+/* Пункты меню в узкой плашке переносятся на вторую строку, а не обрезаются. */
+body[data-look="classic"] .menu-item{white-space:normal;line-height:1.25;gap:8px;padding:6px 7px}

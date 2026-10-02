@@ -1,0 +1,13 @@
+#!/bin/sh
+# Гоблин — обёртка. Вся работа в bin/goblin.php, здесь только поиск php-cli.
+# Путь можно перебить переменной GOBLIN_PHP_CLI.
+
+here=$(cd "$(dirname "$0")" && pwd)
+php=${GOBLIN_PHP_CLI:-/Applications/XAMPP/xamppfiles/bin/php}
+
+[ -x "$php" ] || php=$(command -v php) || {
+    echo "✗ не найден php-cli; укажи его в GOBLIN_PHP_CLI" >&2
+    exit 1
+}
+
+exec "$php" "$here/goblin.php" "$@"

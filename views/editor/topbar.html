@@ -1,0 +1,68 @@
+<header class="topbar">
+  <!-- Слева всё, чем работают со схемой: вкладки левой плашки, поиск,
+       отмена, ссылка, состояние сохранения, вид работы, вид карточек,
+       прогон и переключатели темы. Справа — вкладки правой панели:
+       они нужны в любом виде и всегда на глазах. -->
+  <div class="topbar-left">
+    <!-- Над левой плашкой: зона шириной с плашку (css/chrome.css, .topbar-rail).
+         Всё, что правее, в любом скине стоит справа от плашки. -->
+    <div class="topbar-rail">
+      <!-- Вход — всегда первым слева: «Мой кабинет», если вошёл, иначе «Войти» (название — в подсказке).
+           В скинах без вкладок плашка закрывает этот угол — placeAccount() (shell/topbar.js) ставит значок сразу за ней. -->
+      <a id="btn-account" class="icon-btn account-btn" href="account.php">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></a>
+      <!-- Настройки есть в любом скине: в «Классике» они же открываются
+           вкладкой плашки, но значок в шапке одинаков для всех. -->
+      <button id="btn-settings" class="icon-btn" title="{{t:editor.topbar.settings_title}}">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/></svg></button>
+      <div id="rail-tabs-slot"></div>
+    </div>
+    <!-- Черта у правого края плашки: слева её вкладки, справа работа со схемой. -->
+    <span class="topbar-split topbar-split-rail"></span>
+
+    <button id="btn-search" class="icon-btn" title="{{t:editor.topbar.search_title}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+    <button id="btn-undo" class="icon-btn" title="{{t:editor.topbar.undo}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4.5 11.5 9 16M4.5 11.5H14a5.5 5.5 0 0 1 0 11h-3"/></svg></button>
+    <button id="btn-redo" class="icon-btn" title="{{t:editor.topbar.redo}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 7 4.5 4.5L15 16M19.5 11.5H10a5.5 5.5 0 0 0 0 11h3"/></svg></button>
+    <button id="btn-link" class="icon-btn" title="{{t:editor.topbar.link_title}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg></button>
+    <!-- Папка схемы с диска: только в веб-режиме и в Chrome/Edge (shell/localdir.js). -->
+    <button id="btn-localdir" class="icon-btn" hidden>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg></button>
+
+    <span class="topbar-split"></span>
+
+    <!-- Кто сейчас работает: worker, круг leader, Джев, встроенный ИИ.
+         Кружок мигает, пока идёт работа; что именно — в подсказке. -->
+    <div id="pulse" class="pulse" title="{{t:editor.topbar.pulse}}"></div>
+    <!-- Где работают агенты: глобус — веб (на своих компьютерах), компьютер — локально (shell/localdir.js).
+         Подсказка при наведении — по просьбе хозяина. -->
+    <span id="mode-chip" class="mode-chip" hidden></span>
+    <span class="topbar-split"></span>
+
+    <!-- Состояние сохранения убрано из шапки по просьбе хозяина; вернуть — раскомментировать.
+    <span id="save-state" class="save-state" title="Состояние сохранения">сохранено</span> -->
+    <div class="switch" id="ui-switch" title="{{t:editor.topbar.ui_switch}}"></div>
+    <div class="switch looks" id="look-pick" title="{{t:editor.topbar.look_pick}}"></div>
+
+    <button id="btn-theme" class="btn btn-icon" title="{{t:editor.topbar.theme}}">◑</button>
+    <button id="btn-iso" class="btn btn-icon" title="{{t:editor.topbar.iso}}">⬔</button>
+
+    <div class="search-box" id="search-box" hidden>
+      <input id="search" class="search" type="search" placeholder="{{t:editor.topbar.search_placeholder}}" autocomplete="off">
+      <div id="search-drop" class="search-drop" hidden></div>
+    </div>
+
+    <!-- Окно ссылки 🔗: какую ссылку-задание дать агенту. Стоит fixed под кнопкой (shell/topbar.js). -->
+    <div class="link-box" id="link-box" hidden>
+      <button id="link-run" class="link-pick">▶ {{t:editor.topbar.link_run}}<small>{{t:editor.topbar.link_run_hint}}</small></button>
+      <button id="link-draw" class="link-pick">✎ {{t:editor.topbar.link_draw}}<small>{{t:editor.topbar.link_draw_hint}}</small></button>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div id="panel-tabs-top"></div>
+  </div>
+</header>

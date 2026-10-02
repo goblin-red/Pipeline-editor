@@ -1,0 +1,81 @@
+<!-- Левая плашка: одна на все скины. Разделы наполняют модули public/src/left/*,
+     а как их показать — разделами или вкладками, строками или плитками —
+     решает скин (canvas/looks.js, поле left). Разница — только в CSS. -->
+<aside class="rail" id="rail" data-layout="sections">
+  <!-- Вкладки вида «вкладками»: при старте переезжают в шапку (#rail-tabs-slot). -->
+  <div class="railbar-tabs">
+    <!-- Значки одного набора: контурные, одной толщины и размера. -->
+    <button class="icon-btn rail-tab" data-rail="settings" title="{{t:editor.rail.settings_tab}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <!-- Проекты и папки — одна вкладка: внутри проекта — его папки, «↑ Проекты» — наверх. -->
+    <button class="icon-btn rail-tab rail-tab-projects on" data-rail="projects" title="{{t:editor.rail.projects_tab}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h3.2l1.4 1.8H17a2 2 0 0 1 2 2V9"/><path d="M3 10a2 2 0 0 1 2-2h4.6l1.4 1.8H17a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+    <button class="icon-btn rail-tab" data-rail="tools" title="{{t:editor.rail.tools_tab}}">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 18.5 9.5M4 20l1-4.2 10-10a2.1 2.1 0 0 1 3 3l-10 10z"/></svg></button>
+  </div>
+
+  <!-- Проекты и папки: один раздел, уровень меняется «…» или вкладкой. -->
+  <section class="rail-block" data-block="list">
+    <h2 class="rail-title"><button class="rail-fold" data-fold="folders" title="{{t:editor.rail.fold}}"><span id="rail-folders-title">{{t:editor.rail.folders}}</span><span class="rail-arrow">▾</span></button></h2>
+    <div id="left-folders"></div>
+    <div id="left-projects" hidden></div>
+  </section>
+
+  <!-- Настройки: файлы, холст, документация, язык. Инструкции и списки — в окне «Настройки холста». -->
+  <section class="rail-block" data-block="settings">
+    <h2 class="rail-title"><button class="rail-fold" data-fold="settings" title="{{t:editor.rail.fold}}">{{t:editor.settings.title}}<span class="rail-arrow">▾</span></button></h2>
+    <div id="rail-settings" class="rail-menu">
+      <div class="menu-title">{{t:editor.settings.files}}</div>
+      <button class="menu-item" id="cl-templates"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17M9.5 9.5v11"/></svg></span> {{t:editor.settings.catalog}}</button>
+      <button class="menu-item" id="cl-builder"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="6" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/><path d="M6.5 9v9H14M16 6h6M19 3v6"/></svg></span> {{t:editor.settings.builder}}</button>
+      <!-- Открыть и сохранить — окнами: способов много, и каждому нужна строка
+           с пояснением, а не тесная выпадашка в плашке. -->
+      <button class="menu-item" id="cl-open"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16"/></svg></span> {{t:editor.settings.open}}</button>
+      <button class="menu-item" id="cl-save"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M8 12l4 4 4-4M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16"/></svg></span> {{t:editor.settings.save}}</button>
+      <div class="menu-title">{{t:editor.settings.canvas}}</div>
+      <button class="menu-item" id="cl-settings"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/></svg></span> {{t:editor.settings.canvas_settings}}</button>
+
+      <div class="menu-title">{{t:editor.settings.docs}}</div>
+      <button class="menu-item" id="cl-documentation" title="{{t:editor.settings.docs_hint}}"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16M12 5C9 3 5 3 3 4v15c3-1 6-1 9 2 3-3 6-3 9-2V4c-2-1-6-1-9 1z"/></svg></span> {{t:editor.settings.docs_open}}</button>
+
+      <!-- Язык интерфейса — внизу, под документацией: у каждого человека свой, помнит cookie (src/core/i18n.js). -->
+      <div class="menu-title">{{t:editor.settings.language}}</div>
+      <div class="switch lang-switch" id="lang-switch">
+        <button class="switch-item" data-lang="en" type="button">English</button>
+        <button class="switch-item" data-lang="ru" type="button">Русский</button>
+      </div>
+
+      <!-- Логотип внизу плашки: тот же, что был в прежнем Гоблине. -->
+      <img class="rail-logo logo-on-dark" src="img/logo-vertical-dark.svg" alt="{{t:editor.rail.logo}}" width="120" height="149">
+      <img class="rail-logo logo-on-light" src="img/logo-vertical.svg" alt="{{t:editor.rail.logo}}" width="120" height="149">
+      <p class="rail-version">{{release}}</p>
+    </div>
+  </section>
+
+  <!-- Архив прогонов: только когда справа открыта вкладка «Прогон». -->
+  <section class="rail-block rail-runs" data-block="runs" hidden>
+    <h2 class="rail-title"><button class="rail-fold" data-fold="runs" title="{{t:editor.rail.fold}}">{{t:editor.rail.runs}}<span class="rail-arrow">▾</span></button></h2>
+    <div id="run-archive" class="run-archive"></div>
+  </section>
+
+  <section class="rail-block" data-block="tools">
+    <h2 class="rail-title"><button class="rail-fold" data-fold="tools" title="{{t:editor.rail.fold}}">{{t:editor.rail.draw_with}}<span class="rail-arrow">▾</span></button></h2>
+    <div id="tools"></div>
+  </section>
+
+  <section class="rail-block" data-block="colors">
+    <h2 class="rail-title"><button class="rail-fold" data-fold="colors" title="{{t:editor.rail.fold}}">{{t:editor.rail.color}}<span class="rail-arrow">▾</span></button></h2>
+    <div class="menu-title left-tabs-only">{{t:editor.rail.color}}</div>
+    <div class="colors" id="colors"></div>
+  </section>
+</aside>
+
+<!-- Вкладки правой панели: свойства, агенты, материалы, прогон, ИИ.
+     Проектов здесь нет: список — в левой плашке, настройки — в кабинете. -->
+<div class="panel-tabs" id="panel-tabs">
+  <button class="icon-btn on" data-tab="props" title="{{t:editor.tabs.props}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg></button>
+  <button class="icon-btn" data-tab="agents" title="{{t:editor.tabs.agents}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="2.5"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16.5h5"/></svg></button>
+  <button class="icon-btn" data-tab="assets" title="{{t:editor.tabs.assets}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 11 12 18.5a4.6 4.6 0 0 1-6.5-6.5l7.8-7.8a3.1 3.1 0 0 1 4.4 4.4l-7.8 7.8a1.6 1.6 0 0 1-2.2-2.2l7.1-7.1"/></svg></button>
+  <button class="icon-btn" data-tab="run" title="{{t:editor.tabs.run}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.5v7l5.5-3.5z"/></svg></button>
+  <button class="icon-btn" data-tab="ai" title="{{t:editor.tabs.ai}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.8L12 18l-1.7-5.5L4.8 10.7 10.3 9z"/><path d="m18.6 15.6.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"/></svg></button>
+</div>

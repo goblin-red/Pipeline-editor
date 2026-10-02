@@ -1,0 +1,10 @@
+{
+ "agents.go.server_failed": "the server could not complete the request",
+ "agents.go.too_long": "The answer was not accepted: {bytes} bytes, but a step holds {max}. Put the full text in a file in out/r{run}/ and submit a short answer with the path to it",
+ "agents.go.repeat_decision": "repeat: decision {no} was already decided → {branch} — nothing changes",
+ "agents.go.decided_other": "Decision {no} was already decided → {branch}; the other branch is not set — see op=where",
+ "agents.task.context_head": "Context — the groups and areas that hold the block, from outer to inner (the block's own spec is below):",
+ "agents.task.context_row": "{what} {no} “{title}”",
+ "agents.task.context_about": " — description: ",
+ "agents.docs.bad_role": "docs.run has no role “{role}”: role=lead — lead the run, role=draw — draw the scheme. A worker gets no link — the leader gives it the briefing"
+}

@@ -1,0 +1,59 @@
+/* Холст: сетка, слои, зум, выделение рамкой. */
+
+/* Точки-разделители едут, растут и бледнеют вместе со схемой:
+   шаг, размер точки, начало отсчёта и прозрачность приходят
+   из canvas/view.js вместе с камерой. */
+.canvas-wrap{position:relative;overflow:hidden;
+  --grid-step:20px;--grid-dot:0.5px;--grid-x:0px;--grid-y:0px;--grid-ink:var(--ink-faint);
+  background:var(--bg)}
+
+/* Сетка — отдельным слоем под схемой, а не фоном самой обёртки: фоном она
+   пробивалась сквозь непрозрачные карточки (точки были видны внутри области). */
+.canvas-wrap::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at var(--grid-dot) var(--grid-dot),
+    var(--grid-ink) var(--grid-dot), transparent 0) var(--grid-x) var(--grid-y)/var(--grid-step) var(--grid-step)}
+body.no-grid .canvas-wrap::before{display:none}
+
+.canvas{position:absolute;inset:0;z-index:1;transform-origin:0 0;will-change:transform}
+/* Стрелки идут поверх рамок, но под карточками: область — подложка, и она
+   закрашивала собой линию, проходящую сквозь неё. Числа слоёв задаёт
+   layerOf() в canvas/element.js: рамки ниже 15, карточки выше. */
+.layer-arrows{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;
+  z-index:15;pointer-events:none;color:var(--ink-faint)}
+/* Невидимая жила под стрелкой: попасть в линию толщиной в пиксель мышью
+   нельзя, поэтому ловит её полоса пошире. */
+.layer-arrows .hit{pointer-events:stroke;stroke-width:26;stroke:transparent;fill:none;cursor:pointer}
+/* Слой карточек сам мышь не ловит — только сами карточки. Пустой слой лежал
+   поверх стрелок и съедал щелчки по ним: часть стрелок нельзя было выделить. */
+.layer-elements{position:absolute;inset:0;pointer-events:none}
+.layer-elements > *{pointer-events:auto}
+.marquee{position:absolute;border:1px solid var(--accent);background:rgba(245,159,74,.12);pointer-events:none;z-index:50}
+/* Кнопки масштаба — подсказка, а не главное на экране: полупрозрачная плашка
+   без тени, в полную силу проявляется при наведении. */
+/* Отступ справа больше ширины ярлычка панели: кнопки масштаба не должны
+   слипаться с ним в одну полоску. */
+.canvas-tools{position:absolute;z-index:40;right:40px;bottom:14px;display:flex;align-items:center;gap:6px;
+  background:color-mix(in srgb,var(--surface) 55%,transparent);
+  border:1px solid color-mix(in srgb,var(--line) 55%,transparent);
+  border-radius:var(--r-md);padding:4px;box-shadow:none;opacity:.7;
+  transition:opacity var(--fast),background var(--fast)}
+.canvas-tools:hover{opacity:1;background:var(--surface)}
+.zoom{font-size:var(--f-xs);color:var(--ink-dim);min-width:40px;text-align:center}
+.empty-hint{position:absolute;z-index:2;inset:0;display:grid;place-items:center;color:var(--ink-faint);pointer-events:none}
+
+/* Пробел зажат — холст ходит за мышью, и это видно по курсору. */
+body.space-pan .canvas-wrap{cursor:grab}
+body.space-pan .canvas-wrap *{pointer-events:none}
+
+/* Тащат значок с плашки: холст показывает, что готов принять. */
+body.placing .canvas-wrap{outline:2px dashed var(--accent);outline-offset:-6px}
+.tool[draggable="true"],.tool-icon[draggable="true"]{cursor:grab}
+.tool[draggable="true"]:active,.tool-icon[draggable="true"]:active{cursor:grabbing}
+
+/* Тянут агента: холст показывает, что готов принять его на блок. */
+body.dragging-agent .canvas-wrap{outline:2px dashed color-mix(in srgb,var(--ok) 60%,transparent);
+  outline-offset:-6px}
+body.dragging-agent .node:not(.block){opacity:.45}
+/* Тянут материал: принимают блок, группа, таблица — остальное притихает. */
+body.dragging-asset .canvas-wrap{outline:2px dashed color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:-2px}
+body.dragging-asset .node:not(.block):not(.group):not(.table){opacity:.45}

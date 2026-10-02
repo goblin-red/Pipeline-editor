@@ -1,0 +1,381 @@
+/* Шрифты макета хранятся локально. */
+@font-face {
+  font-family: 'Studio Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/studio/font-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Studio Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts/studio/font-1.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Studio Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../fonts/studio/font-2.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Studio Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/studio/font-3.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Studio Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts/studio/font-4.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Studio Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../fonts/studio/font-5.ttf) format('truetype');
+}
+
+/* «Студия». Отдельный скин редактора по redesign-screen.
+   Все правила ограничены data-look: размеры и содержимое схем не меняются. */
+body[data-look="studio"]{
+  color-scheme:dark;
+  --bg:#181b21;--surface:#20242c;--surface-2:#282d36;--sunken:#1b1e25;
+  --line:#ffffff0f;--line-strong:#ffffff24;--hover:#ffffff0a;--active:#ffffff14;
+  --ink:#eceef2;--ink-dim:#9aa0ab;--ink-faint:#6b7079;
+  --accent:#f59f4a;--accent-soft:#f59f4a1f;--accent-ink:#1a1207;
+  --ok:#4ade80;--warn:#facc15;--bad:#f87171;--info:#8ab4ff;
+  --step-issued:#8ab4ff;--step-running:#f59f4a;--step-submitted:#facc15;
+  --step-accepted:#4ade80;--step-returned:#c084fc;--step-failed:#f87171;--step-none:#6b7079;
+  --step-cancelled:#94a3b8;--step-wait:#f472b6;
+  --sans:"Studio Inter",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Studio Mono","JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --f-xs:11px;--f-sm:12px;--f-md:12.5px;--f-lg:16px;--f-xl:20px;
+  --r-sm:7px;--r-md:10px;--r-lg:14px;
+  --shadow-1:0 1px 2px #00000066,0 8px 20px #00000052;
+  --shadow-2:0 16px 48px #00000066;
+  --rail-w:220px;
+  --rail-now:var(--rail-w);--panel-now:var(--panel-w);
+  font:12.5px/1.45 var(--sans);-webkit-font-smoothing:antialiased;
+}
+body[data-look="studio"].rail-off{--rail-now:0px}
+body[data-look="studio"].panel-off{--panel-now:0px}
+body[data-look="studio"].rail-off .rail{display:none}
+.studio-icon{display:none}
+body:not([data-look="studio"]) .studio-icon{display:none!important}
+body[data-look="studio"] .studio-original{display:none}
+body[data-look="studio"] .studio-icon{display:inline-block;width:16px;height:16px;flex:none;vertical-align:middle;pointer-events:none}
+
+/* Шапка: размеры и отступы общие для всех скинов (chrome.css) — при смене
+   скина она не меняет высоту и значки не съезжают. Здесь — только облик. */
+body[data-look="studio"] .railbar-tabs{justify-content:space-between;gap:2px;width:100%}
+/* Значки над левой плашкой — на равных промежутках: аккаунт и вкладки одним рядом. */
+body[data-look="studio"] .topbar-rail{justify-content:space-between}
+body[data-look="studio"] .topbar-rail :is(#rail-tabs-slot,.railbar-tabs){display:contents}
+body[data-look="studio"] :is(.topbar .icon-btn,.topbar .btn-icon,.panel-tabs .icon-btn,.tile-sort-btn){
+  width:32px;height:32px;border-radius:8px;border-color:transparent;background:transparent;color:var(--ink-dim)}
+body[data-look="studio"] :is(.topbar .icon-btn,.topbar .btn-icon,.panel-tabs .icon-btn,.tile-sort-btn):hover{background:var(--hover);color:var(--ink)}
+/* Вкладки панели той же ширины, что в других скинах: стоят на тех же местах. */
+body[data-look="studio"] .panel-tabs .icon-btn{width:38px}
+body[data-look="studio"] :is(.topbar .icon-btn,.panel-tabs .icon-btn,.tile-sort-btn).on{background:var(--active);color:var(--accent);border-color:transparent}
+body[data-look="studio"] .topbar :is(.switch,.switch-small){border:0;border-radius:8px;gap:2px;overflow:visible}
+body[data-look="studio"] .switch-icon-item{width:32px;height:32px;padding:6px;border-radius:8px}
+body[data-look="studio"] .switch-icon-item.on{background:var(--active);color:var(--accent)}
+body[data-look="studio"] .switch-icon-item:hover{background:var(--hover)}
+/* Кнопка скинов — значок и название (shell/topbar.js): ширина по содержимому, а не 32. */
+body[data-look="studio"] .look-trigger{width:auto;gap:6px;padding:0 10px}
+body[data-look="studio"] .topbar .save-state{display:flex;align-items:center;gap:6px;min-width:0;
+  padding:4px 9px;background:var(--hover);border-radius:999px;font-size:11px}
+body[data-look="studio"] .save-state::before{content:"";width:5px;height:5px;flex:none;border-radius:50%;background:var(--ok)}
+body[data-look="studio"] .save-state.dirty::before{background:var(--warn)}
+body[data-look="studio"] .pulse-dot{width:7px;height:7px}
+body[data-look="studio"] #btn-theme:disabled{opacity:.4;cursor:default}
+
+/* Папки, настройки, инструменты: прежние действия, новая подача. */
+body[data-look="studio"] .rail{padding:14px 12px;background:var(--surface)}
+body[data-look="studio"] .rail[data-layout="tabs"]{gap:9px}
+body[data-look="studio"] .rail[data-layout="tabs"] :is(.rail-block,.left-tiles,.left-grid){gap:9px}
+body[data-look="studio"] :is(.menu-title,.rail-title,.field > span){font-size:10px;font-weight:600;
+  letter-spacing:1px;line-height:1.2;text-transform:uppercase;color:var(--ink-faint)}
+body[data-look="studio"] .menu-title{margin-top:12px}
+body[data-look="studio"] .rail[data-layout="tabs"] [data-block="tools"]::before{content:"Элементы";
+  color:var(--ink-faint);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+body[data-look="studio"] .rail[data-layout="tabs"] [data-block="tools"]:lang(en)::before{content:"Elements"}
+body[data-look="studio"] .tool-grid{gap:6px}
+body[data-look="studio"] .tool-icon{height:58px;justify-content:center;gap:7px;padding:8px 4px;
+  background:var(--hover);border:1px solid transparent;border-radius:10px;color:var(--ink-dim)}
+body[data-look="studio"] .tool-icon b{display:flex;align-items:center;justify-content:center;font-weight:400}
+body[data-look="studio"] .tool-icon small{font-size:11px;line-height:1.2;font-weight:500;color:inherit}
+body[data-look="studio"] .tool-icon:hover{background:var(--active)}
+body[data-look="studio"] .tool-icon.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+body[data-look="studio"] .tool-icon.on small{color:var(--ink)}
+body[data-look="studio"] :is(#cl-group,#cl-ungroup){height:32px;flex-direction:row;gap:7px;border-radius:9px}
+body[data-look="studio"] :is(#cl-group,#cl-ungroup) svg{width:14px;height:14px}
+body[data-look="studio"] :is(.folder-tiles .tile,.tile-new){flex-direction:row;gap:10px;min-height:42px;
+  padding:10px;border:1px solid transparent;border-radius:9px;align-items:center;text-align:left}
+body[data-look="studio"] .folder-tiles .tile small{font:500 12px/1.4 var(--sans);text-align:left;overflow-wrap:anywhere}
+body[data-look="studio"] .tile.on{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 25%,transparent)}
+body[data-look="studio"] .tile-new{width:100%;color:var(--ink-dim);background:var(--hover)}
+body[data-look="studio"] .menu-item{min-height:34px;padding:8px;border-radius:8px;font-size:12px}
+body[data-look="studio"] .tree-item{min-height:34px;border-radius:8px;font-size:12px}
+body[data-look="studio"] .tree-item.on{background:var(--accent-soft);box-shadow:none;color:var(--accent)}
+body[data-look="studio"] .side-toggle{width:22px;height:46px;bottom:16px;background:var(--surface);
+  border-color:var(--line);color:var(--ink-faint)}
+body[data-look="studio"] .side-left{border-radius:0 10px 10px 0}
+body[data-look="studio"] .side-right{border-radius:10px 0 0 10px}
+
+/* Инспектор и общие поля — наследуются всеми вкладками и диалогами. */
+body[data-look="studio"] .panel-head{min-height:52px;padding:10px 14px;gap:10px;background:var(--surface)}
+body[data-look="studio"] .panel-no{padding:4px 7px;border:0;border-radius:5px;background:var(--accent-soft);
+  color:var(--accent);font:600 10px/1 var(--mono)}
+body[data-look="studio"] .panel-kind{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:13px;letter-spacing:-.1px}
+body[data-look="studio"] .panel-head-tools{flex:none;gap:2px}
+body[data-look="studio"] .panel-head-tools .btn{width:28px;height:28px;background:none;border:0;color:var(--ink-faint)}
+body[data-look="studio"] .panel-head-tools .btn:hover{background:var(--hover);color:var(--ink)}
+body[data-look="studio"] .panel-body{padding:14px}
+body[data-look="studio"] .field{margin-bottom:14px;min-width:0}
+body[data-look="studio"] .field > span{margin-bottom:7px}
+body[data-look="studio"] :is(.input,textarea.input,select.input,.dialog-textarea,.search){
+  min-width:0;background:var(--sunken);border:1px solid var(--line);border-radius:8px;padding:9px 11px;
+  font-size:12.5px;line-height:1.4;color:var(--ink)}
+body[data-look="studio"] textarea.input{min-height:74px}
+body[data-look="studio"] :is(input.input,select.input){min-height:34px;padding:6px 10px}
+body[data-look="studio"] :is(input,textarea,select){accent-color:var(--accent)}
+body[data-look="studio"] :is(.input,.dialog-textarea,.search):focus{border-color:var(--line-strong)}
+body[data-look="studio"] input[type="number"]{font-family:var(--mono)}
+body[data-look="studio"] .btn{font-size:11.5px;font-weight:500;height:30px;padding:0 10px;
+  border-radius:8px;border-color:transparent;background:var(--hover)}
+body[data-look="studio"] .btn:hover{background:var(--active);border-color:var(--line)}
+body[data-look="studio"] .btn-accent{background:var(--accent);color:var(--accent-ink)}
+body[data-look="studio"] .btn-accent:hover{background:#ffb568;border-color:transparent}
+body[data-look="studio"] .btn-danger:hover{color:var(--bad);background:#f8717114}
+body[data-look="studio"] .btn-icon{padding:0}
+body[data-look="studio"] .section{margin-top:0;padding-top:0}
+body[data-look="studio"] .section > summary{min-height:42px;padding:10px 0;color:var(--ink);
+  font-size:12.5px;font-weight:500;text-transform:none;letter-spacing:0}
+body[data-look="studio"] .section > summary::after{content:"";height:6px;width:6px;flex:none;
+  margin-right:4px;border:solid var(--ink-faint);border-width:1.5px 1.5px 0 0;transform:rotate(45deg)}
+body[data-look="studio"] .section[open] > summary::after{transform:rotate(135deg)}
+body[data-look="studio"] .section-body{padding:0 0 14px}
+body[data-look="studio"] .section:first-child .section-body{padding-top:0}
+body[data-look="studio"] .chip{padding:5px 9px;border:1px solid var(--line);border-radius:7px;
+  background:var(--hover);color:var(--ink-dim);font-size:11.5px;font-weight:500}
+body[data-look="studio"] .drop-zone{justify-content:center;gap:7px;min-height:96px;padding:18px 12px;
+  background:var(--sunken);border:1px solid var(--line-strong);border-radius:10px}
+body[data-look="studio"] .drop-zone.over{background:var(--accent-soft);border-color:var(--accent)}
+body[data-look="studio"] :is(.prop-row,.asset){gap:8px}
+body[data-look="studio"] .prop-row .field{flex:1;min-width:0}
+body[data-look="studio"] .asset{padding:9px 0}
+body[data-look="studio"] .asset-off{border-radius:6px}
+
+/* Холст. Геометрия и сохранённые цвета остаются общими. */
+body[data-look="studio"] .canvas-wrap{
+  --bg:#101317;
+  background:linear-gradient(180deg,#1a1f26 0%,#14191f 45%,#101317 100%);
+}
+body[data-look="studio"] .canvas-wrap::before{
+  --grid-ink:color-mix(in srgb,#566173 calc(var(--grid-fade,70) * 1%),transparent);
+  --studio-dot:calc(var(--grid-dot,.5px) * 1.8);
+  background:radial-gradient(circle at var(--studio-dot) var(--studio-dot),
+    var(--grid-ink) var(--studio-dot),transparent 0)
+    var(--grid-x) var(--grid-y)/var(--grid-step) var(--grid-step);
+  opacity:1;
+}
+body[data-look="studio"] .canvas-tools{right:46px;bottom:16px;gap:2px;padding:4px;
+  opacity:1;border:1px solid var(--line);border-radius:11px;background:color-mix(in srgb,var(--surface) 90%,transparent);
+  box-shadow:0 4px 12px #00000066;backdrop-filter:blur(6px)}
+body[data-look="studio"] .canvas-tools .btn{width:32px;height:32px;background:none;color:var(--ink-dim)}
+body[data-look="studio"] .canvas-tools .btn:hover{background:var(--hover);color:var(--ink)}
+body[data-look="studio"] .zoom{font:500 11px/1 var(--mono)}
+body[data-look="studio"] .arrow{stroke-width:1.5}
+body[data-look="studio"] .arrow:not(.sel):not(.yes):not(.no):not(.live):not(.done):not(.lit){stroke:#ffffff40}
+body[data-look="studio"] .arrow.live{stroke-width:2.5}
+body[data-look="studio"] .arrow.done{stroke-width:2}
+body[data-look="studio"] .arrow-label{font-family:var(--mono);stroke:none;fill:var(--ink)}
+body[data-look="studio"] .arrow-label-plate{display:inline;
+  /* Полупрозрачная и без рамки: линия под подписью чуть видна, подпись читается. */
+  fill:color-mix(in srgb,var(--bg) 35%,transparent);stroke:none}
+body[data-look="studio"].no-labels .arrow-label-plate{display:none}
+body[data-look="studio"] .port::after{width:9px;height:9px;margin:-4.5px 0 0 -4.5px;
+  background:var(--bg);border-color:var(--line-strong)}
+body[data-look="studio"] .port:hover::after{background:var(--accent);border-color:var(--accent)}
+
+/* Карточки: шапка, содержимое, отдельный нижний ряд. */
+body[data-look="studio"] .node-card{border-width:1px;border-radius:12px;
+  background:var(--card-fill,var(--surface-2));box-shadow:var(--shadow-1)}
+body[data-look="studio"] .node:hover .node-card{border-color:var(--card-edge,var(--line-strong))}
+body[data-look="studio"] .node.node.selected .node-card{border-color:var(--accent);box-shadow:var(--shadow-1)}
+body[data-look="studio"] .node-inner{padding:0 0 44px;gap:0;border-radius:11px;justify-content:flex-start}
+body[data-look="studio"] .node-title{position:relative;flex:0 0 auto;padding:12px 52px 12px 28px;
+  max-width:none;font:600 13px/1.25 var(--sans);letter-spacing:-.1px;white-space:nowrap;text-overflow:ellipsis;
+  border-bottom:1px solid var(--line);color:var(--card-ink,var(--ink))}
+body[data-look="studio"] .node-title::before{content:"";position:absolute;left:13px;top:18px;
+  width:6px;height:6px;border-radius:50%;background:var(--run,var(--ink-faint))}
+body[data-look="studio"] .node.selected:not([data-step]) .node-title::before{background:var(--accent)}
+body[data-look="studio"] .node-desc{padding:11px 13px 10px;font:12px/1.5 var(--sans);
+  color:var(--card-ink-dim,var(--ink-dim));flex:0 1 auto;overflow-wrap:anywhere}
+body[data-look="studio"] .node:not(.area):not(.decision):not(.gateway) .node-title{padding-right:52px}
+body[data-look="studio"] .node:not(.area):not(.decision):not(.gateway) .node-desc{padding-right:13px}
+body[data-look="studio"] .node-seq-badge{top:12px;right:13px;left:auto;min-width:0;height:17px;padding:3px 6px;
+  background:var(--hover);border:0;border-radius:5px;box-shadow:none;
+  color:var(--card-ink-dim,var(--ink-dim));font:600 9.5px/1 var(--mono);letter-spacing:0}
+body[data-look="studio"] .node-marks{top:auto;right:13px;bottom:13px;flex-direction:row;gap:5px;align-items:center}
+body[data-look="studio"] .node :is(.node-md-badge,.node-clip,.node-step,.node-agent){height:20px;min-width:22px;
+  border:0;border-radius:5px;box-shadow:none;background:var(--hover);font:600 9.5px/1 var(--mono);padding:3px 6px}
+body[data-look="studio"] .node .node-md-badge{background:#4ade8014;color:var(--ok)}
+body[data-look="studio"] .node-brick{position:absolute;bottom:13px;left:13px;margin:0;max-width:calc(100% - 130px);
+  padding:4px 8px;border:1px solid var(--line);background:var(--hover);color:var(--ink-dim);
+  font:500 10.5px/1 var(--sans);gap:5px;white-space:nowrap}
+body[data-look="studio"] .node-brick-name{overflow:hidden;text-overflow:ellipsis}
+body[data-look="studio"] .node-brick-x{flex:none}
+body[data-look="studio"] .node-brick.busy{border-color:var(--run,var(--accent));color:var(--ink);background:var(--accent-soft)}
+body[data-look="studio"] .node-result{margin:0 13px 8px;max-width:calc(100% - 26px);padding:4px 7px;
+  font:500 10px/1.4 var(--mono);border:0;border-radius:5px;background:#4ade8010}
+body[data-look="studio"] .node-badges{margin:5px 13px;gap:4px}
+body[data-look="studio"] .node-badges span{border-radius:5px;background:var(--hover);border:0;padding:3px 6px}
+
+/* Обложка — в теле, текст и кнопки на своей непрозрачной поверхности. */
+body[data-look="studio"] .node.has-image .node-inner{gap:0}
+body[data-look="studio"] .node.has-image .node-image-section{position:static;inset:auto;flex:1 1 auto;
+  width:100%;height:0;min-height:24px;max-height:none;margin:0;object-fit:cover;border-bottom:1px solid var(--line)}
+body[data-look="studio"] .node.has-image .node-inner :is(.node-title,.node-desc,.node-result){
+  text-shadow:none;border-radius:0;color:var(--card-ink,var(--ink));background:transparent}
+body[data-look="studio"] .node.has-image .node-inner .node-title{padding:12px 52px 12px 28px}
+body[data-look="studio"] .node.has-image .node-inner .node-desc{padding:8px 13px;margin:0;color:var(--card-ink-dim,var(--ink-dim))}
+body[data-look="studio"] .node.has-image .node-inner .node-brick{position:absolute;z-index:2}
+body[data-look="studio"] .node.has-image .node-inner .node-result{padding:4px 7px;border-radius:5px;background:#4ade8010;color:var(--ok)}
+
+/* Развилка и шлюз сохраняют свою форму и точки подключения. */
+body[data-look="studio"] .node.decision .node-card{border:0;border-radius:0;background:var(--card-edge,var(--line-strong));box-shadow:none}
+body[data-look="studio"] .node.decision .node-inner{margin:1px;padding:0 44px 32px;
+  background:var(--card-fill,var(--surface-2));border-radius:0;justify-content:center;align-items:center}
+body[data-look="studio"] .node.decision .node-title{position:absolute;top:10px;left:0;right:0;
+  padding:4px 48px;border:0;white-space:normal;text-align:center}
+body[data-look="studio"] .node.decision .node-title::before{display:none}
+body[data-look="studio"] .node.decision .node-desc{padding:0;text-align:center;max-height:42%}
+body[data-look="studio"] .node.decision .node-seq-badge{top:12px;left:-8px;right:auto}
+body[data-look="studio"] .node.decision .node-marks{top:auto;bottom:12px;right:34px}
+body[data-look="studio"] .node.decision .node-result{bottom:36px;left:42px;right:42px;max-width:none;margin:0}
+body[data-look="studio"] .node.node.decision.selected .node-card{background:var(--accent)}
+body[data-look="studio"] .node :is(.node-yes,.node-no){border:0;border-radius:5px;background:var(--surface)}
+body[data-look="studio"] .node.gateway .node-card{border-radius:999px;border-color:var(--card-edge,var(--line-strong));
+  background:var(--card-fill,var(--surface-2));box-shadow:var(--shadow-1)}
+body[data-look="studio"] .node.gateway .node-inner{padding:28px 24px 36px;align-items:center;justify-content:center}
+body[data-look="studio"] .node.gateway .node-title{padding:0 12px;border:0;white-space:normal;text-align:center}
+body[data-look="studio"] .node.gateway .node-title::before{display:none}
+body[data-look="studio"] .node.gateway .node-desc{padding:6px 8px;text-align:center}
+body[data-look="studio"] .node.gateway .node-seq-badge{right:50%;transform:translateX(50%);top:9px}
+body[data-look="studio"] .node.gateway .node-marks{right:50%;transform:translateX(50%);bottom:10px}
+
+/* Контейнеры, заметки и таблицы — тот же набор поверхностей и подписей. */
+body[data-look="studio"] .node.group .node-card{
+  background:linear-gradient(180deg,#ffffff0d 0%,#ffffff00 25%),
+    color-mix(in srgb,color-mix(in srgb,var(--card-fill,var(--surface-2)) 85%,#000) 60%,transparent);
+  border-width:2px;border-color:color-mix(in srgb,var(--card-edge,var(--line-strong)) 90%,var(--ink-dim) 10%);
+  box-shadow:none;border-radius:14px}
+body[data-look="studio"] .node.group .node-title{max-width:calc(100% - 170px);padding:12px 8px 12px 14px;
+  border:0;letter-spacing:.04em;font-size:11px;text-transform:uppercase;color:var(--ink-dim)}
+body[data-look="studio"] .node.group .node-title,
+body[data-look="studio"] .node.group.has-image .node-inner .node-title{
+  background:color-mix(in srgb,var(--card-edge,var(--line-strong)) 20%,var(--surface));
+  border-bottom:1px solid color-mix(in srgb,var(--card-edge,var(--line-strong)) 45%,transparent);
+  border-radius:0 0 8px 0;
+}
+body[data-look="studio"] .node.group .node-title::before{display:none}
+body[data-look="studio"] .node-fold{top:50%;right:8px;border:0;background:var(--hover);box-shadow:none;color:var(--ink-dim)}
+body[data-look="studio"] .node-count{top:11px;right:54px;border:0;background:var(--hover);border-radius:5px;font-size:9px}
+body[data-look="studio"] .node.group.collapsed .node-card{
+  background:linear-gradient(180deg,#ffffff0d 0%,#ffffff00 25%),
+    color-mix(in srgb,var(--card-fill,var(--surface-2)) 85%,#000);
+  box-shadow:var(--shadow-1)}
+body[data-look="studio"] .node.area .node-card{border-style:dashed;
+  background:linear-gradient(var(--area-grad),transparent 0%,var(--area-dark) 25%,var(--area-dark) 100%),
+    var(--card-fill,var(--surface-2));
+  box-shadow:none;border-radius:14px}
+body[data-look="studio"] .node.area .node-title{position:absolute;inset:0 auto 0 0;width:35%;padding:0 18px;
+  max-width:none;border:0;font:500 24px/1.3 var(--sans);letter-spacing:.04em;white-space:normal;
+  color:color-mix(in srgb,var(--card-ink,var(--ink-dim)) 40%,transparent)}
+body[data-look="studio"] .node.area[data-align="right"] .node-title{inset:0 0 0 auto}
+body[data-look="studio"] .node.area[data-valign="top"] .node-title{padding-top:18px}
+body[data-look="studio"] .node.area[data-valign="bottom"] .node-title{padding-bottom:18px}
+body[data-look="studio"] .node.area .node-title::before{display:none}
+body[data-look="studio"] .node.note .node-card{border:1px dashed var(--card-edge,var(--line-strong));background:var(--card-fill,var(--surface));box-shadow:none}
+body[data-look="studio"] .node.table .node-card{background:var(--card-fill,var(--surface-2));border-color:var(--card-edge,var(--line));box-shadow:var(--shadow-1)}
+body[data-look="studio"] .node.table .node-inner{padding:0 0 36px;gap:0}
+body[data-look="studio"] .node.table .node-title{text-transform:none;letter-spacing:0}
+body[data-look="studio"] .node-grid-wrap{border-radius:0;margin:0 1px}
+body[data-look="studio"] .node-grid{font-size:12px}
+body[data-look="studio"] .node-grid :is(th,td){padding:9px 12px;border-color:var(--line)}
+body[data-look="studio"] .node-grid thead th{background:var(--hover);color:var(--ink-dim);font-size:10px}
+body[data-look="studio"] .node-grid .grid-name{background:var(--hover);font-weight:500}
+
+/* Состояние видно точкой, значком и полосой; цвет — общая таблица (--run, css/run.css). */
+body[data-look="studio"] .node.block[data-step] .node-card{border-left-width:3px}
+body[data-look="studio"] .node[data-step] .node-step{background:color-mix(in srgb,var(--run) 14%,var(--surface-2))}
+body[data-look="studio"] .node.decision[data-step] .node-card{border:0}
+body[data-look="studio"] .node-grip::after{width:11px;height:11px;border-width:2px;opacity:.65}
+
+/* Окна, выпадающие меню, материалы, агенты, ИИ и прогон. */
+body[data-look="studio"] :is(.dialog,.screen,.search-box,.search-drop,.ai-drop,.link-box){
+  background:var(--surface);border-color:var(--line-strong);box-shadow:var(--shadow-2)}
+body[data-look="studio"] .dialog{padding:22px;border-radius:16px;max-height:92dvh}
+body[data-look="studio"] .dialog::backdrop{background:#07080bb3;backdrop-filter:blur(4px)}
+body[data-look="studio"] .dialog-title{font-size:16px;letter-spacing:-.2px;padding-right:24px}
+body[data-look="studio"] .dialog-x{background:var(--hover);border:0;border-radius:8px;color:var(--ink-dim)}
+body[data-look="studio"] .dialog-foot{gap:8px;padding-top:14px;border-top:1px solid var(--line)}
+body[data-look="studio"] .dialog-textarea{font:12px/1.65 var(--mono)}
+/* Шрифт и отступы зеркала не задаём: оно берёт их у самого поля (dialogs.js),
+   иначе строки расходятся и каретка стоит не там, где текст. */
+body[data-look="studio"] .code-mirror{border-radius:8px}
+/* Цветной текст рисуется зеркалом под полем: непрозрачная заливка скина
+   не должна закрывать подсветку Markdown и JSON. */
+body[data-look="studio"] .code-box{background:var(--sunken);border-radius:8px}
+body[data-look="studio"] .dialog-textarea.code-on{
+  background:transparent;color:transparent;caret-color:var(--ink);
+}
+body[data-look="studio"] .screen{width:min(420px,100vw)}
+body[data-look="studio"] .ai-log{gap:10px}
+body[data-look="studio"] .ai-line{margin:0;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:12px}
+body[data-look="studio"] .ai-line.me{background:var(--accent-soft);border-color:#f59f4a18}
+body[data-look="studio"] .ai-line.it{background:var(--surface-2)}
+body[data-look="studio"] .ai-icon{border:0;border-radius:8px;background:var(--hover)}
+body[data-look="studio"] .ai-drop{padding:6px;border-radius:12px}
+body[data-look="studio"] .ai-drop button{padding:10px;border-radius:7px;border-bottom:0}
+body[data-look="studio"] .ai-drop button:hover{background:var(--active)}
+body[data-look="studio"] :is(.ns-card,.ai-plan){
+  background:var(--surface-2);border:1px solid var(--line);border-radius:12px;box-shadow:none}
+body[data-look="studio"] :is(.agent-row,.asset-tile,.runs-item){border-radius:8px}
+body[data-look="studio"] :is(.agents-board,.asset-board){padding:10px}
+body[data-look="studio"] .agent-row{grid-template-columns:9px minmax(46px,1.2fr) 47px minmax(54px,1fr) 22px;gap:6px;padding:7px 6px}
+body[data-look="studio"] .agent-head > span{font-size:9px;letter-spacing:0}
+body[data-look="studio"] .agent-tile{background:var(--surface-2);border-color:var(--line);border-radius:10px}
+body[data-look="studio"] .agent-tile:hover{border-color:var(--cli);background:var(--hover)}
+body[data-look="studio"] :is(.runbar,.ui-list-head,.ui-tree-head,.ui-run-head){background:var(--surface);border-color:var(--line)}
+body[data-look="studio"] .runlog-step{border-radius:9px;background:var(--surface-2);padding:6px}
+body[data-look="studio"] .runlog-step[open]{background:var(--surface)}
+body[data-look="studio"] :is(.runlog-line.on,.ui-row.on,.ui-tree-row.on){background:var(--accent-soft);border-left-color:var(--accent)}
+body[data-look="studio"] .ui-list-body{padding:8px}
+body[data-look="studio"] .ui-row{border-radius:8px;margin-bottom:3px;font-size:12px}
+body[data-look="studio"] .ui-row .ui-title{background:transparent;border-color:transparent;font-size:12px}
+body[data-look="studio"] .ui-tree-col{padding:0 6px;background:var(--bg)}
+body[data-look="studio"] .ui-tree-row{border-radius:8px}
+body[data-look="studio"] .ui-tree-level{font-size:10px;letter-spacing:.06em;background:var(--surface)}
+body[data-look="studio"] .toast{border-radius:10px;background:var(--surface-2);border-color:var(--line-strong);border-left-color:var(--accent)}
+body[data-look="studio"] .toast.bad{border-left-color:var(--bad)}
+body[data-look="studio"] *{scrollbar-color:#ffffff1f transparent}
+body[data-look="studio"] ::-webkit-scrollbar-thumb{background:#ffffff1f;border:2px solid transparent;background-clip:padding-box}
+
+@media(max-width:900px){
+  body[data-look="studio"] :is(.rail,.panel-body){padding:12px 10px}
+  body[data-look="studio"] .dialog{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-look="studio"] :is(.node-card,.node-brick){animation:none!important}
+}

@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "run": {
+    "id": 1984,
+    "no": 3,
+    "label": "r3",
+    "folder": 10752,
+    "title": "Аудит: выбор стартового блока",
+    "state": "done",
+    "lead": null,
+    "workDir": "/Applications/XAMPP/xamppfiles/htdocs/goblin/public/workfiles/Аудит_ выбор стартового блока",
+    "summary": "пройден: принято шагов 2",
+    "stopAsked": false,
+    "seenAt": null,
+    "startedAt": "2026-09-23 17:37:20.765",
+    "finished": "2026-09-23 17:37:20.945",
+    "rev": 86,
+    "engine": 2,
+    "version": 10,
+    "driver": "utility",
+    "judge": "formal",
+    "jev": "off",
+    "showPause": 0,
+    "waitFor": ""
+  },
+  "open": [],
+  "ready": [],
+  "wakeIn": null,
+  "needsAdvance": false,
+  "now": "2026-09-23 17:37:20.968",
+  "steps": [
+    {
+      "id": 6909,
+      "no": 27,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "x=1",
+      "via": null,
+      "chosen": null
+    },
+    {
+      "id": 6910,
+      "no": 28,
+      "attempt": 1,
+      "state": "accepted",
+      "result": "x=1",
+      "via": null,
+      "chosen": null
+    }
+  ],
+  "lastEvent": 24688,
+  "hasMoreEvents": false,
+  "did": []
+}

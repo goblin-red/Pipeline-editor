@@ -1,0 +1,199 @@
+/* Прогон: полоса в панели и подсветка на холсте.
+
+   Подсветка — одна таблица «состояние → цвет → значок» на все скины и обе темы.
+   Состояние ставит JS атрибутом: data-step у карточки (canvas/element.js),
+   data-state у строк полосы, списка и вида «Прогон». Цвет состояния — переменная
+   --run; дальше каждый вид берёт её, а не свой список цветов. Скин меняет только
+   форму знака: полоса слева (рабочий, классика, дизайнер, разработчик, leader,
+   показ), вся рамка (минимальный, мобильный — css/looks.css), точка у названия и
+   тонкая полоса (студия — css/studio.css). Кроме цвета у каждого состояния свой
+   значок (STEP_MARKS, core/kinds.js) и свой узор — различается и без цвета. */
+
+/* ── Полоса прогона ───────────────────────────────────────────── */
+.runbar{position:fixed;left:0;right:0;bottom:0;height:var(--runbar-h);display:flex;align-items:center;
+  gap:var(--gap-md);padding:0 var(--gap-md);background:var(--surface);border-top:1px solid var(--line);z-index:30}
+.runbar-left,.runbar-right{display:flex;align-items:center;gap:var(--gap-sm)}
+.run-state{font-size:var(--f-xs);color:var(--ink-dim)}
+.run-track{flex:1;display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.run-step{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--run) 60%,var(--line));background:var(--surface-2);
+  color:var(--run);font-size:var(--f-xs);cursor:pointer;white-space:nowrap}
+.run-step b{font-family:var(--mono)}
+.run-count{font-size:var(--f-xs);color:var(--ink-dim)}
+.run-check{font-size:var(--f-sm);max-height:70vh;overflow:auto}
+.start-note{width:100%;margin:0;font-size:var(--f-xs);line-height:1.5;color:var(--ink-dim)}
+/* Окно «Начать прогон»: карточка ссылки — название, куда отдать, ссылка и «Копировать». */
+.start-link{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md,10px);background:var(--surface-2)}
+.start-link-name{margin:0 0 4px;font-size:var(--f-md);font-weight:600;color:var(--ink)}
+.start-link-row{display:flex;gap:8px;margin-top:10px}
+.start-link-url{flex:1;min-width:0;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r-sm);
+  background:var(--bg);color:var(--ink);font-size:var(--f-xs)}
+
+/* Полоса в правой панели: то же содержимое, но столбиком и без подложки.
+   Внизу экрана она остаётся только там, где у панели нет вкладок. */
+.runbar.in-panel{position:static;left:auto;right:auto;bottom:auto;height:auto;
+  flex-direction:column;align-items:stretch;gap:var(--gap-sm);
+  padding:0;background:none;border-top:none;z-index:auto}
+.runbar.in-panel .runbar-left,.runbar.in-panel .runbar-right{flex-wrap:wrap}
+.runbar.in-panel .run-track{flex:0 1 auto;flex-direction:column;align-items:stretch;
+  overflow-x:visible;max-height:46vh;overflow-y:auto}
+.runbar.in-panel .run-step{justify-content:flex-start;text-align:left;border-radius:var(--r-sm)}
+.runbar.in-panel .run-count{width:100%}
+
+/* Строка «чего ждёт» — крупная: её читают, не приглядываясь. */
+.run-wait{flex:1 1 100%;min-width:0;font-size:var(--f-md);font-weight:600;color:var(--ink);
+  padding:4px 0;overflow:hidden;text-overflow:ellipsis}
+.runbar.in-panel .run-wait{white-space:normal}
+
+/* ── Таблица состояний: цвет ──────────────────────────────────────
+   none — прогон выбран, узел не тронут; ready — жетоны пришли, работу не выдали:
+   ждёт команды ведущего или человека (ромб — решения ветки, шлюз — перехода). */
+:is(.node[data-step],[data-state]){--run:var(--step-none)}
+:is(.node[data-step="ready"],[data-state="ready"]){--run:var(--step-wait)}
+:is(.node[data-step="issued"],[data-state="issued"]){--run:var(--step-issued)}
+:is(.node[data-step="running"],[data-state="running"]){--run:var(--step-running)}
+:is(.node[data-step="submitted"],[data-state="submitted"]){--run:var(--step-submitted)}
+:is(.node[data-step="accepted"],[data-state="accepted"]){--run:var(--step-accepted)}
+:is(.node[data-step="returned"],[data-state="returned"]){--run:var(--step-returned)}
+:is(.node[data-step="failed"],[data-state="failed"]){--run:var(--step-failed)}
+:is(.node[data-step="cancelled"],[data-state="cancelled"]){--run:var(--step-cancelled)}
+/* Решённый ромб — цвета «принят», как всякая приёмка: «нет» — такое же нормальное решение,
+   как «да». Ветку говорит ярлык ДА/НЕТ (ниже, раздел ромба). Красный — только «сорван». */
+
+/* ── Карточка блока: полоса слева и узор ─────────────────────────── */
+.node.block[data-step] .node-card{border-left-width:5px;border-left-color:var(--run)}
+/* В работе — тёплый перелив от полосы; сдан и возвращён — тихая заливка своего цвета. */
+.node.block:is([data-step="running"],[data-step="submitted"],[data-step="returned"]) .node-card{
+  background-image:linear-gradient(135deg,
+    color-mix(in srgb,var(--run) 16%,transparent) 0%,
+    color-mix(in srgb,var(--run) 5%,transparent) 55%,
+    transparent 100%)}
+/* Принят и сорван — косые полосы: их видно и на цветном блоке, и на картинке. */
+.node.block:is([data-step="accepted"],[data-step="failed"]) .node-card{
+  background-image:repeating-linear-gradient(135deg,
+    color-mix(in srgb,var(--run) 11%,transparent) 0 9px,
+    transparent 9px 24px)}
+/* Отменён — попытка снята: содержимое притихло, полоса пунктиром. */
+.node.block[data-step="cancelled"] .node-card{border-left-style:dashed}
+.node:is(.block,.gateway)[data-step="cancelled"] .node-inner{opacity:.62}
+/* Ждёт — свой цвет, не «выдан». Причину говорит значок (… пауза, ? ромб, ✋ шлюз и человек),
+   характер — рамка и движение: ждёт команды — пунктир и редкий зов; пауза (движок
+   продолжит сам) — точки и спокойное дыхание. */
+.node:is(.block,.gateway)[data-step="ready"] .node-card{outline:2px dashed var(--run);outline-offset:4px}
+.node:is(.block,.gateway)[data-step="ready"][data-wait="pause"] .node-card{outline-style:dotted}
+
+/* Схлопнутая группа — самое срочное состояние внутри неё, той же полосой. */
+.node.group.collapsed[data-step] .node-card{border-left-width:5px;border-left-color:var(--run)}
+
+/* Значок состояния в столбике значков: цвет и подложка состояния. */
+.node[data-step] .node-step{color:var(--run);font-size:12px;
+  border-color:color-mix(in srgb,var(--run) 55%,var(--line));
+  background:color-mix(in srgb,var(--run) 16%,var(--surface))}
+.node[data-step] .node-step.many{color:var(--run)}
+/* Ответ исполнителя — цветом состояния: сданный не выдаёт себя за принятый. */
+.node[data-step] .node-result{color:var(--run);
+  border-color:color-mix(in srgb,var(--run) 40%,var(--line));
+  background:color-mix(in srgb,var(--run) 12%,transparent)}
+/* Итог формальных проверок сданного шага. */
+.node-review{flex:0 0 auto;font-size:11px;color:var(--run,var(--ink-dim));
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Ромб: контур цвета состояния, решённый — ещё и ярлык ветки ──── */
+.node.decision[data-step]:not([data-step="none"]) .node-card{background:var(--run)}
+.node.decision[data-step]:not([data-step="none"]) .node-inner{margin:3px}
+.node.node.decision.selected[data-step] .node-card{background:var(--accent)}
+/* Выбранная ветка — вторичным акцентом: контрастная плашка ДА или НЕТ в кольце цвета «принят»;
+   невыбранная притихает. Ни одна не красная: «нет» — не сбой. */
+.node.decision[data-branch] :is(.node-yes,.node-no){opacity:.35;color:var(--ink-dim);border-color:var(--line)}
+.node.decision[data-branch="yes"] .node-yes,.node.decision[data-branch="no"] .node-no{opacity:1;
+  color:var(--bg);background:var(--ink);border-color:var(--run);box-shadow:0 0 0 2px var(--run)}
+
+/* ── Шлюз: кольцо цвета состояния ─────────────────────────────── */
+.node.gateway[data-step]:not([data-step="none"]) .node-card{border-width:3px;border-color:var(--run);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--run) 16%,transparent),var(--shadow-1)}
+.node.node.gateway.selected[data-step] .node-card{border-color:var(--accent)}
+
+/* ── Стартер пройден: кольцо и середина цвета «принят», вместо ▶ — ✓ ── */
+.node.el.starter[data-step="accepted"] .node-card{border:3px solid var(--step-accepted) !important;
+  background:radial-gradient(circle at 50% 45%,
+    color-mix(in srgb,var(--step-accepted) 34%,var(--surface)) 0%,var(--surface) 78%) !important}
+.node.el.starter[data-step="accepted"] .node-title::before{content:'✓';color:var(--step-accepted)}
+.node.el.starter[data-step="accepted"] .node-inner::before{color:var(--step-accepted)}
+
+/* ── Движение: свечение по контуру своим цветом ─────────────────────
+   drop-shadow идёт по форме: одинаково у блока, стартера, шлюза и ромба (ромб
+   вырезан clip-path, тень карточки у него не видна). Вспышка перехода (очередь
+   показа, run/paint.js) — тем же цветом, что и новое состояние. */
+@keyframes runGlow{
+  from{filter:drop-shadow(0 0 2px color-mix(in srgb,var(--run) 55%,transparent))}
+  to{filter:drop-shadow(0 0 11px color-mix(in srgb,var(--run) 70%,transparent))}}
+@keyframes runWait{
+  0%,100%{filter:drop-shadow(0 0 0 transparent)}
+  50%{filter:drop-shadow(0 0 9px color-mix(in srgb,var(--run) 70%,transparent))}}
+@keyframes runCalm{
+  0%,100%{filter:drop-shadow(0 0 1px color-mix(in srgb,var(--run) 30%,transparent))}
+  50%{filter:drop-shadow(0 0 4px color-mix(in srgb,var(--run) 45%,transparent))}}
+/* Выдан — тихое медленное свечение; в работе — чаще; ждёт команды — редкий зов;
+   пауза — спокойное дыхание: звать некого, движок продолжит сам. */
+.node[data-step="issued"]{animation:runGlow 1.6s ease-in-out infinite alternate}
+.node[data-step="running"]{animation:runGlow .9s ease-in-out infinite alternate}
+.node[data-step="ready"]{animation:runWait 2s ease-in-out infinite}
+.node[data-step="ready"][data-wait="pause"]{animation:runCalm 3.2s ease-in-out infinite}
+/* Прогон не идёт (пауза, закрыт): «работа» и «ждёт» замирают — движется только живой прогон.
+   Состояние на месте: цвет, узор и значок остаются. */
+.canvas-wrap[data-run]:not([data-run="running"]) .node:is([data-step="issued"],[data-step="running"],[data-step="ready"]){animation:none}
+.canvas-wrap[data-run]:not([data-run="running"]) .layer-arrows .arrow.live{animation:none}
+.node[data-paint-flash]{animation:runGlow .45s ease-in-out infinite alternate}
+
+/* ── Стрелки: пройдена, бежит, жетон ждёт; «×N» — сколько раз прошли ──
+   Цвета те же, что у блоков: бежит — «в работе», пройдена — «принят»,
+   жетон лежит и ждёт — «ждёт команды». Правила с .layer-arrows сильнее
+   вида свёрнутой стрелки: состояние прогона важнее. */
+.layer-arrows .arrow.live{stroke:var(--step-running);stroke-width:3.5;stroke-dasharray:8 7;opacity:1;
+  animation:flow 1.4s linear infinite;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--step-running) 55%,transparent))}
+.layer-arrows .arrow.done{stroke:var(--step-accepted);stroke-width:2.6;opacity:.9}
+.layer-arrows .arrow.lit{stroke:var(--step-wait);stroke-width:3;stroke-dasharray:1.5 6;stroke-linecap:round;opacity:1}
+@keyframes flow{to{stroke-dashoffset:-26}}
+.arrow-pass{font:700 var(--label-size,11px)/1 var(--mono);fill:var(--step-accepted);
+  paint-order:stroke;stroke:var(--bg);stroke-width:var(--label-halo,3px);stroke-linejoin:round;
+  /* Размер — как у подписей стрелок: обратно масштабу (canvas/view.js), на экране
+     он один и тот же. С жёсткими 11px браузер перерисовывал буквы на каждом
+     дробном шаге масштаба — «×N» дрожал рядом с плавно растущей линией. */
+  text-rendering:geometricPrecision}
+body.no-labels .arrow-pass{display:none}
+
+/* ── Прогон на холсте: номер и состояние в углу ──────────────────
+   Какой прогон показан и идёт ли он — видно, не открывая панель. */
+/* Угол холста: плашка прогона и кнопка «Следить» в ряд. Пустое место угла щелчки пропускает на холст. */
+.run-corner{position:absolute;z-index:40;left:14px;top:12px;display:flex;align-items:center;gap:6px;pointer-events:none}
+.run-corner>*{pointer-events:auto}
+.run-chip{display:flex;align-items:center;gap:7px;
+  padding:4px 11px 4px 9px;border-radius:999px;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--run) 55%,var(--line));
+  background:color-mix(in srgb,var(--surface) 90%,transparent);
+  color:var(--ink);font:600 12px/1.3 var(--sans);box-shadow:var(--shadow-1)}
+.run-chip[hidden]{display:none}
+.run-chip b{font-family:var(--mono)}
+/* Коротко — значок и номер; слово состояния раскрывается при наведении, как у ярлыков. Щелчок прячет плашку. */
+.run-chip span{max-width:0;margin-left:-7px;overflow:hidden;white-space:nowrap;opacity:0;
+  transition:max-width .18s ease,margin-left .18s ease,opacity .18s ease}
+.run-chip:hover span{max-width:220px;margin-left:0;opacity:1}
+.run-chip i{font-style:normal;color:var(--run)}
+.run-chip[data-run="running"]{--run:var(--step-running)}
+.run-chip[data-run="paused"]{--run:var(--step-submitted)}
+.run-chip[data-run="stopped"]{--run:var(--step-cancelled)}
+.run-chip[data-run="done"]{--run:var(--step-accepted)}
+.run-chip[data-run="failed"]{--run:var(--step-failed)}
+.run-chip[data-run="running"] i{animation:run-live 1.6s ease-in-out infinite}
+/* «Следить за прогоном»: нажата — холст едет за открытым узлом (run/follow.js). */
+.run-follow{display:flex;align-items:center;gap:5px;padding:4px 11px 4px 9px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 90%,transparent);
+  color:var(--ink-dim);font:600 12px/1.3 var(--sans);box-shadow:var(--shadow-1)}
+.run-follow[hidden]{display:none}
+.run-follow i{font-style:normal}
+.run-follow[aria-pressed="true"]{color:var(--ink);border-color:color-mix(in srgb,var(--step-running) 55%,var(--line))}
+.run-follow[aria-pressed="true"] i{color:var(--step-running)}
+
+/* Движение по желанию человека: без анимаций остаются цвет, узор и значок. */
+@media (prefers-reduced-motion:reduce){
+  .node:is([data-step],[data-paint-flash]),.layer-arrows .arrow.live,.run-chip i{animation:none}}

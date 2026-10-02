@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{lang}}" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>{{t:editor.layout.title}}</title>
+<link rel="stylesheet" href="css/tokens.css?v={{version}}">
+<link rel="stylesheet" href="css/base.css?v={{version}}">
+<link rel="stylesheet" href="css/chrome.css?v={{version}}">
+<link rel="stylesheet" href="css/canvas.css?v={{version}}">
+<link rel="stylesheet" href="css/elements.css?v={{version}}">
+<link rel="stylesheet" href="css/panel.css?v={{version}}">
+<link rel="stylesheet" href="css/run.css?v={{version}}">
+<link rel="stylesheet" href="css/looks.css?v={{version}}">
+<link rel="stylesheet" href="css/classic.css?v={{version}}">
+<link rel="stylesheet" href="css/ui-variants.css?v={{version}}">
+<link rel="stylesheet" href="css/timeline.css?v={{version}}">
+<link rel="stylesheet" href="css/studio.css?v={{version}}">
+<link rel="stylesheet" href="css/projection.css?v={{version}}">
+<link rel="stylesheet" href="css/mobile.css?v={{version}}">
+{{i18n}}
+{{defaults}}
+<script type="importmap">{{importmap}}</script>
+</head>
+<body class="{{bodyclass}}">
+<!-- Записка агенту ИИ (lib/web/page.php → agentNote): скрыта от человека, видна тому, кто читает страницу текстом. -->
+{{agentnote}}
+<!-- Мобильный скин ставим до первой отрисовки: иначе телефон на миг покажет
+     компьютерную раскладку. Правило то же, что currentLook() в canvas/looks.js. -->
+<script>
+  try {
+    var look = localStorage.getItem('goblin-look');
+    if (look === 'mobile' || (!look && matchMedia('(pointer: coarse)').matches)) document.body.dataset.look = 'mobile';
+  } catch (e) {}
+</script>
+{{topbar}}
+<main class="workspace">
+  {{left}}
+  {{canvas}}
+  {{panel}}
+</main>
+<!-- Ярлычки боковых плашек: стоят на уровне кнопок масштаба и прячут
+     рейку слева и панель справа. -->
+<button class="side-toggle side-left" id="side-left" title="{{t:editor.layout.hide_left}}">‹</button>
+<button class="side-toggle side-right" id="side-right" title="{{t:editor.layout.hide_right}}">›</button>
+{{runbar}}
+{{dialogs}}
+<script type="module" src="src/main.js?v={{version}}"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "server.props.start_values": "start is a flag: true or false",
+  "server.timeline.lead": "lead",
+  "server.timeline.worker": "worker",
+  "server.timeline.jev": "Jev",
+  "server.timeline.engine": "engine"
+}

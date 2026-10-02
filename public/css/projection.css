@@ -1,0 +1,59 @@
+/* Объёмная ортографическая проекция. Плоский вид не затрагивается. */
+.node-solid,.iso-overlay,.iso-tools{display:none}
+body.iso .node-solid{display:block;position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+body.iso .node-solid *{pointer-events:none}
+body.iso .node-solid .iso-face{stroke:none;
+  fill:color-mix(in srgb,var(--card-edge,var(--surface-2)) 25%,var(--surface))}
+body.iso .node-solid .iso-face-front{fill:color-mix(in srgb,var(--card-edge,var(--surface-2)) 12%,var(--bg))}
+body.iso .node-solid .iso-solid-outline{fill:none;stroke:color-mix(in srgb,var(--card-edge,var(--ink-faint)) 48%,var(--surface));stroke-width:1}
+body.iso .node-solid .iso-ground{fill:#000;fill-opacity:var(--iso-shadow-alpha,.2);stroke:none;filter:blur(var(--iso-shadow-blur,2px))}
+body.iso .node-solid .iso-pillar{stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:4 4;fill:none}
+body.iso .node-inner{transform:none}
+body.iso .node.below-ground{opacity:.25}
+body.iso .node.below-ground.selected{opacity:.4}
+body.iso .node-card::after{content:"";position:absolute;inset:0;z-index:3;border-radius:inherit;
+  background:rgba(0,0,0,var(--iso-distance-shade,0));pointer-events:none}
+body.iso .node.selected .node-card::after{background:transparent}
+body.iso .node-solid .iso-face{filter:brightness(calc(1 - var(--iso-distance-shade,0)))}
+body.iso .node .node-title{background:color-mix(in srgb,var(--surface) 94%,transparent);
+  color:var(--card-ink,var(--ink));text-shadow:none}
+body.iso .node .node-desc{background:color-mix(in srgb,var(--surface) 88%,transparent);text-shadow:none}
+body.iso .node.area .node-title{background:color-mix(in srgb,var(--surface) 88%,transparent);
+  color:var(--ink-dim);font-size:24px;border-radius:8px}
+body.iso .node.decision .node-title{background:var(--surface);border-radius:6px}
+body.iso .node.node.has-image .node-inner .node-title{background:var(--surface);color:var(--ink)}
+body.iso .node.node.has-image .node-inner .node-desc{background:color-mix(in srgb,var(--surface) 94%,transparent);color:var(--ink-dim)}
+body.iso .node-grip{display:block}
+body.iso .node.node.selected .node-card{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 40%,transparent)}
+body.iso .layer-arrows{z-index:100000}
+body.iso .arrow-label-plate{display:inline;fill:var(--surface-2);stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+body.iso .arrow-label{stroke:none;fill:var(--ink)}
+body.iso.no-labels .arrow-label-plate{display:none}
+/* Две смещённые решётки дают точки на наклонённой плоскости X/Y. */
+body.iso .canvas-wrap{background:linear-gradient(180deg,
+  color-mix(in srgb,var(--bg) 92%,var(--ink-dim)) 0%,var(--bg) 55%,color-mix(in srgb,var(--bg) 92%,#000) 100%)}
+body.iso .canvas-wrap::before{
+  background-image:radial-gradient(circle at 1px 1px,var(--grid-ink) var(--studio-dot,var(--grid-dot)),transparent 0),
+    radial-gradient(circle at 1px 1px,var(--grid-ink) var(--studio-dot,var(--grid-dot)),transparent 0);
+  background-size:var(--grid-step-x) var(--grid-step-y);
+  background-position:var(--iso-grid-x) var(--iso-grid-y),
+    calc(var(--iso-grid-x) + var(--grid-step-x)/2) calc(var(--iso-grid-y) + var(--grid-step-y)/2);
+}
+body.iso .iso-overlay{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:100001;overflow:visible;pointer-events:none}
+body.iso .iso-tools{display:flex;gap:3px;position:absolute;left:14px;top:14px;z-index:100002;
+  padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow-1)}
+.iso-tools .btn{height:28px;font-size:11px;border-color:transparent}
+.iso-tools .btn.on{background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--accent)}
+.iso-axis{--axis:#ef8e8e}
+.iso-axis-y{--axis:#82cfa7}
+.iso-axis-z{--axis:#92b8f0}
+.iso-axis-hit{fill:none;stroke:transparent;stroke-width:18;pointer-events:stroke;cursor:grab}
+.iso-axis-line{fill:none;stroke:var(--axis);stroke-width:2;pointer-events:none}
+.iso-axis-knob{fill:var(--surface);stroke:var(--axis);stroke-width:2;pointer-events:all;cursor:grab}
+.iso-axis-label{fill:var(--axis);font:600 11px var(--sans);text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+.iso-axis:hover .iso-axis-knob,.iso-axis.active .iso-axis-knob{fill:color-mix(in srgb,var(--axis) 24%,var(--surface))}
+.iso-overlay.dragging .iso-axis:not(.active){opacity:.3}
+.iso-overlay.dragging .iso-axis-knob{cursor:grabbing}
+.iso-readout{pointer-events:none}
+.iso-readout rect{fill:var(--surface);stroke:var(--line)}
+.iso-readout text{fill:var(--ink);text-anchor:middle;dominant-baseline:middle;font:11px var(--mono)}
