@@ -1,4 +1,12 @@
-# Goblin — flowchart workflows run by AI agents
+<p align="center"><img src="docs/banner.png" alt="GOBL(in) Workflow: visual flowchart workflows run by AI agents" width="100%"></p>
+
+# GOBL(in) Workflow — draw a flowchart, let AI coding agents run it
+
+![PHP 8.1+](https://img.shields.io/badge/PHP-8.1+-777BB4?logo=php&logoColor=white) ![database SQLite %7C MySQL](https://img.shields.io/badge/database-SQLite%20%7C%20MySQL-003B57?logo=sqlite&logoColor=white) ![agents Claude Code %7C Codex %7C Gemini CLI](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20CLI-c4402f) [![license MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE) [![GitHub stars](https://img.shields.io/github/stars/goblin-red/Workflow?style=social)](https://github.com/goblin-red/Workflow/stargazers)
+
+**Plan a project as a flowchart and let AI coding agents execute it block by block.** Give the run link to Claude Code, Codex, Gemini CLI or Cursor: the server hands out one task at a time, checks every result and follows the arrows — branches, loops and parallel paths included — while you watch the run live on the canvas. Multi-agent orchestration with a lead and workers, an AI assistant, 26 ready-made schemes. Self-hosted, plain PHP.
+
+<p align="center"><img src="docs/wf-agent-roles-and-team.jpg" alt="A lead agent and worker agents running a flowchart" width="80%"></p>
 
 **beta v0.95** · MIT license
 
@@ -117,6 +125,32 @@ sql/           schema for MySQL and SQLite, migrations, catalog of ready-made sc
 bin/server.php command line: install, serve, migrate, backup, release
 md_backend/    developer documentation
 ```
+
+## FAQ
+
+**Which AI agents can run a workflow?**
+Any coding agent that can read a URL and make HTTP requests: Claude Code, Codex, Gemini CLI, Cursor and others. Each block can have its own agent and model.
+
+**Can I self-host it?**
+Yes. It is plain PHP 8.1+ with SQLite or MySQL — run it on your computer or on ordinary shared hosting. Or use the hosted editor at [goblin.red](https://goblin.red).
+
+**Is it free?**
+Yes, MIT-licensed. You bring your own agent subscription or API key.
+
+## More GOBL(in) apps
+
+Free and open source, from the makers of [GOBL(in)](https://goblin.red):
+
+| App | What it does |
+| --- | --- |
+| [GOBL(in) Remote](https://github.com/goblin-red/Goblin-Remote) | self-hosted remote desktop for macOS in any browser, over cheap PHP hosting |
+| [GOBL(in) Voice](https://github.com/goblin-red/Orca-Voice) | voice control and dictation for Claude Code, Codex and Orca on macOS |
+| [GOBL(in) Session Viewer](https://github.com/goblin-red/Session-Viewer) | every Claude Code, Codex, Grok and OpenCode session in one window |
+| [GOBL(in) Drag & Taskbar](https://github.com/goblin-red/Drag-and-Taskbar) | move windows with trackpad gestures, a real taskbar and Alt-Tab for macOS |
+| [GOBL(in) Convert](https://github.com/goblin-red/Photo-Convert) | fast batch JPEG converter and photo resizer for macOS |
+
+If this project is useful to you, please ⭐ star it — it helps other people find it.
+
 
 ## License
 
